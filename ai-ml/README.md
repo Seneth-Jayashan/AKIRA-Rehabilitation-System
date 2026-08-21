@@ -25,7 +25,8 @@ source venv/bin/activate
 
 # Run the preprocessing script
 # This reads from data/raw/ and writes to data/processed/
-python src/preprocess.py
+cd src
+python preprocess.py
 ```
 
 ## 3. Training the Models
@@ -33,13 +34,14 @@ python src/preprocess.py
 
 ```bash
 # Train Model 1: Exercise Recognition (Squat vs Leg Extension vs Walk)
-python src/train_model.py
+cd src
+python train_model.py
 
 # Train Model 2: Binary Compensation Detection (Correct vs Incorrect)
-python src/train_compensation_model.py
+python train_compensation_model.py
 
 # Train Model 3: Multi-Class Compensation Diagnosis (e.g. Weight Transfer)
-python src/train_multiclass_compensation_model.py
+python train_multiclass_compensation_model.py
 ```
 
 *Note: The models will automatically save themselves into the `models/` directory upon completion.*
