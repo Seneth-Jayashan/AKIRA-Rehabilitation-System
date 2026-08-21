@@ -13,7 +13,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.regularizers import l2
 import matplotlib.pyplot as plt
 
-DATA_DIR = "../data/processed"
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed")
 WINDOW_SIZE = 100 # 2 seconds at 50 Hz
 STEP_SIZE = 50    # 50% overlap
 

@@ -90,3 +90,21 @@ All models utilize 1D Convolutional Neural Networks (CNN) to process the windowe
 - **Compilation:** Adam optimizer (learning rate = 0.001), Sparse Categorical Crossentropy loss.
 - **Training Setup:** 100 Epochs (max), Batch Size of 32.
 - **Advanced Techniques:** Uses class weighting to handle data imbalance. Incorporates `EarlyStopping` (patience of 15) to prevent overfitting, and `ReduceLROnPlateau` to decrease the learning rate when validation loss plateaus.
+
+## 5. Visualizing the Models
+
+You can generate PNG images of the 1D CNN architectures using the visualization script provided. This requires `graphviz` to be installed on your system.
+
+```bash
+# First, ensure you have the system dependencies (Linux example)
+sudo apt-get install graphviz
+
+# Ensure you have the python libraries (pydot, graphviz)
+pip install -r requirements.txt
+
+# Run the visualization script
+cd visualization
+python visualize_models.py
+```
+
+The model architecture diagrams will be saved in the `visualization/output/` directory.

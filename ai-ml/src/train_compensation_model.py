@@ -10,7 +10,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv1D, MaxPooling1D, Flatten, Dense, Dropout, concatenate
 import matplotlib.pyplot as plt
 
-DATA_DIR = "../data/processed"
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed")
 WINDOW_SIZE = 100 # 2 seconds at 50 Hz
 STEP_SIZE = 50    # 50% overlap
 

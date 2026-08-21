@@ -185,3 +185,6 @@ urllib3==2.7.0
 visualization-msgs==5.3.8
 wheel==0.48.0
 wrapt==2.3.0
+pydot==3.0.4
+graphviz==0.20.3
+streamlit
