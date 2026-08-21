@@ -16,8 +16,23 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Generating Processed Data
+## 2. Data Pipelines & Datasets
 
+### Raw Datasets
+The preprocessing script ingests four public datasets:
+1. **KneE-PAD Dataset:** Contains labeled IMU data for Squats, Leg Extensions, and Walking. Crucial for this project as it includes specific labels for postural compensations (e.g., Squat Weight Transfer, Leg Extension Lift, Walk Hip Abduction) and the subject's age.
+2. **PHYTMO Dataset:** Contains general lower-limb movement data during gait and physical therapy.
+3. **Physical Therapy Exercises Dataset:** Contains generic IMU templates and test data for various exercises.
+4. **10m Walk Test Dataset:** Contains accelerometer and gyroscope data from patients performing a 10-meter walk test.
+
+### Preprocessing Pipeline
+To create a unified, robust training set, `preprocess.py` performs the following steps:
+1. **Data Standardization:** Reads diverse file formats (Numpy, CSV, TXT), handles different IMU orientations, and converts units (e.g., accelerations to `g`, gyroscope to `deg/s`).
+2. **Resampling:** Since the source datasets were recorded at different frequencies (e.g., 25Hz, 148Hz), all data is interpolated and resampled to a uniform **50 Hz** (target `dt` of 0.02s).
+3. **Metadata Alignment:** Extracts subject ID, age, and normalizes activity labels into consistent categories (Squat, Leg Extension, Walking). Maps specific compensation classes into standard formats.
+4. **CSV Export:** Saves the standardized data into `data/processed/` with uniform columns: `timestamp, dataset_name, subject_id, age, activity_label, correct_label, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z`.
+
+To run the data ingestion pipeline:
 
 ```bash
 # Make sure your virtual environment is active first
@@ -48,7 +63,14 @@ python train_multiclass_compensation_model.py
 
 ## 4. Model Details & Training Procedures
 
-All models utilize 1D Convolutional Neural Networks (CNN) to process the overlapping windowed time-series IMU data (accelerometer and gyroscope). The patient's `age` is concatenated with the flattened CNN features before the final dense layers to provide demographic context.
+### Machine Learning Pipeline
+Before training, the time-series data undergoes a final transformation pipeline:
+1. **Windowing:** The continuous IMU streams are sliced into fixed-size windows of **100 samples** (representing 2 seconds at 50 Hz). A step size of 50 samples is used to create a **50% overlap** between consecutive windows, which helps augment the data and capture movements across boundaries.
+2. **Subject-Aware Splitting:** To prevent data leakage (where the model memorizes a specific person's movement rather than the general exercise form), the data is split into Train/Validation/Test sets based on `subject_id` rather than random window shuffling. This ensures the Test Set accuracy represents the model's performance on *completely unseen* patients.
+3. **Feature Scaling:** Age is imputed with the mean for missing values and standardized using `StandardScaler` to improve gradient flow.
+
+### Architectures
+All models utilize 1D Convolutional Neural Networks (CNN) to process the windowed IMU data (6 channels: accelerometer and gyroscope). The patient's `age` is concatenated with the flattened CNN features before the final dense layers to provide demographic context.
 
 ### Model 1: Exercise Recognition
 - **Goal:** Classifies the exercise being performed (Squat, Leg Extension, Walking, Other Rehab).
