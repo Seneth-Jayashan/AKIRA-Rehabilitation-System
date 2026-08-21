@@ -108,3 +108,23 @@ python visualize_models.py
 ```
 
 The model architecture diagrams will be saved in the `visualization/output/` directory.
+
+## 6. Model Evaluation Dashboard (Streamlit)
+
+AKIRA AI features a highly advanced, premium interactive dashboard to evaluate the trained neural networks in a modern, cyber-clinical telemetry console style.
+
+### Running the Dashboard
+To launch the evaluation interface, ensure you are in the virtual environment and run:
+```bash
+streamlit run app.py
+```
+
+### Dashboard Features & Architecture
+
+- **Premium AI Interface:** Built with a glassmorphism aesthetic, dynamic glowing background gradients, cyber-neon colors (cyan and purple), and an animated IMU telemetry waveform. 
+- **Strict Data Isolation (Patient-Held-Out Test Set):** The true metric of a rehabilitation model is how it performs on *unseen patients*. The dashboard dynamically reconstructs the exact test set by utilizing the identical `Subject-Aware Split` logic and random seeds (`random_state=42`) used during model training. This guarantees that **no patient in the test set was ever seen by the model during training**, providing a mathematically honest evaluation.
+- **Dynamic Neural Inference:** The app loads the trained `.keras` weights and directly applies standard scaling and inference over the unseen patient windows.
+- **Visual Diagnostics:** 
+  - Generates a **Neon Confusion Matrix** allowing developers to see exact false positives and misclassifications (e.g., misdiagnosing a Walk as a Squat).
+  - Generates a highly detailed **Classification Report** (Precision, Recall, F1-Score) formatted to match the glowing cyberpunk UI.
+  - Highlights top-line metrics: **Test Accuracy**, **Unseen Patients Analyzed**, and **Total Windows Analyzed**.

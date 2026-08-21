@@ -15,227 +15,223 @@ import tensorflow as tf
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 st.set_page_config(
-    page_title="AKIRA AI — Model Evaluation",
-    page_icon="◈",
+    page_title="AKIRA AI | Advanced Neural Evaluation",
+    page_icon="✨",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # =================================================================
-# THEME — clinical telemetry console, built around the IMU signal
-# that AKIRA actually reads: ink background, signal-teal for
-# healthy/correct readings, coral for flagged/incorrect ones,
-# monospace for anything that is literally a number off a sensor.
+# PREMIUM AI THEME
+# High-end glassmorphism, glowing gradients, futuristic typography.
 # =================================================================
-INK = "#080B12"
-PANEL = "#0E131E"
-LINE = "rgba(255,255,255,0.08)"
-TEAL = "#4CE0D2"
-TEAL_DIM = "rgba(76,224,210,0.35)"
-CORAL = "#FF7A59"
-VIOLET = "#8B7CF6"
-TEXT = "#E9ECF5"
-MUTED = "#8B92B0"
-
-st.markdown(f"""
+st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
-html, body, [class*="css"] {{
-    font-family: 'Inter', sans-serif;
-}}
-h1, h2, h3, h4 {{ font-family: 'Space Grotesk', sans-serif !important; }}
-code, .mono {{ font-family: 'JetBrains Mono', monospace !important; }}
+/* Base Styles */
+html, body, [class*="css"] {
+    font-family: 'Outfit', sans-serif;
+}
 
-.stApp {{
-    background:
-        radial-gradient(circle at 12% 0%, rgba(76,224,210,0.06) 0%, transparent 45%),
-        radial-gradient(circle at 90% 15%, rgba(139,124,246,0.05) 0%, transparent 40%),
-        {INK};
-}}
-#MainMenu {{visibility: hidden;}}
-footer {{visibility: hidden;}}
-header[data-testid="stHeader"] {{ background: transparent; }}
+/* Dynamic Animated Background */
+.stApp {
+    background-color: #030303;
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(112, 0, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(0, 240, 255, 0.08) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: #FFFFFF;
+}
 
-section[data-testid="stSidebar"] {{
-    background: {PANEL};
-    border-right: 1px solid {LINE};
-}}
-section[data-testid="stSidebar"] * {{ color: {TEXT} !important; }}
-section[data-testid="stSidebar"] label {{ color: {MUTED} !important; }}
+/* Hide Default Streamlit Elements */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header[data-testid="stHeader"] { background: transparent !important; }
 
-/* ---------- Hero ---------- */
-.akira-eyebrow {{
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 3px;
-    color: {TEAL};
-    text-transform: uppercase;
-    margin: 0 0 10px 0;
-}}
-.akira-title {{
-    font-size: 46px;
-    font-weight: 700;
-    color: {TEXT};
-    margin: 0;
-    letter-spacing: -0.5px;
-    line-height: 1.05;
-}}
-.akira-title span {{ color: {TEAL}; }}
-.akira-sub {{
-    color: {MUTED};
-    font-size: 15px;
-    margin-top: 10px;
-    max-width: 560px;
-}}
-.akira-hero {{
-    background: {PANEL};
-    border: 1px solid {LINE};
-    border-radius: 10px;
-    padding: 30px 34px 0 34px;
-    margin-bottom: 26px;
+/* Sidebar styling (Glassmorphism) */
+section[data-testid="stSidebar"] {
+    background: rgba(10, 10, 12, 0.6) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(255,255,255,0.05) !important;
+}
+section[data-testid="stSidebar"] * {
+    color: #E2E8F0 !important;
+}
+
+/* AKIRA AI LOGO IN HERO */
+.hero-container {
+    padding: 3rem 2rem;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
     overflow: hidden;
-}}
-.waveform-wrap {{ margin: 22px -4px 0 -4px; opacity: 0.9; }}
-.waveform-wrap svg {{ display: block; width: 100%; height: 46px; }}
-.wf-trace {{
-    fill: none;
-    stroke: {TEAL_DIM};
-    stroke-width: 1.4;
-}}
-.wf-pulse {{
-    fill: none;
-    stroke: {TEAL};
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-dasharray: 90 900;
-    animation: wf-scan 5.5s linear infinite;
-    filter: drop-shadow(0 0 4px rgba(76,224,210,0.6));
-}}
-@keyframes wf-scan {{
-    0%   {{ stroke-dashoffset: 0; }}
-    100% {{ stroke-dashoffset: -990; }}
-}}
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
 
-/* ---------- Cards / panels ---------- */
-.akira-panel {{
-    background: {PANEL};
-    border: 1px solid {LINE};
-    border-radius: 10px;
-    padding: 18px 20px;
-}}
-.model-desc {{
-    font-size: 13px;
-    color: {MUTED};
-    line-height: 1.5;
-    margin-top: 6px;
-}}
-.model-tag {{
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: {TEAL};
-    border: 1px solid {TEAL_DIM};
-    border-radius: 4px;
-    padding: 3px 8px;
-    margin-top: 12px;
-}}
+.hero-container::before {
+    content: "";
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle at center, rgba(0, 240, 255, 0.1) 0%, transparent 40%);
+    animation: rotate 20s linear infinite;
+    pointer-events: none;
+}
 
-/* ---------- Metric readouts ---------- */
-.readout {{
-    background: {PANEL};
-    border: 1px solid {LINE};
-    border-top: 2px solid {TEAL};
-    border-radius: 8px;
-    padding: 16px 18px;
-    text-align: left;
-}}
-.readout-value {{
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 30px;
-    font-weight: 600;
-    color: {TEXT};
-    line-height: 1;
-}}
-.readout-label {{
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: {MUTED};
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-top: 8px;
-}}
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
-/* ---------- Buttons ---------- */
-.stButton > button {{
-    background: {TEAL};
-    color: {INK};
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 600;
-    font-size: 13px;
-    letter-spacing: 0.5px;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    transition: box-shadow 0.15s ease;
-}}
-.stButton > button:hover {{
-    box-shadow: 0 0 0 3px rgba(76,224,210,0.25);
-    color: {INK};
-}}
+.akira-logo {
+    font-size: 5rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    margin: 0;
+    background: linear-gradient(135deg, #00F0FF 0%, #7000FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0px 0px 10px rgba(0, 240, 255, 0.3));
+}
 
-/* ---------- Misc form elements ---------- */
-div[data-baseweb="select"] > div {{
-    background-color: {PANEL} !important;
-    border-color: {LINE} !important;
-    color: {TEXT} !important;
-}}
-.stDataFrame {{ border-radius: 8px; overflow: hidden; border: 1px solid {LINE}; }}
-hr {{ border-color: {LINE} !important; }}
-
-.section-label {{
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+.akira-tagline {
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: #94A3B8;
+    margin-top: -10px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: {MUTED};
-    margin-bottom: 4px;
-}}
+}
+
+/* Glass Panels */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+.glass-panel:hover {
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.glass-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #00F0FF;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.glass-text {
+    font-size: 0.95rem;
+    color: #CBD5E1;
+    line-height: 1.6;
+}
+
+/* Readouts (Metrics) */
+.metric-box {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.metric-box::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #00F0FF, transparent);
+}
+.metric-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+.metric-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+}
+
+/* Button Customization */
+.stButton > button {
+    background: linear-gradient(90deg, #00F0FF 0%, #7000FF 100%) !important;
+    color: white !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 2rem !important;
+    width: 100%;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(112, 0, 255, 0.4) !important;
+}
+.stButton > button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 25px rgba(0, 240, 255, 0.5) !important;
+}
+
+/* Select Box */
+div[data-baseweb="select"] > div {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    color: white !important;
+}
+
+hr {
+    border-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Dataframe Styling */
+.stDataFrame {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.section-header {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(90deg, #FFFFFF 0%, #94A3B8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
 
-def waveform_svg():
-    """A small animated IMU-style trace — the literal signal AKIRA reads,
-    used as the page's one signature visual instead of a generic gradient."""
-    pts = "M0,23 L20,23 L28,8 L36,38 L44,14 L52,30 L60,23 L80,23 " \
-          "L100,23 L108,10 L116,36 L124,16 L132,28 L140,23 L160,23 " \
-          "L180,23 L188,8 L196,38 L204,14 L212,30 L220,23 L240,23 " \
-          "L260,23 L268,10 L276,36 L284,16 L292,28 L300,23 L340,23"
-    return f"""
-    <div class="waveform-wrap">
-        <svg viewBox="0 0 340 46" preserveAspectRatio="none">
-            <path class="wf-trace" d="{pts}"></path>
-            <path class="wf-pulse" d="{pts}"></path>
-        </svg>
-    </div>
-    """
-
-
 # =================================================================
-# HERO
+# HERO SECTION
 # =================================================================
 st.markdown(f"""
-<div class="akira-hero">
-    <p class="akira-eyebrow">◈ Rehabilitation Motion Intelligence</p>
-    <p class="akira-title">AKIRA <span>AI</span></p>
-    <p class="akira-sub">Model evaluation console. Runs each trained network against a
-    patient-held-out test split — subjects the model has never seen during training —
-    to report honest, generalizable accuracy.</p>
-    {waveform_svg()}
+<div class="hero-container">
+    <h1 class="akira-logo">AKIRA AI</h1>
+    <p class="akira-tagline">Advanced Neural Network Evaluation Console</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 # =================================================================
 # MODEL CONFIGURATION
@@ -244,14 +240,14 @@ MODELS = {
     "Exercise Recognition": {
         "path": "models/exercise_recognition_model.keras",
         "type": "multiclass",
-        "tag": "MULTICLASS · 4 CH",
+        "tag": "MULTICLASS · IMU · 4 CH",
         "description": "Classifies the exercise being performed — Squat, Leg Extension, Walking, or Other Rehab.",
     },
     "Binary Compensation Detection": {
         "path": "models/compensation_detection_model.keras",
         "type": "binary",
         "tag": "BINARY · PASS/FAIL",
-        "description": "Detects whether exercise form is Correct or Incorrect.",
+        "description": "Detects whether the patient's exercise form is Correct or Incorrect.",
     },
     "Multi-Class Compensation Diagnosis": {
         "path": "models/multiclass_compensation_model.keras",
@@ -262,29 +258,36 @@ MODELS = {
 }
 
 with st.sidebar:
-    st.markdown('<p class="akira-eyebrow">◈ AKIRA AI</p>', unsafe_allow_html=True)
-    st.markdown("#### Select Model")
+    st.markdown('<h2 style="color: #00F0FF; font-weight: 800; text-align: center; margin-bottom: 2rem;">◈ AKIRA AI</h2>', unsafe_allow_html=True)
+    
+    st.markdown("<p style='color:#94A3B8; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;'>Select Neural Network</p>", unsafe_allow_html=True)
     model_selection = st.selectbox(
         "Select Model to Evaluate", list(MODELS.keys()), label_visibility="collapsed"
     )
     config = MODELS[model_selection]
+    
     st.markdown(f"""
-    <div class="akira-panel" style="margin-top:14px;">
-        <div class="section-label">Objective</div>
-        <p class="model-desc">{config['description']}</p>
-        <span class="model-tag">{config['tag']}</span>
+    <div class="glass-panel" style="margin-top: 2rem;">
+        <div class="glass-title">Active Model</div>
+        <div class="glass-text" style="color:#00F0FF; font-weight: 600; font-size: 0.8rem; margin-bottom: 0.5rem;">{config['tag']}</div>
+        <div class="glass-text">{config['description']}</div>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
+    
     st.markdown(
-        '<p style="color:#8B92B0; font-size:12px;">Evaluation uses the same '
-        'subject-aware split and random seed as training, so no test-set patient '
-        'ever appears in the training data.</p>',
+        """
+        <div style="margin-top: 2rem; padding: 1rem; border-radius: 8px; background: rgba(0, 240, 255, 0.05); border-left: 3px solid #00F0FF;">
+            <p style="color:#CBD5E1; font-size:0.8rem; margin:0;">
+                <b>Strict Evaluation:</b> Test split utilizes a rigid subject-aware isolation approach. 
+                Test patients have never been exposed to the model during training.
+            </p>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
 
-@st.cache_data(show_spinner="Reconstructing patient-held-out test set…")
+@st.cache_data(show_spinner="Initializing data pipelines and reconstructing held-out tensors…")
 def get_test_data(model_name):
     if model_name == "Exercise Recognition":
         from train_model import load_data
@@ -324,25 +327,24 @@ def get_test_data(model_name):
 
     return X_imu_test, X_age_test_scaled, y_test, le.classes_, len(test_subs)
 
-
 # =================================================================
 # RUN
 # =================================================================
-run = st.button(f"▸ Run Evaluation — {model_selection}")
+run = st.button(f"INITIALIZE INFERENCE  //  {model_selection.upper()}")
 
 if run:
     model_path = config['path']
     if not os.path.exists(model_path):
-        st.error(f"Model file not found at `{model_path}`. Please train the model first.")
+        st.error(f"Neural network weights not found at `{model_path}`. Train the model before evaluation.")
     else:
-        with st.spinner("Reconstructing test set…"):
+        with st.spinner("Reconstructing test set tensors…"):
             try:
                 X_imu_test, X_age_test, y_test, class_names, test_patient_count = get_test_data(model_selection)
             except Exception as e:
-                st.error(f"Error loading data: {e}")
+                st.error(f"Pipeline Exception: {e}")
                 st.stop()
 
-        with st.spinner("Running inference…"):
+        with st.spinner("Executing neural inference…"):
             model = tf.keras.models.load_model(model_path)
             y_pred_prob = model.predict({'imu_input': X_imu_test, 'age_input': X_age_test})
 
@@ -354,74 +356,84 @@ if run:
             acc = accuracy_score(y_test, y_pred_classes)
 
         # ---------------- Readouts ----------------
-        st.markdown('<p class="section-label" style="margin-top:6px;">Results</p>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Performance Metrics</div>', unsafe_allow_html=True)
         c1, c2, c3 = st.columns(3)
         with c1:
             st.markdown(f"""
-            <div class="readout">
-                <div class="readout-value">{acc * 100:.2f}%</div>
-                <div class="readout-label">Test Accuracy</div>
+            <div class="metric-box">
+                <div class="metric-value">{acc * 100:.2f}<span style="font-size:1.5rem; color:#00F0FF;">%</span></div>
+                <div class="metric-label">Evaluation Accuracy</div>
             </div>""", unsafe_allow_html=True)
         with c2:
             st.markdown(f"""
-            <div class="readout">
-                <div class="readout-value">{test_patient_count}</div>
-                <div class="readout-label">Unseen Test Patients</div>
+            <div class="metric-box">
+                <div class="metric-value">{test_patient_count}</div>
+                <div class="metric-label">Unseen Patients</div>
             </div>""", unsafe_allow_html=True)
         with c3:
             st.markdown(f"""
-            <div class="readout">
-                <div class="readout-value">{len(y_test)}</div>
-                <div class="readout-label">Total Test Windows</div>
+            <div class="metric-box">
+                <div class="metric-value">{len(y_test):,}</div>
+                <div class="metric-label">Analyzed Windows</div>
             </div>""", unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
         vcol1, vcol2 = st.columns([1, 1])
 
         # ---------------- Confusion matrix ----------------
         with vcol1:
-            st.markdown('<p class="section-label">Confusion Matrix</p>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">Confusion Matrix</div>', unsafe_allow_html=True)
+            
+            # Custom Cyber Neon Colormap
             akira_cmap = LinearSegmentedColormap.from_list(
-                "akira_signal", ["#0E131E", "#123B3A", "#1F6F68", TEAL]
+                "akira_neon", ["#030303", "#120a30", "#3700b3", "#7000FF", "#00F0FF"]
             )
+            
             fig, ax = plt.subplots(figsize=(7, 5.4))
-            fig.patch.set_facecolor(INK)
-            ax.set_facecolor(INK)
+            fig.patch.set_facecolor('#030303')
+            ax.set_facecolor('#030303')
+            
             cm = confusion_matrix(y_test, y_pred_classes)
             sns.heatmap(
                 cm, annot=True, fmt='d', cmap=akira_cmap, cbar=False,
                 xticklabels=class_names, yticklabels=class_names,
-                annot_kws={"color": "#E9ECF5", "fontsize": 11, "fontfamily": "monospace"},
-                linewidths=1, linecolor=INK, ax=ax,
+                annot_kws={"color": "#FFFFFF", "fontsize": 12, "fontfamily": "monospace", "fontweight": "bold"},
+                linewidths=2, linecolor='#030303', ax=ax,
             )
-            ax.set_ylabel('Actual', color=MUTED, fontsize=11)
-            ax.set_xlabel('Predicted', color=MUTED, fontsize=11)
-            ax.tick_params(colors=MUTED, labelsize=9)
+            ax.set_ylabel('Actual Label', color='#94A3B8', fontsize=11, fontweight='bold')
+            ax.set_xlabel('Predicted Label', color='#94A3B8', fontsize=11, fontweight='bold')
+            ax.tick_params(colors='#CBD5E1', labelsize=10)
             plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
             for spine in ax.spines.values():
                 spine.set_visible(False)
             fig.tight_layout()
+            
             st.pyplot(fig)
 
         # ---------------- Classification report ----------------
         with vcol2:
-            st.markdown('<p class="section-label">Classification Report</p>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">Classification Report</div>', unsafe_allow_html=True)
             report = classification_report(
                 y_test, y_pred_classes, target_names=class_names,
                 output_dict=True, zero_division=0
             )
             df_report = pd.DataFrame(report).transpose()
+            
             report_cmap = LinearSegmentedColormap.from_list(
-                "akira_report", ["#0E131E", "#123B3A", "#1F6F68", TEAL]
+                "akira_report", ["#030303", "#120a30", "#3700b3", "#7000FF", "#00F0FF"]
             )
+            
             styled = (
                 df_report.style
                 .format("{:.3f}")
                 .background_gradient(cmap=report_cmap, subset=['f1-score'])
                 .set_properties(**{
                     'font-family': 'JetBrains Mono, monospace',
-                    'font-size': '12.5px',
+                    'font-size': '13px',
+                    'color': '#FFFFFF',
+                    'background-color': '#0A0A0C',
+                    'border-color': 'rgba(255,255,255,0.05)'
                 })
             )
-            st.dataframe(styled, use_container_width=True)
+            st.dataframe(styled, width='stretch')
