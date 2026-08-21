@@ -2,4 +2,6 @@
 /docs
 /venv
 /.ipynb_checkpoints
-/_pycache__
+/__pycache__
+/*.pyc
+/models
