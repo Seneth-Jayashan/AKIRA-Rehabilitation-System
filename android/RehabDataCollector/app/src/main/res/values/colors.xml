@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="clinical_blue">#1D6FA5</color>
+    <color name="clinical_teal">#0F9B8E</color>
+    <color name="background">#F5F7FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="alert_red">#D64550</color>
+    <color name="warning_amber">#E8A33D</color>
+    <color name="success_green">#3FA34D</color>
+</resources>
