@@ -160,8 +160,6 @@ bool readMPU6500() {
   gz = rawGz / 131.0;
 
   return true;
-}
-
 // =====================================
 // OLED DISPLAY
 // =====================================
@@ -193,6 +191,15 @@ void displaySensorData() {
   snprintf(line, sizeof(line), "X:%4.0f Y:%4.0f Z:%4.0f", gx, gy, gz);
   oled.drawStr(0, 64, line);
 
+  oled.sendBuffer();
+}
+
+void displayStreamingScreen() {
+  oled.clearBuffer();
+  oled.setFont(u8g2_font_6x10_tf);
+  oled.drawStr(0, 20, "BLE: Connected");
+  oled.drawStr(0, 40, "Streaming data...");
+  oled.drawStr(0, 55, "See app for values");
   oled.sendBuffer();
 }
 
@@ -278,59 +285,65 @@ void setup() {
 // =====================================
 
 void loop() {
+  static unsigned long lastSampleTime = 0;
+  
   if (deviceConnected) {
-    if (!selectChannel(0)) {
-      Serial.println("CH0 selection failed");
-      delay(500);
-      return;
+    // connecting state change
+    if (!oldDeviceConnected) {
+      oldDeviceConnected = true;
+      // Show static streaming screen so we don't block the loop updating the OLED
+      displayStreamingScreen();
     }
 
-    if (readMPU6500()) {
-      // Create and send packet
-      ImuPacket packet;
-      packet.timestamp = millis();
-      packet.ax = ax;
-      packet.ay = ay;
-      packet.az = az;
-      packet.gx = gx;
-      packet.gy = gy;
-      packet.gz = gz;
+    unsigned long now = millis();
+    // 10ms interval = 100Hz sampling rate
+    if (now - lastSampleTime >= 10) {
+      lastSampleTime = now;
 
-      pDataCharacteristic->setValue((uint8_t*)&packet, sizeof(ImuPacket));
-      pDataCharacteristic->notify();
-      
-      // Update display less frequently than we sample
-      static unsigned long lastDisplayUpdate = 0;
-      if (millis() - lastDisplayUpdate > 100) {
-        displaySensorData();
-        lastDisplayUpdate = millis();
+      if (!selectChannel(0)) {
+        Serial.println("CH0 selection failed");
+        return; // Skip this cycle
       }
-    } else {
-      Serial.println("ERROR: MPU6500 read failed");
+
+      if (readMPU6500()) {
+        // Create and send packet
+        ImuPacket packet;
+        packet.timestamp = now;
+        packet.ax = ax;
+        packet.ay = ay;
+        packet.az = az;
+        packet.gx = gx;
+        packet.gy = gy;
+        packet.gz = gz;
+
+        pDataCharacteristic->setValue((uint8_t*)&packet, sizeof(ImuPacket));
+        pDataCharacteristic->notify();
+        
+      } else {
+        Serial.println("ERROR: MPU6500 read failed");
+      }
     }
     
-    delay(10);
   } else {
-    // If not connected, we can just update the display occasionally
+    // disconnecting state change
+    if (oldDeviceConnected) {
+      delay(500); // give the bluetooth stack the chance to get things ready
+      pServer->startAdvertising(); // restart advertising
+      Serial.println("start advertising");
+      oldDeviceConnected = false;
+    }
+    
+    // If not connected, update the display occasionally
+    unsigned long now = millis();
     static unsigned long lastDisplayUpdate = 0;
-    if (millis() - lastDisplayUpdate > 500) {
+    
+    // Show live sensor data on OLED at 2Hz when disconnected
+    if (now - lastDisplayUpdate > 500) {
       if (selectChannel(0)) {
         readMPU6500();
       }
       displaySensorData();
-      lastDisplayUpdate = millis();
+      lastDisplayUpdate = now;
     }
-  }
-
-  // disconnecting
-  if (!deviceConnected && oldDeviceConnected) {
-      delay(500); // give the bluetooth stack the chance to get things ready
-      pServer->startAdvertising(); // restart advertising
-      Serial.println("start advertising");
-      oldDeviceConnected = deviceConnected;
-  }
-  // connecting
-  if (deviceConnected && !oldDeviceConnected) {
-      oldDeviceConnected = deviceConnected;
   }
 }
