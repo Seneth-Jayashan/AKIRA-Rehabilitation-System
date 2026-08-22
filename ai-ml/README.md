@@ -44,6 +44,20 @@ cd src
 python preprocess.py
 ```
 
+### Dataset Usage & Statistics
+- **Total Processed Trials:** 4,938 files
+- **Valid Trials Used:** 4,938 (100% usage rate, 0.00% unused due to being too short)
+- **Datasets Breakdown:** 
+  - PHYTMO: 3,384 trials
+  - KneE-PAD: 974 trials
+  - Physical Therapy Exercises: 400 trials
+  - 10m Walk Test: 180 trials
+- **Data Volume:** 186,361 total time-series windows generated across all datasets.
+- **Patient Split (Train vs. Test):** 
+  - **Total Unique Subjects:** 585
+  - **Training & Validation:** ~468 subjects (80%)
+  - **Unseen Test Set:** ~117 subjects (20%)
+
 ## 3. Training the Models
 
 
