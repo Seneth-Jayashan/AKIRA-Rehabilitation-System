@@ -1,7 +1,0 @@
-/data
-/docs
-/venv
-/.ipynb_checkpoints
-/__pycache__
-/*.pyc
-/models
