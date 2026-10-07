@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from typing import Optional
-from src.preprocessing.base_loader import BaseDatasetLoader
+from src.preprocessing.base_loader import BaseDatasetLoader, DataType
 
 class PHYTMOLoader(BaseDatasetLoader):
     """
@@ -11,6 +11,10 @@ class PHYTMOLoader(BaseDatasetLoader):
     
     def __init__(self, raw_data_path: str = "datasets/raw/PHYTMO"):
         super().__init__(raw_data_path)
+        
+    @property
+    def data_type(self) -> DataType:
+        return DataType.IMU
     
     def load_data(self) -> pd.DataFrame:
         inertial_path = os.path.join(self.raw_data_path, "inertial")
@@ -74,7 +78,7 @@ class PHYTMOLoader(BaseDatasetLoader):
                         
         if not all_frames:
             print(f"Warning: No valid CSV files found in {inertial_path}")
-            return pd.DataFrame(columns=self.COMMON_COLUMNS)
+            return pd.DataFrame(columns=self.get_expected_columns())
             
         full_df = pd.concat(all_frames, ignore_index=True)
         self.validate_schema(full_df)

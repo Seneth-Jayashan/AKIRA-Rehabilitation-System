@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from typing import Optional
 import zipfile
-from src.preprocessing.base_loader import BaseDatasetLoader
+from src.preprocessing.base_loader import BaseDatasetLoader, DataType
 
 class MMMotionLoader(BaseDatasetLoader):
     """
@@ -12,6 +12,10 @@ class MMMotionLoader(BaseDatasetLoader):
     
     def __init__(self, raw_data_path: str = "datasets/raw/MM-Motion"):
         super().__init__(raw_data_path)
+        
+    @property
+    def data_type(self) -> DataType:
+        return DataType.IMU
     
     def load_data(self) -> pd.DataFrame:
         all_frames = []
@@ -34,12 +38,12 @@ class MMMotionLoader(BaseDatasetLoader):
                     # Here we would read the CSV in chunks because it is massive
                     # with z.open(name) as f:
                     #     df = pd.read_csv(f, nrows=1000) # Load only 1000 rows for dev
-                    #     # map to self.COMMON_COLUMNS
+                    #     # map to expected columns
                     #     all_frames.append(df)
                     pass 
                     
         # Return empty placeholder dataframe for now
-        return pd.DataFrame(columns=self.COMMON_COLUMNS)
+        return pd.DataFrame(columns=self.get_expected_columns())
 
 if __name__ == "__main__":
     loader = MMMotionLoader()
