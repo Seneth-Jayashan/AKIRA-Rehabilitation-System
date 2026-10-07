@@ -60,3 +60,32 @@ To translate the raw sensor windows into meaningful descriptors for the AI model
 
 ### 7. End-to-End Orchestration
 The `PreprocessingPipeline` (`src/preprocessing/pipeline.py`) was finalized to orchestrate all the aforementioned steps automatically. Feeding any dataset loader into this pipeline executes format detection, sampling-rate verification, routing, filtering, normalization, segmentation, and feature extraction, ultimately outputting a single, flattened Pandas DataFrame ready for Stage 4 (AI Models).
+
+---
+
+## 3. Identified Exercises & Data Mapping
+
+To ensure the machine learning models meet the functional requirements of the Ankle Rehabilitation System, we have mapped the required rehabilitation exercises to their corresponding data sources and specific use cases within the AKIRA component.
+
+### 3.1. Target Ankle Rehabilitation Exercises
+Based on the project proposal and dataset analysis, the component targets the recognition and evaluation of the following clinical movements:
+*   **Ankle-Specific Articulations**: Dorsiflexion, Plantarflexion, Inversion, Eversion.
+*   **Therapeutic Movements**: Ankle Circles, Ankle Pumps, Ankle Alphabet.
+*   **Weight-bearing & Functional**: Seated Heel Raises, Standing Heel Raises, Single-leg Balance, Walking/Gait.
+
+### 3.2. Dataset Roles & Utilization Mapping
+Rather than treating all datasets as identical pools of training data, each dataset has been assigned a specific role tailored to its strengths, sensors, and labels.
+
+| Dataset | Data Type(s) | Primary Role in AKIRA Component | Specific Use Cases |
+| :--- | :--- | :--- | :--- |
+| **SDALLE** | IMU / Motion | **Exercise Recognition** | Training the classification model to identify general rehabilitation exercises. |
+| **PHYTMO** | IMU (9-DOF, 100Hz) | **Exercise Recognition** | Contains 23 activity classes (including gait `GAT`, squats `SQT`, heel-toe `GHT`). Used to train and generalize the core multi-class exercise classifier. |
+| **GAITEX** | Kinematic Models | **Movement Quality** | Evaluating *how well* an exercise is performed (e.g., Range of Motion, movement smoothness, trajectory consistency). |
+| **MM-Motion** | High-density Motion (48-ch) | **Stability & Balance** | Extracting postural sway, center-of-motion variation, and classifying stability states (Stable, Moderate, Unstable) during balance exercises. |
+| **AnkleImage** | Biomechanical (Force, CoP, EMG) | **Kinematics & Validation** | Used for compensation detection and biomechanical validation. Ground-reaction forces (Fx, Fy, Fz) and Center of Pressure (CoP) will cross-validate the stability index and evaluate abnormal loading/compensation patterns. |
+
+### 3.3. Other Identified Data Attributes
+During the programmatic inspection of the datasets, several additional data attributes were discovered that will inform the feature engineering phase:
+*   **PHYTMO Activity Taxonomy**: Identified 23 specific labels including `GAT0`, `HAAL1`, `SQT0`, and `Calib`. These will be mapped to a unified exercise taxonomy (e.g., `Walking`, `Rest`, `Other`).
+*   **Zero-Crossing Rate (ZCR) & Frequency Entropy**: Identified as highly relevant features extracted from the IMU signals. These will be critical for differentiating rhythmic exercises (like walking or ankle pumps) from static exercises (like single-leg balance).
+*   **CoP and Force (AnkleImage)**: The identification of Center of Pressure (CoP) and Triaxial Forces (Fx, Fy, Fz) means we have clinical-grade ground truth for predicting weight-bearing confidence and stability, which are critical post-ORIF milestones.
