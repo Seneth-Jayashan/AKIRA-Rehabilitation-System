@@ -1,0 +1,1980 @@
+Smart Post-ORIF Rehabilitation Ecosystem with
+Edge-AI Kinematic Tracking (AKIRA)
+
+Hybrid IMU-Based Edge AI for Ankle Rehabilitation Exercise Recognition and
+Postural Stability Assessment Following Ankle Fracture ORIF
+
+J26-SE-304
+
+PROJECT PROPOSAL REPORT
+JAYASHAN S H S - IT23223608
+
+B.Sc. (Hons) Degree in Information Technology Specialized
+in Software Engineering
+Department of Software Engineering
+Sri Lanka Institute of Information Technology
+
+September 2026
+
+ABSTRACT
+Ankle fractures are common musculoskeletal injuries and may require open reduction and
+internal fixation (ORIF), followed by a rehabilitation period in which restoration of ankle
+movement, functional control, and postural stability is important. Population-based evidence
+reports an ankle-fracture incidence of 168.7 per 100,000 people per year in one large decadelong cohort, while global burden estimates identify lower-leg fractures including ankle
+fractures among the most common and burdensome fracture categories [1], [2]. Conventional
+rehabilitation assessment relies substantially on clinical observation and periodic outcome
+measures, while wearable-sensor research shows promise for objective movement assessment
+but also reports methodological, validation, and clinical-translation limitations [3], [4], [5],
+[6].
+This individual component investigates whether a two-IMU ankle sensing configuration can
+provide objective, repeatable measures of ankle kinematics and postural stability and use
+those measures to characterize longitudinal recovery after ankle-fracture surgery. The
+proposed component will synchronize and calibrate one IMU on the lower leg/tibia segment
+and one on the foot, estimate relative segment orientation, derive exercise and stability
+features, and combine repeated measurements into an Ankle Rehabilitation Progress Index
+(ARPI). Temporal sequence learning will be investigated for exercise recognition, while
+regression/forecasting model types will be evaluated for continuous recovery-state and
+clinician-defined milestone estimation. The research will follow a Design Science Researchoriented, iterative experimental approach with benchmark comparison, controlled validation,
+and usability assessment. The component forms the ankle-rehabilitation measurement and
+prediction layer of the complete AKIRA solution; it does not prescribe treatment or replace
+clinician decisions.
+Keywords: ankle fracture ORIF; inertial measurement unit; ankle kinematics; postural
+stability; longitudinal rehabilitation
+
+3
+
+ACKNOWLEDGEMENT
+I would like to acknowledge my supervisor, the research group members, and the academic
+and clinical stakeholders who will contribute to the development and validation of the Ankle
+Surgery Rehabilitation component. I also acknowledge the authors and researchers whose
+peer-reviewed work provides the evidence base for the proposed sensing, rehabilitation
+assessment, and validation approach.
+
+4
+
+Table of Contents
+1.
+
+Introduction .............................................................................................................................. 11
+
+1.1.
+
+Background and Context.......................................................................................................... 11
+
+1.2.
+
+Literature Review..................................................................................................................... 13
+
+1.3.
+
+Research Gap ........................................................................................................................... 16
+
+2.
+
+Objective .................................................................................................................................. 17
+
+2.1.
+
+Main Objective ........................................................................................................................ 17
+
+2.2.
+
+Specific Objective .................................................................................................................... 17
+
+3.
+
+Methodology ............................................................................................................................ 18
+
+3.1.
+
+Research Methodology/ Research Design ............................................................................... 18
+
+3.2.
+
+Data/ Participants/ Experimental Inputs .................................................................................. 19
+
+3.3.
+
+Measurement and Processing Pipeline..................................................................................... 20
+
+3.4.
+
+Baseline/ Benchmark ............................................................................................................... 21
+
+3.5.
+
+Evaluation Metrics ................................................................................................................... 22
+
+3.6.
+
+Validation Strategy .................................................................................................................. 23
+
+3.7.
+
+Development Approach ........................................................................................................... 24
+
+4.
+
+High Level System Architecture .............................................................................................. 24
+
+4.1.
+
+Overall Integration ................................................................................................................... 27
+
+4.2.
+
+Individual Responsibility Boundary ........................................................................................ 28
+
+5.
+
+User Requirements ................................................................................................................... 29
+
+5.1.
+
+Functional Requirements ......................................................................................................... 29
+
+5.2.
+
+Non-Functional Requirements ................................................................................................. 29
+
+6.
+
+Commercialization Plan ........................................................................................................... 31
+
+6.1.
+
+Target Market and Customer Persona ...................................................................................... 31
+
+6.2.
+
+Value Proposition .................................................................................................................... 31
+
+6.3.
+
+Revenue Model ........................................................................................................................ 31
+
+6.4.
+
+Cost Estimation and Pricing Strategy ...................................................................................... 31
+
+6.5.
+
+Competitive Advantage ........................................................................................................... 32
+
+6.6.
+
+Intellectual Property Considerations ........................................................................................ 32
+
+7.
+
+Budget and Justification........................................................................................................... 33
+
+8.
+
+Work Breakdown Structure ..................................................................................................... 34
+
+9.
+
+Grant Chart .............................................................................................................................. 35
+
+10.
+
+References ................................................................................................................................ 36
+
+11.
+
+APPENDICES ......................................................................................................................... 37
+
+11.1.
+
+Appendix 1 — Mandatory Proposal Evidence and Decision Log ........................................... 37
+
+11.2.
+
+Appendix 2 — AI Use Disclosure ........................................................................................... 38
+
+11.3.
+
+Appendix 3 — Preliminary Data Collection Protocol ............................................................. 38
+
+5
+
+11.4.
+
+Appendix 4 - Prototype Evidence ............................................................................................ 39
+
+11.5.
+
+Appendix 5 - Questionnaire ..................................................................................................... 39
+
+6
+
+LIST OF TABLES
+Table 1 - Critical literature review ........................................................................................... 15
+Table 2 - Existing Solutions and Their Limitations ................................................................. 16
+Table 3 - Proposed evaluation metrics and acceptance criteria ............................................... 23
+Table 4 - Individual responsibility boundary ........................................................................... 28
+Table 5 - Preliminary component budget ................................................................................. 33
+Table 6 - Work breakdown structure ........................................................................................ 34
+Table 7 - Grant Chart ............................................................................................................... 35
+
+7
+
+LIST OF FIGURES
+Figure 1 -Real ankle radiograph showing the pre-operative fracture and post-operative
+internal fixation ........................................................................................................................ 12
+Figure 2 - anatomical reference showing the measurement procedure used in the ankle
+rehabilitation methodology ...................................................................................................... 18
+Figure 3 - Processing pipeline.................................................................................................. 21
+Figure 4 - High-level AKIRA Full Architect Diagram ............................................................ 25
+Figure 5 - Two-IMU ankle sensing and processing pipeline ................................................... 26
+Figure 6 - Longitudinal rehabilitation-state and milestone prediction workflow .................... 27
+
+8
+
+LIST OF ABBREVIATIONS
+Abbreviation
+
+Meaning
+
+AI
+
+Artificial Intelligence
+
+ARPI
+
+Ankle Rehabilitation Progress Index
+
+DOF
+
+Degree of Freedom
+
+F1
+
+F1 Score
+
+IMU
+
+Inertial Measurement Unit
+
+MAE
+
+Mean Absolute Error
+
+ORIF
+
+Open Reduction and Internal Fixation
+
+ROM
+
+Range of Motion
+
+RMSE
+
+Root Mean Square Error
+
+SUS
+
+System Usability Scale
+
+9
+
+LIST OF APPENDICES
+Appendix 1 - Mandatory Proposal Evidence and Decision Log.............................................. 37
+Appendix 2 - AI Use Disclosure .............................................................................................. 38
+Appendix 3 - Preliminary Data Collection Protocol ................................................................ 38
+Appendix 4 - Prototype Evidence ............................................................................................ 39
+Appendix 5 - Questionnaire ..................................................................................................... 39
+
+10
+
+1. Introduction
+1.1. Background and Context
+Ankle fractures are common musculoskeletal injuries that can require a prolonged
+rehabilitation period, particularly when surgical treatment is necessary. In cases where
+fracture alignment or stability requires surgical intervention, open reduction and internal
+fixation (ORIF) is used to restore and maintain the appropriate anatomical position of the
+fractured bones. A population-based study of 9,767 ankle fractures reported a mean
+annual incidence of 168.7 per 100,000 people, with falls and sports identified among the
+major injury mechanisms [1]. At the global level, the Global Burden of Disease analysis
+estimated 178 million new fractures in 2019 and identified lower-leg fractures, including
+ankle-related fractures, as an important contributor to the overall fracture burden [2].
+These findings demonstrate the scale of ankle and lower-limb fracture recovery and
+support the investigation of practical technologies for monitoring rehabilitation.
+Following ORIF, rehabilitation progresses according to the patient's clinical condition and
+recovery. Rehabilitation may involve gradual restoration of ankle movement,
+strengthening, balance, and functional activities, while progression is influenced by
+factors such as fixation stability, healing status, range of motion, strength, functional
+ability, and clinician assessment. Evidence from rehabilitation and postoperative weightbearing research indicates that outcomes can vary according to clinical context, fixation
+stability, patient characteristics, and rehabilitation protocols [7] - [8]. Therefore, the
+proposed system is designed to support objective measurement and follow-up rather than
+establish a universal rehabilitation schedule. It will not prescribe exercises, modify
+weight-bearing restrictions, or override clinical instructions.
+The specific problem addressed by this component is the difficulty of obtaining low-cost,
+repeatable, and objective measurements of ankle exercise performance and postural
+stability across repeated rehabilitation sessions. Clinical observation and functional
+assessment remain important, but assessments are generally performed at specific clinical
+visits and may provide only intermittent information about movement performance.
+Wearable inertial sensing provides an opportunity to capture movement data during
+rehabilitation activities and support repeated assessment outside conventional assessment
+intervals. However, previous research has identified important methodological
+considerations involving sensor placement, sensor-to-segment calibration, kinematic
+validity, and analytical assumptions [3] - [6]. These limitations indicate that a reliable
+sensing approach requires explicit calibration, synchronized measurements, and
+appropriate validation.
+
+11
+
+Figure 1 -Real ankle radiograph showing the pre-operative fracture and post-operative internal fixation
+
+For this component, two synchronized inertial measurement units (IMUs) will be
+positioned on the lower leg/tibia segment and the foot segment. The relative orientation
+between these two segments will be used to estimate ankle movement, with particular
+emphasis on dorsiflexion and plantarflexion. The proposed exercise set includes ankle
+pumps, ankle circles, ankle alphabet, dorsiflexion, plantarflexion, seated heel raises,
+standing heel raises, and single-leg balance. Movement-related measures such as ankle
+angle, range of motion, movement velocity, repetitions, trajectory characteristics, and
+movement variability will be considered together with postural-stability measures such as
+sway and stability-related motion variation. These measurements will be evaluated across
+repeated rehabilitation sessions and summarized using the proposed Ankle Rehabilitation
+Progress Index (ARPI) to represent changes in rehabilitation performance over time.
+The proposed component therefore focuses on developing and evaluating a wearablesensor-based approach for ankle exercise recognition, movement assessment, posturalstability assessment, and longitudinal rehabilitation monitoring following ankle-fracture
+ORIF. The component contributes to the wider AKIRA solution through its ankle-specific
+rehabilitation measurements while maintaining a clear responsibility boundary from the
+other group components. The research is aligned with Sustainable Development Goal 3
+(Good Health and Well-Being) because it investigates technology-assisted monitoring that
+can support rehabilitation assessment and follow-up.
+
+12
+
+1.2. Literature Review
+The literature review was conducted to address the practical and methodological
+questions that directly influence the proposed ankle-rehabilitation component. In
+particular, the review examined the suitability of wearable inertial measurement units
+(IMUs) for lower-limb exercise assessment, the factors that influence ankle and lowerlimb kinematic estimation, approaches to sensor-to-segment calibration, and the
+validation requirements for wearable rehabilitation measurements. The selected studies
+were therefore considered based on their relevance to the methodological and design
+decisions of this research. The critical findings, strengths, limitations, and influence of
+each study on the proposed research are presented in Table 1.
+Publicat
+ion
+
+Elsoe et
+al. [1]
+
+Method /
+Dataset
+
+Populationbased
+epidemiologic
+al study; 9,767
+ankle-fracture
+patients over
+2005–2014.
+
+Context
+
+General
+anklefracture
+populati
+on;
+Denmar
+k.
+
+Global
+systematic
+analysis using
+Wu et al. GBD 2019
+[2]
+data across
+204
+countries/territ
+ories.
+
+Global
+fracture
+burden.
+
+Systematic
+review of
+IMU-based
+lower-limb
+exercise
+detection/evalu
+ation.
+
+47
+papers
+covering
+lowerlimb
+exercise
+assessm
+ent.
+
+O'Reilly
+et al. [3]
+
+Influence on
+this
+research
+Justifies the
+importance
+of an anklespecific
+rehabilitation
+-monitoring
+problem and
+supports the
+need for
+objective
+follow-up.
+
+Key findings
+
+Strengths
+
+Limitation
+s
+
+Mean
+incidence
+168.7/100,000
+/year; falls
+61% and
+sports 22%.
+
+Large
+population
+and
+decadelong
+coverage
+provide
+strong
+epidemiolo
+gical
+context.
+
+Single
+regional
+population;
+does not
+evaluate
+digital
+rehabilitati
+on
+monitoring
+.
+
+Very large
+global
+scope and
+standardize
+d burden
+measures.
+
+Not
+specific to
+ORIF
+rehabilitati
+on or
+wearable
+sensing.
+
+Supports the
+broader
+significance
+of fracture
+recovery
+technology.
+
+Heterogene
+ous
+sensors,
+Broad
+protocols,
+synthesis of
+and
+wearable
+validation;
+exercise
+limited
+research.
+user/clinica
+l
+evaluation.
+
+Supports
+IMU use but
+motivates a
+validationfirst, anklespecific
+design.
+
+178 million
+new fractures
+in 2019;
+lowerleg/ankle
+category was
+among the
+most common
+and
+burdensome.
+Shows IMUs
+can support
+exercise
+detection and
+movementquality
+assessment;
+clinical
+translation
+was limited in
+the reviewed
+evidence.
+
+13
+
+Weygers
+et al. [4]
+
+Pacher
+et al. [5]
+
+Prisco et
+al. [6]
+
+Methodologica
+l systematic
+review of
+IMU-based
+lower-limb
+joint
+kinematics
+validated
+against a
+reference
+system.
+
+Studies
+using
+IMUs
+for
+lowerlimb
+kinemati
+c
+estimati
+on.
+
+Methods are
+applicationdependent;
+biomechanical
+assumptions
+and prior
+information
+can affect
+estimates.
+
+Systematic
+review of
+lower-body
+sensor-tosegment
+calibration
+methods.
+
+55
+studies;
+manual,
+static,
+function
+al, and
+anatomi
+cal
+approac
+hes.
+
+Systematic
+review of
+wearable
+IMUs for gait
+analysis.
+
+Cochrane
+systematic
+review of
+Lin et al.
+rehabilitation
+[7]
+interventions
+after ankle
+fracture.
+
+Rigney
+et al. [9]
+
+Systematic
+review/metaanalysis of
+randomized
+controlled
+trials
+comparing
+early vs nonweight-bearing
+after ankle
+
+Explicit
+focus on
+methodolo
+gical
+validity and
+referencestandard
+comparison
+.
+
+No single
+universally
+optimal
+method;
+clinical
+implement
+ation
+remains
+limited.
+
+Motivates
+explicit
+calibration,
+applicationspecific
+kinematic
+definitions,
+and
+referencebased
+validation.
+
+Calibration is
+a major
+methodologic
+al issue and
+comparative
+evidence is
+still needed.
+
+Directly
+addresses
+the sensorto-segment
+problem.
+
+Different
+evaluation
+references
+and
+methods
+make
+conclusion
+s difficult.
+
+Supports a
+dedicated
+synchronized
+calibration
+stage before
+kinematic
+analysis.
+
+32
+studies.
+
+Good-tomoderate
+agreement for
+kinematics
+with optical
+systems;
+spatiotempora
+l agreement
+was [3]more
+variable.
+
+Uses
+multiple
+validation
+approaches
+and
+summarize
+s
+agreement
+patterns.
+
+31
+studies
+of adults
+after
+ankle
+fracture.
+
+Evidence was
+heterogeneous
+; some
+interventions
+affected
+activity
+limitation and
+adverse
+events.
+
+High-level
+evidence
+synthesis
+and clinical
+outcome
+focus.
+
+6 RCTs;
+1,190
+patients.
+
+Early weightbearing
+improved
+short-term
+functional
+outcomes
+without
+increased
+complications
+in
+
+High-level
+evidence
+and RCTonly
+inclusion.
+
+14
+
+Supports
+error-based
+Primarily
+and
+gaitagreementfocused
+based
+rather than
+validation
+post-ORIF
+rather than
+exercise
+relying only
+rehabilitati
+on
+on.
+classification
+scores.
+Supports
+measuring
+Heterogene
+recovery
+ity
+objectively
+prevented
+while
+metaavoiding
+analysis
+assumptions
+for many
+of one
+compariso
+universal
+ns.
+rehabilitation
+protocol.
+Reinforces
+Findings
+the need for
+depend on
+clinicianstable
+defined
+fixation
+milestones
+and patient
+and safety
+selection;
+boundaries
+not a
+rather than
+sensor
+autonomous
+study.
+treatment
+
+fracture
+fixation.
+
+Semjono
+va et al.
+[8]
+
+PRISMAguided
+systematic
+review of
+functional
+foot/ankle
+biomechanical
+tests and
+wearable
+integration.
+
+4
+studies;
+83
+participa
+nts.
+
+appropriately
+selected cases.
+
+recommenda
+tions.
+
+Wearable
+outcomes
+were feasible,
+but reliability,
+measurement
+error and
+MCID
+reporting were
+inconsistent.
+
+Strongly
+motivates
+repeatability
+testing,
+measurement
+-error
+reporting,
+and
+stakeholder
+validation in
+the proposed
+study.
+
+Recent
+focused
+review
+combining
+biomechani
+cs and
+psychometr
+ics.
+
+Very small
+evidence
+base and
+heterogene
+ous
+methods.
+
+Table 1 - Critical literature review
+
+Critical Synthesis. The reviewed evidence supports the feasibility of wearable inertial
+sensing for lower-limb movement assessment but also demonstrates that reliable
+rehabilitation monitoring requires more than exercise classification. Sensor placement and
+calibration can directly influence kinematic validity, while rehabilitation outcomes may vary
+according to clinical condition, fixation stability, patient characteristics, and rehabilitation
+protocol [3]. Furthermore, the limited reporting of repeatability, measurement error, and
+clinically meaningful change in foot and ankle wearable-sensor studies highlights the need
+for systematic validation across repeated measurements [8]. Therefore, this research will
+investigate a calibrated two-IMU ankle-sensing approach that combines movement and
+postural-stability measures and evaluates their consistency across repeated rehabilitation
+sessions.
+1.2.1. Existing Solutions and Their Limitations
+For comparison, the existing approaches considered in this proposal fall into four
+broad groups: clinical visual assessment, laboratory motion capture, camera or depthbased exercise analysis, and wearable inertial sensing. Clinical assessment is
+accessible and clinically meaningful, but it usually provides measurements only
+during visits and can depend on the assessor. Motion-capture systems can offer
+detailed reference measurements, although they normally need specialized equipment
+and a controlled setting. Camera-based methods avoid body-worn sensors, but field of
+view, occlusion, lighting, and privacy can become issues. IMUs are more portable and
+simpler to deploy, but their accuracy depends strongly on placement, calibration,
+signal processing, and validation [3] - [6].
+Commercial rehabilitation platforms and general activity wearables show that guided
+exercise and wearable monitoring are feasible. However, the evidence reviewed for
+15
+
+this proposal does not demonstrate a validated longitudinal system specifically for
+post-ORIF ankle rehabilitation that brings together two-segment ankle kinematics,
+exercise performance, postural stability, and clinician-defined recovery milestones.
+The aim here is therefore not to claim that the proposed system is better than a
+particular commercial product. Instead, it addresses the limitations identified in the
+reviewed research.
+Existing
+approach
+
+Typical
+function
+Assess
+movement
+Clinical
+quality and
+observation
+function
+during visits
+HighLaboratory
+precision
+motion
+movement
+capture
+measurement
+Exercise
+Camera/depth detection
+exercise
+and
+systems
+movement
+feedback
+Exercise
+detection
+Wearable
+and
+IMU systems
+movement
+measurement
+
+Key limitation relevant to
+this component
+
+Technology
+
+Users
+
+Clinician observation and
+clinical tests
+
+Physiotherapists, Periodic, assessor-dependent,
+orthopaedic
+limited continuous quantitative
+teams, patients
+data
+
+Optical cameras and
+markers
+
+Researchers,
+biomechanics
+laboratories
+
+High cost, controlled
+environment, limited home use
+
+RGB/depth cameras and
+computer vision
+
+Home-exercise
+users, clinicians
+
+Occlusion/privacy/environment
+sensitivity; not always suitable
+for ankle-specific segment
+kinematics
+
+Researchers,
+Accelerometers/gyroscopes
+rehabilitation
+with signal processing
+users
+
+Calibration, placement, drift,
+validation and clinicaltranslation challenges
+
+Table 2 - Existing Solutions and Their Limitations
+
+1.3. Research Gap
+The reviewed evidence demonstrates the potential of wearable IMUs for lower-limb
+movement assessment, while also identifying important limitations related to sensor
+calibration, kinematic validation, repeatability, and clinical translation [3] - [6]. Recent
+evidence specific to foot and ankle assessment remains relatively small and
+heterogeneous, with limited and inconsistent reporting of measurement error, reliability,
+and clinically meaningful change [8]. Therefore, the research gap addressed by this
+component is the lack of a validated ankle-specific longitudinal framework that combines
+two-IMU kinematic assessment with postural-stability measures to objectively describe
+rehabilitation progress over repeated sessions and estimate progress toward cliniciandefined rehabilitation milestones following ankle-fracture ORIF.
+
+16
+
+2. Objective
+2.1. Main Objective
+The main objective is to design, implement, and evaluate a two-IMU ankle rehabilitation
+component that measures exercise kinematics and postural stability and then uses
+repeated measurements to describe recovery and estimate clinician-defined rehabilitation
+milestones after ankle-fracture ORIF.
+
+2.2. Specific Objective
+•
+•
+
+•
+
+•
+
+To develop a two-IMU sensing system that captures synchronized lower-leg and
+foot motion data during prescribed ankle rehabilitation exercises.
+To calculate and extract ankle kinematic and postural stability features,
+including ankle range of motion, dorsiflexion, plantarflexion, movement
+consistency, and stability-related measures from the collected IMU data.
+To develop and evaluate an AI-based assessment model that identifies exercise
+performance and estimates the patient's rehabilitation status from the extracted
+movement and stability features.
+To analyse repeated rehabilitation sessions and predict clinician-defined
+recovery milestones, providing a longitudinal representation of the patient's
+rehabilitation progress following ankle-fracture ORIF.
+
+17
+
+3. Methodology
+3.1. Research Methodology/ Research Design
+This study will follow a Design Science Research-oriented approach supported by
+iterative experimental evaluation. The central research question for this component is
+whether two wearable IMUs can provide ankle movement and postural-stability
+measurements that are sufficiently accurate, repeatable, and interpretable to support
+longitudinal rehabilitation assessment following ankle-fracture ORIF.
+The research therefore requires both the development and evaluation of a working
+artifact. The study will begin by defining the rehabilitation-monitoring problem based on
+the identified evidence and research gap. This will be followed by the design of the twoIMU sensing configuration, sensor-placement procedure, calibration process, and dataprocessing pipeline. Pilot data will then be collected to evaluate the feasibility and quality
+of the measurement procedure. The processing pipeline will be refined based on the pilot
+findings before exercise-recognition, movement-feature, and stability-feature evaluation.
+
+The validated measurements will subsequently be used to construct session-level
+rehabilitation summaries and the proposed Ankle Rehabilitation Progress Index
+(ARPI). Repeated-session measurements will then be analysed to represent changes in
+rehabilitation status and support estimation of progress toward predefined, cliniciandefined rehabilitation milestones. Finally, the developed component will be evaluated
+using quantitative performance measures and usability feedback. This iterative process
+allows design decisions to be evaluated experimentally rather than assuming that a
+sensing configuration or analytical approach will be suitable without validation.
+
+Figure 2 - anatomical reference showing the measurement procedure used in the ankle rehabilitation methodology
+
+18
+
+3.2. Data/ Participants/ Experimental Inputs
+Three main sources of data are planned for this study. The first source will be ankle
+exercise and balance data collected using the two-IMU prototype. The second source
+will consist of public or literature-derived non-clinical datasets, which may be used
+for pipeline benchmarking when their sensor configuration, movement tasks, and data
+characteristics are sufficiently compatible with the proposed approach. The third source
+will be longitudinal post-ORIF rehabilitation data collected specifically for this
+research. Collection of post-ORIF data will begin only after the necessary institutional
+and ethical approvals have been obtained. Public datasets will not be treated as
+representative of post-ORIF rehabilitation unless their documented population, tasks, and
+context support such an interpretation.
+For initial engineering validation, a pilot sample of approximately 20–30 adults is being
+considered. A smaller healthy participant group may also be used during early protocol
+development and debugging of the sensing and processing pipeline. Participants with
+post-ORIF rehabilitation experience will be recruited only after ethical approval and will
+be assessed according to appropriate eligibility criteria, exercise restrictions, and
+rehabilitation stage. The final sample size will be determined based on feasibility
+findings, expected measurement variation, validation requirements, and guidance from
+the supervisor and relevant ethics process.
+During each data-collection session, the two IMUs will operate using synchronized
+timestamps. Sensor placement, calibration information, participant identifier, and session
+identifier will be recorded before measurement. Accelerometer and gyroscope streams
+will be checked for missing or poor-quality samples and aligned temporally before further
+processing. Filtering and signal-processing parameters will be selected based on the
+characteristics identified during pilot testing rather than being fixed without empirical
+justification.
+Exercise recordings will be labelled according to the performed exercise and, where
+applicable, repetition boundaries. The planned exercise set includes ankle pumps, ankle
+circles, ankle alphabet, dorsiflexion, plantarflexion, seated heel raises, standing heel
+raises, and single-leg balance. For balance activities, task duration and relevant trial
+outcomes will also be recorded where appropriate.
+Data preparation will include:
+• missing-sample and signal-quality checks;
+• timestamp alignment between the two IMUs;
+• sensor-offset and sensor-to-segment calibration;
+• orientation estimation;
+• movement segmentation;
+• exercise and repetition labelling;
+• feature extraction; and
+• preparation of session-level rehabilitation measurements.
+Normalization will only be applied where there is a clear methodological justification.
+Training, validation, and test datasets will be separated by participant, ensuring that
+measurements from the same participant do not appear across different dataset splits. This
+19
+
+is intended to reduce the risk of participant-specific information influencing model
+evaluation.
+
+3.3. Measurement and Processing Pipeline
+The proposed measurement and processing pipeline begins with the placement of two
+synchronized IMUs on the lower leg/tibia segment and foot segment using a
+documented placement procedure. The sensor streams are synchronized before analysis,
+and calibration establishes the relationship between each sensor coordinate frame and its
+corresponding anatomical segment.
+The accelerometer and gyroscope measurements will then be processed using sensorfusion methods to estimate the orientation of each segment. The relative orientation
+between the lower-leg and foot segments will subsequently be used to obtain ankle-angle
+trajectories for the movement planes investigated in this study, with particular emphasis
+on dorsiflexion and plantarflexion.
+The processing pipeline will contain two complementary analytical branches. The first
+branch will analyse dynamic movement data for exercise segmentation, exercise
+recognition, repetition counting, and movement-quality assessment. The second
+branch will analyse balance-task data for postural-stability assessment, including
+measures related to sway and sensor-motion variation.
+The resulting features will be validated before being aggregated into session-level
+measurements. Where appropriate, measurements will be compared with the participant's
+baseline to represent individual change rather than relying only on population-level
+values. Repeated session summaries will then be used to calculate the proposed ARPI,
+which will provide a structured representation of rehabilitation progress. These
+longitudinal measurements will subsequently support recovery-state analysis and
+estimation of progress toward clinician-defined rehabilitation milestones.
+The overall processing sequence is therefore:
+
+20
+
+Figure 3 - Processing pipeline
+
+3.4. Baseline/ Benchmark
+For ankle-angle estimation, the primary comparison will be made against a reference
+measurement procedure selected during protocol finalization. Depending on the
+facilities available, this reference may be a clinician-based measurement procedure or
+laboratory-based reference kinematics. The purpose of this comparison is to determine
+whether the two-IMU approach provides sufficiently accurate ankle-motion
+measurements for the intended rehabilitation-monitoring application.
+For exercise recognition, simple signal-feature and rule-based approaches will first be
+established as baseline methods. These baselines will provide a reference against which
+21
+
+the performance of the proposed temporal analysis approach can be evaluated. For
+recovery-state and longitudinal estimation, a basic regression or trajectory-based
+approach using session-level rehabilitation features will be used as the initial
+benchmark.
+More complex analytical approaches will only be considered beneficial if they
+demonstrate measurable improvement over the established baselines under the same
+participant-independent evaluation procedure. This prevents model complexity from
+being treated as an advantage without corresponding evidence of improved performance.
+The exact reference measurement procedure will be confirmed following the pilot
+feasibility assessment because access to a specific laboratory reference system cannot be
+assumed at the proposal stage. If a laboratory-based reference system is unavailable, the
+study will use a clearly documented reference protocol and explicitly report this limitation
+when interpreting the ankle-kinematic validation results
+
+3.5. Evaluation Metrics
+The proposed component will be evaluated using metrics that correspond to its main
+functions: exercise recognition, ankle-kinematic estimation, repetition analysis, posturalstability assessment, longitudinal recovery estimation, milestone prediction, and usability.
+The selected metrics and preliminary acceptance criteria are presented in Table 3.
+Metric
+
+Why Relevant
+
+Target / Comparison
+
+Exercise recognition Accuracy
+/ Precision / Recall / F1
+
+Measures correct
+classification while exposing
+class imbalance and false
+positives/negatives.
+
+Target: F1 ≥ 0.90 for the final
+exercise set, with per-class
+results reported.
+
+Ankle-angle MAE / RMSE
+
+Quantifies disagreement
+between estimated and
+reference kinematics in
+degrees.
+
+Initial engineering target:
+MAE ≤ 5° on the validated
+movement range; report
+confidence intervals.
+
+ROM error
+
+Directly measures error in
+clinically meaningful
+movement amplitude.
+
+Target: median absolute ROM
+error ≤ 5° in validated tasks.
+
+Repetition-count error
+
+Tests whether exercise
+completion can be quantified
+reliably.
+
+Target: ≥ 95% agreement with
+annotated repetition counts in
+controlled trials.
+
+Stability measure repeatability
+
+Tests whether the same task
+produces consistent measures
+across repeated trials/sessions.
+
+Target: ICC ≥ 0.80 where ICC
+is appropriate; report
+SEM/MDC when calculable.
+
+22
+
+Measures continuous
+longitudinal estimation error.
+
+Target: beat the simple
+baseline by ≥10% on subjectindependent test data.
+
+Milestone time-to-threshold
+error
+
+Measures usefulness of
+trajectory prediction for
+clinician-defined milestones.
+
+Target: median absolute
+timing error ≤ 14 days in the
+final validated cohort, subject
+to sample size and milestone
+definition.
+
+Usability / SUS
+
+Measures whether intended
+users can operate the
+component effectively.
+
+Target: SUS ≥ 70 after
+iterative refinement.
+
+Recovery-state MAE / RMSE
+
+Table 3 - Proposed evaluation metrics and acceptance criteria
+
+3.6. Validation Strategy
+Validation will be conducted at multiple levels to assess both the technical performance
+and practical usefulness of the proposed ankle-rehabilitation component.
+First, the sensor placement, calibration, and ankle-angle estimation procedures will be
+evaluated against the selected reference measurement procedure. This will determine
+whether the two-IMU configuration can produce sufficiently accurate ankle-kinematic
+measurements for the intended application.
+Second, exercise recognition and repetition analysis will be evaluated using
+participant-independent data splits. Participants included in the test set will not appear in
+the training data, reducing the possibility that participant-specific movement patterns
+artificially improve the reported performance.
+Third, postural-stability features will be evaluated for repeatability and agreement
+across repeated trials and, where data are available, repeated sessions. This will determine
+whether stability measurements remain sufficiently consistent to support longitudinal
+monitoring.
+Fourth, longitudinal recovery-state and milestone estimation will use time-ordered
+evaluation. Later rehabilitation sessions will not be used to predict earlier sessions,
+thereby maintaining the temporal direction of the recovery-analysis problem.
+The contribution of different feature groups will also be examined by comparing:
+1. kinematic features alone;
+2. postural stability features alone; and
+3. combined kinematic and stability features represented through the proposed ARPI.
+Where the available sample size permits, confidence intervals and error distributions will
+be reported alongside point estimates. Usability testing and stakeholder review will also
+be incorporated into the evaluation to identify practical issues that may not be captured by
+technical metrics.
+Any clinical interpretation of the results will remain within the intended scope of the
+research. The system will be presented as a rehabilitation-monitoring and decisionsupport technology, rather than as a diagnostic system or an autonomous treatment
+system.
+
+23
+
+3.7. Development Approach
+An iterative development approach will be used because several aspects of the
+proposed component—including sensor placement, calibration, signal processing,
+exercise analysis, and user interaction—may require refinement based on pilot findings.
+Each development iteration will produce a working version of the relevant component,
+evaluate it against the predefined criteria, document identified problems, and use the
+results to guide the next iteration.
+The development process will proceed through the following stages:
+1. Prototype the sensing and synchronization layer
+Implement the two-IMU data-acquisition process and establish reliable timestamp
+synchronization between the lower-leg and foot sensors.
+2. Validate calibration and basic ankle-angle estimation
+Implement the sensor-to-segment calibration procedure and evaluate the resulting
+ankle-angle measurements against the selected reference procedure.
+3. Add exercise segmentation, recognition, and repetition analysis
+Develop the time-series processing required to identify the proposed ankle
+exercises, segment exercise repetitions, and calculate movement-related features.
+4. Add postural-stability analysis and ARPI calculation
+Implement stability-related feature extraction and combine validated movement
+and stability measures into the proposed Ankle Rehabilitation Progress Index.
+5. Evaluate longitudinal recovery-state and milestone estimation
+Use repeated session-level measurements to investigate rehabilitation-state
+changes and estimate progress toward clinician-defined milestones.
+6. Conduct usability and integration testing, then freeze the evaluated version
+Evaluate the component with intended users and relevant stakeholders, address
+identified usability and integration issues, and establish the final version used for
+the main evaluation.
+This iterative sequence ensures that longitudinal analysis is performed only after the
+underlying sensing, calibration, movement, and stability measurements have been
+sufficiently evaluated.
+
+4. High Level System Architecture
+The full AKIRA solution is shown only at the level needed to explain integration. The
+individual contribution in this proposal is the Ankle Surgery Rehabilitation component,
+covering sensing, measurement, analysis, and longitudinal assessment. The detailed
+architecture and processing steps that follow therefore describe this component rather
+than the other group members' research areas.
+
+24
+
+Figure 4 - High-level AKIRA Full Architect Diagram
+
+25
+
+Figure 5 - Two-IMU ankle sensing and processing pipeline
+
+26
+
+Figure 6 - Longitudinal rehabilitation-state and milestone prediction workflow
+
+4.1. Overall Integration
+The Ankle Surgery Rehabilitation component receives its own sensor/session inputs and
+produces structured ankle-rehabilitation measurements. At the group level, these outputs
+will be exchanged through the agreed project interface so that the complete solution can
+present a unified rehabilitation view. The exact API or data schema will be finalized
+jointly, but the individual responsibility boundary remains limited to ankle sensing,
+analysis, validation, and longitudinal outputs
+27
+
+4.2. Individual Responsibility Boundary
+Activity / Deliverable
+Two-IMU ankle
+sensing and placement
+protocol
+
+My Responsibility
+
+Ankle calibration and
+kinematic estimation
+
+✓
+
+Exercise recognition
+and repetition analysis
+
+✓
+
+Postural-stability
+analysis
+
+✓
+
+ARPI and longitudinal
+milestone estimation
+
+✓
+
+Shared Responsibility
+
+Other Member
+
+✓
+
+Integration interface /
+data exchange
+
+✓
+
+Complete solution
+presentation
+
+✓
+
+Other group
+components
+
+Handled by respective
+members
+
+Table 4 - Individual responsibility boundary
+
+28
+
+5. User Requirements
+The requirements below are preliminary. They were derived from the research problem
+and from the intended rehabilitation workflow rather than from completed stakeholder
+interviews. The planned interviews, observations, or expert reviews should therefore be
+used to confirm or change these requirements before the final submission. The evidence
+gathered from stakeholders will be recorded and linked to the final requirement set.
+
+5.1. Functional Requirements
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+
+FR-01: The component shall acquire synchronized accelerometer and gyroscope data
+from two ankle-mounted IMUs.
+FR-02: The component shall support a documented calibration procedure for the
+tibia/lower-leg and foot sensors.
+FR-03: The component shall estimate ankle movement trajectories from relative
+segment orientation.
+FR-04: The component shall recognize the defined rehabilitation exercise classes
+using time-series sensor data.
+FR-05: The component shall calculate repetitions and exercise-level kinematic
+measures including ROM, angle, velocity, trajectory, acceleration, and variability.
+FR-06: The component shall calculate postural stability measures for supported
+balance tasks.
+FR-07: The component shall generate session-level summaries and the ARPI.
+FR-08: The component shall store session identifiers and timestamps so repeated
+measurements can be compared longitudinally.
+FR-09: The component shall estimate recovery-state trends and clinician-defined
+milestone timing when sufficient longitudinal data are available.
+FR-10: The component shall expose structured outputs for integration with the
+complete AKIRA solution.
+
+5.2. Non-Functional Requirements
+•
+•
+•
+•
+•
+•
+
+NFR-01 Accuracy: final exercise-recognition performance shall meet or exceed the
+predefined F1 target on subject-independent test data.
+NFR-02 Kinematic validity: ankle-angle estimation shall report MAE/RMSE and
+remain within the predefined engineering error target on validated movements.
+NFR-03 Reliability: repeated trials shall report repeatability and measurement error
+rather than relying on a single accuracy result.
+NFR-04 Usability: representative users shall be able to complete the measurement
+workflow with a target SUS score of at least 70 after refinement.
+NFR-05 Response time: session-level analysis should complete within 5 seconds
+after the required sensor data are available on the target laptop/edge device.
+NFR-06 Privacy: identifiable participant information shall be separated from sensor
+records using coded participant identifiers.
+29
+
+•
+•
+•
+•
+
+NFR-07 Safety: the component shall not independently prescribe exercises, modify
+weight-bearing restrictions, or override clinician instructions.
+NFR-08 Reliability of data capture: the system shall detect missing or invalid sensor
+samples and flag sessions that fail data-quality checks.
+NFR-09 Reproducibility: sensor placement, calibration, preprocessing, model
+version, and evaluation configuration shall be documented for every experiment.
+NFR-10 Integration: outputs shall use a documented machine-readable schema
+agreed with the group integration layer.
+
+30
+
+6. Commercialization Plan
+6.1. Target Market and Customer Persona
+The initial target market is physiotherapy and orthopaedic rehabilitation services that
+support patients after ankle-fracture surgery. Rehabilitation researchers and supervised
+home-rehabilitation programmes are possible secondary users.
+The main user considered for the proposed system is a physiotherapist or rehabilitation
+professional who wants objective ankle movement and balance measurements between
+routine clinical assessments without setting up a laboratory motion-capture environment.
+From the patient side, the workflow is intended to remain simple and to operate within the
+rehabilitation plan provided by the clinician.
+
+6.2. Value Proposition
+•
+•
+•
+•
+•
+
+Portable two-IMU ankle measurement rather than laboratory-only motion capture.
+Exercise-specific quantitative measures instead of only subjective completion
+reporting.
+Separate kinematic and postural-stability measures to avoid reducing rehabilitation to
+a single movement score.
+Longitudinal ARPI and milestone trajectories that summarize change across sessions.
+Clinician-support positioning: monitoring and evidence generation without
+autonomous treatment decisions.
+
+6.3. Revenue Model
+One possible commercial model is a clinic package containing the wearable sensor kit,
+local analysis software, onboarding, and optional support or maintenance. A separate
+research or institutional licence could also be considered for universities and
+rehabilitation research groups. Pricing cannot be finalized at the proposal stage because it
+will depend on prototype costs, validation results, regulatory requirements, support needs,
+and feedback from potential users
+
+6.4. Cost Estimation and Pricing Strategy
+The budget shown in Section 7 should be treated as a development estimate for the
+research prototype, not as the final cost of a commercial product. A realistic selling price
+would need to include hardware, assembly, validation, support, replacement, and
+compliance costs. At this stage, the intended approach is to consider clinic value while
+keeping the hardware and software/support portions transparent rather than simply adding
+a margin to the student prototype budget.
+
+31
+
+6.5. Competitive Advantage
+The main potential point of differentiation is the combination of ankle-specific twosegment kinematics, postural stability, exercise recognition, repeatability assessment, and
+longitudinal milestone tracking in one workflow. This remains a provisional research
+proposition. A stronger competitive claim would require a separate market and competitor
+study.
+
+6.6. Intellectual Property Considerations
+Possible intellectual-property outputs include the sensor-placement and calibration
+procedure, the feature-engineering approach, the ARPI formulation, the longitudinal
+analysis workflow, the software implementation, and the integration interfaces. Opensource libraries and datasets used during development will need to be checked for licence
+compatibility. Any decision about patentability, ownership, or public release should be
+discussed with SLIIT and the research supervisor.
+
+32
+
+7. Budget and Justification
+Item
+
+Estimated Cost (LKR)
+
+Justification
+Core sensing hardware for the
+two-segment ankle
+configuration.
+Consistent and repeatable
+sensor placement.
+
+Two IMU sensor modules /
+development units
+
+20000
+
+Mounting straps, fixtures and
+consumables
+
+4000
+
+Development accessories /
+cables / storage
+
+3000
+
+Prototype integration and datatransfer needs.
+
+Printing / documentation /
+testing materials
+
+2000
+
+Protocol, consent and
+experimental documentation.
+
+Participant session logistics
+
+8000
+
+Local travel/refreshments or
+session support subject to
+ethics and institutional rules.
+
+Contingency
+
+5000
+
+Replacement components and
+unforeseen prototype expenses.
+
+Table 5 - Preliminary component budget
+
+Preliminary total: LKR 42,000. Software development will prioritize open-source tools where
+licensing permits. No cloud service is assumed as a required cost because the intended
+prototype analysis is designed to run locally/at the edge. The budget is an estimate and will
+be updated after hardware selection and ethics requirements are finalized.
+
+33
+
+8. Work Breakdown Structure
+WBS ID
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+
+Task
+Literature review and evidence
+mapping
+Research design, ethics
+preparation and stakeholder
+requirement validation
+Two-IMU hardware setup and
+synchronization
+Calibration and kinematic
+pipeline
+Pilot data collection and
+preprocessing
+Exercise recognition and
+repetition analysis
+Postural-stability analysis
+ARPI construction and
+longitudinal analysis
+Model comparison and
+validation
+Usability and stakeholder
+evaluation
+Integration testing
+Final analysis and
+proposal/dissertation
+documentation
+
+Table 6 - Work breakdown structure
+
+34
+
+Planned Timing
+Weeks 1–3
+Weeks 2–5
+Weeks 3–5
+Weeks 4–7
+Weeks 6–9
+Weeks 8–12
+Weeks 9–12
+Weeks 11–15
+Weeks 13–17
+Weeks 16–18
+Weeks 18–19
+Weeks 19–22
+
+9. Grant Chart
+The following high-level schedule aligns the individual ankle component with the
+required proposal activities. The exact academic calendar should be updated after
+confirmation of the official dissertation milestones.
+
+Activity
+
+Sep
+
+Oct
+
+Literature
+work
+
+●●
+
+●●
+
+●●
+
+●●
+
+Research
+design /
+ethics
+Data
+preparation /
+pilot
+
+●●
+
+Experiments
+
+Nov
+
+Dec
+
+Jan
+
+Feb
+
+●●
+●●
+
+●●
+
+Development
+
+●●
+
+●●
+
+●●
+
+●
+
+Prototype
+work
+
+●
+
+●●
+
+●●
+
+●
+
+●
+
+●●
+
+●●
+
+Integration
+
+●
+
+●●
+
+Evaluation /
+analysis
+
+●
+
+●●
+
+●
+
+●●
+
+●●
+
+Testing /
+validation
+
+Report
+preparation
+Table 7 - Grant Chart
+
+35
+
+10. References
+[1] Elsoe, R.; Ostgaard, S. E.; Larsen, P.;, "Population-based epidemiology of 9767 ankle
+fractures," Foot and Ankle Surgery, vol. Vol. 24, no. No. 1, p. 34–39, 2018.
+[2] Y. e. a. Wu, "Global, regional, and national burden of bone fractures in 204 countries
+and territories, 1990–2019: a systematic analysis from the Global Burden of Disease
+Study 2019," The Lancet Healthy Longevity, vol. No. 9, p. e580–e592, 2021.
+[3] O’Reilly, O. et al., "Wearable Inertial Sensor Systems for Lower Limb Exercise
+Detection and Evaluation: A Systematic Review," Sports Medicine, 2018.
+[4] Weygers, I.; Kok, M.; Konings, M.; Hallez, H.; De Vroey, H.; Claeys, K., "Inertial
+Sensor-Based Lower Limb Joint Kinematics: A Methodological Systematic Review,"
+Sensors, vol. Vol. 20, no. No. 3, p. 673, 2020.
+[5] Pacher, L.; Chatellier, C.; Vauzelle, R.; Fradet, L., "Sensor-to-Segment Calibration
+Methodologies for Lower-Body Kinematic Analysis with Inertial Sensors: A Systematic
+Review," Sensors, Vols. Vol. 20, , no. No. 11, p. 3322, 2020.
+[6] Prisco, M. et al., "Validity of Wearable Inertial Sensors for Gait Analysis: A Systematic
+Review," Diagnostics, 2024.
+[7] Lin, C.-W. C.; Moseley, A. M.; Refshauge, K. M., "Rehabilitation for ankle fractures in
+adults," Cochrane Database of Systematic Reviews, vol. No. 3, p. CD005595, 2008.
+[8] Semjonova, G. et al., "Functional Biomechanical Tests of the Foot and Ankle in
+Physiotherapy and Sports—Outcome Measures, Wearable Sensor Integration, and
+Psychometric Properties: A Systematic Review," Journal of Clinical Medicine, Vols.
+Vol. 15, , no. No. 10, p. 3892, 2026.
+[9] Rigney, B. et al., "Weightbearing after ankle fracture fixation; A systematic review and
+meta-analysis of randomised controlled trials, a modern perspective," Foot and Ankle
+Surgery, p. 10.1016/j.fas.2026.06.017, 2026.
+[10] C. Mintz, "Trimalleolar Ankle Fracture Xray shown before surgery and after surgery,"
+Creative Commons Attribution-ShareAlike 3.0, 2012.
+
+36
+
+11. APPENDICES
+11.1.
+
+Appendix 1 — Mandatory Proposal Evidence and Decision Log
+
+This appendix is intended to keep the proposal linked to the evidence and decisions made
+during the research process. It is left open so that new evidence, alternatives considered, and
+supervisor discussions can be added as the study progresses.
+
+Date
+
+Sep 2026
+
+Sep 2026
+
+Claim /
+Problem
+
+Wearable
+ankle
+monitoring
+requires
+validated
+calibration.
+
+Longitudinal
+recovery
+requires
+repeated,
+comparable
+measures.
+
+Evidence
+Collected
+
+Alternatives
+Considered
+
+Literature
+review: [1] [8].
+
+Single IMU vs
+two IMUs.
+
+Single-session
+score vs
+longitudinal
+index.
+
+Literature and
+protocol
+review.
+
+Appendix 1 - Mandatory Proposal Evidence and Decision Log
+
+37
+
+Decision
+Made
+
+Supervisor
+Discussion
+
+Two-IMU
+tibia/foot
+configuration.
+
+Two-IMU
+placement and
+calibration
+were discussed
+as necessary
+for reliable
+relative tibia–
+foot
+orientation and
+ankle
+kinematic
+estimation.
+
+ARPI with
+repeated
+session
+measurements.
+
+Longitudinal
+tracking using
+repeated
+session
+measurements
+and ARPI was
+discussed to
+represent
+rehabilitation
+progress over
+time.
+
+11.2.
+
+Appendix 2 — AI Use Disclosure
+
+Any generative AI assistance used during proposal preparation must be disclosed according
+to SLIIT requirements. AI assistance does not replace responsibility for factual accuracy,
+originality, reference verification, research decisions, methodology, technical choices, or
+interpretation of evidence. Technical diagrams required by the template will be created by the
+student and will not be generated by AI.
+AI Tool
+
+Purpose of Use
+
+Drafting /
+language
+formatting
+
+ChatGPT
+
+What Was
+Generated/Assisted
+
+Assisted with
+proposal
+prose and structure;
+
+How Output Was
+Verified
+
+Final Student
+Contribution
+
+checked against
+supplied template,
+presentation,
+lecture
+guidance and
+verified
+literature metadata.
+
+Research
+decisions,
+factual
+verification,
+originality,
+references,
+methodology,
+technical
+choices and final
+submission.
+
+Appendix 2 - AI Use Disclosure
+
+11.3.
+•
+•
+•
+•
+•
+•
+•
+•
+
+Appendix 3 — Preliminary Data Collection Protocol
+
+Record participant code, session code, date, and protocol version.
+Confirm clinician-defined exercise permissions and current rehabilitation stage before
+testing.
+Attach the lower leg/tibia IMU and foot IMU using the documented placement
+procedure.
+Perform the calibration routine and record sensor placement notes.
+Collect a short static/reference segment followed by the approved exercise sequence.
+Repeat selected exercises for reliability testing with rest periods as specified by the
+protocol.
+Collect balance-task trials only when clinically permitted.
+Store raw and processed data using coded identifiers and record any protocol
+deviations.
+
+Appendix 3 - Preliminary Data Collection Protocol
+
+38
+
+11.4.
+
+Appendix 4 - Prototype Evidence
+•
+•
+
+Mobile App Prototype- Figma Link
+Web App Prototype – One Drive Link
+
+Appendix 4 - Prototype Evidence
+
+11.5.
+
+Appendix 5 - Questionnaire
+
+Patients’ Replies – AKIRA Survey
+Appendix 5 - Questionnaire
+
+39
+
+
