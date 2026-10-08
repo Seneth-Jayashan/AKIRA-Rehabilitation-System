@@ -35,6 +35,11 @@ class PHYTMOLoader(BaseDatasetLoader):
                 if len(filename) >= 6:
                     subject_id = filename[:3]  # e.g., 'A01'
                     
+                    # LIMITATION FOR RAPID PROTOTYPING & PREVENTING TIMEOUTS:
+                    # Only process the first 3 subjects (A01, A02, A03)
+                    if subject_id not in ["A01", "A02", "A03"]:
+                        continue
+                        
                     # Split on '_' for trial id if it exists
                     parts = filename.split('_')
                     if len(parts) == 2:

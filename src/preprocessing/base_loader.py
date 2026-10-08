@@ -6,6 +6,7 @@ from enum import Enum
 class DataType(Enum):
     IMU = "IMU"
     BIOMECHANICAL = "Biomechanical"
+    HIGH_DENSITY = "High Density"
     MIXED = "Mixed"
 
 class BaseDatasetLoader(ABC):
@@ -30,6 +31,9 @@ class BaseDatasetLoader(ABC):
     
     # Biomechanical-specific columns (Force plate, EMG, etc.)
     BIOMEC_COLUMNS = ["fx", "fy", "fz", "mx", "my", "mz", "cop_x", "cop_y", "cop_z", "emg"]
+    
+    # High-density specific columns (MM-Motion)
+    HIGH_DENSITY_COLUMNS = [f"R{i}" for i in range(1, 49)] + [f"L{i}" for i in range(1, 49)]
 
     def __init__(self, raw_data_path: str):
         self.raw_data_path = raw_data_path
@@ -52,6 +56,8 @@ class BaseDatasetLoader(ABC):
             return self.BASE_COLUMNS + self.IMU_COLUMNS
         elif self.data_type == DataType.BIOMECHANICAL:
             return self.BASE_COLUMNS + self.BIOMEC_COLUMNS
+        elif self.data_type == DataType.HIGH_DENSITY:
+            return self.BASE_COLUMNS + self.HIGH_DENSITY_COLUMNS
         else:
             return self.BASE_COLUMNS + self.IMU_COLUMNS + self.BIOMEC_COLUMNS
 

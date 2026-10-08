@@ -76,10 +76,20 @@ class PreprocessingPipeline:
         if len(timestamps) < 2:
             return 100.0
             
-        # Calculate mean delta_t
-        delta_t = timestamps.diff().mean()
-        if delta_t > 0:
-            return 1.0 / delta_t
+        # Calculate median delta_t on a single continuous sensor stream
+        first_group = df.groupby(["subject_id", "session_id", "trial_id", "sensor_id"])["timestamp"].apply(list).values[0]
+        timestamps = pd.Series(first_group).dropna()
+        if len(timestamps) < 2:
+            return 100.0
+            
+        delta_t_sec = timestamps.diff().median()
+        if delta_t_sec > 0:
+            freq = 1.0 / delta_t_sec
+            # If the calculated frequency is absurdly high (e.g. > 1000Hz), 
+            # the timestamps might actually be in milliseconds.
+            if freq > 1000.0:
+                freq = 1000.0 / delta_t_sec
+            return freq
         return 100.0
 
     def normalize(self, df: pd.DataFrame) -> pd.DataFrame:

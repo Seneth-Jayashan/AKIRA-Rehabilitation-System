@@ -33,7 +33,7 @@ class SignalFilter:
         for col in imu_cols:
             if col in filtered_df.columns and not filtered_df[col].isnull().all():
                 # Fill missing temporarily for continuous filtering if any
-                signal = filtered_df[col].interpolate().fillna(method='bfill').fillna(method='ffill').values
+                signal = filtered_df[col].interpolate().bfill().ffill().values
                 filtered_df[col] = cls.butter_lowpass_filter(signal, cutoff=cutoff_freq, fs=fs)
                 
         return filtered_df
@@ -52,7 +52,7 @@ class SignalFilter:
         force_cols = ["fx", "fy", "fz", "mx", "my", "mz", "cop_x", "cop_y", "cop_z"]
         for col in force_cols:
             if col in filtered_df.columns and not filtered_df[col].isnull().all():
-                signal = filtered_df[col].interpolate().fillna(method='bfill').fillna(method='ffill').values
+                signal = filtered_df[col].interpolate().bfill().ffill().values
                 filtered_df[col] = cls.butter_lowpass_filter(signal, cutoff=force_cutoff, fs=fs)
                 
         # EMG requires different handling (often high-pass to remove DC, then rectify, then low-pass)

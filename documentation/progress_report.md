@@ -78,14 +78,17 @@ Rather than treating all datasets as identical pools of training data, each data
 
 | Dataset | Data Type(s) | Primary Role in AKIRA Component | Specific Use Cases |
 | :--- | :--- | :--- | :--- |
-| **SDALLE** | IMU / Motion | **Exercise Recognition** | Training the classification model to identify general rehabilitation exercises. |
-| **PHYTMO** | IMU (9-DOF, 100Hz) | **Exercise Recognition** | Contains 23 activity classes (including gait `GAT`, squats `SQT`, heel-toe `GHT`). Used to train and generalize the core multi-class exercise classifier. |
+| **SDALLE** | IMU / Motion | **Exercise Recognition** | We explicitly extracted **Walking, Jogging, Stairs_up, and Stairs_down**. The 'Walking' class directly fulfills the target **Gait/Walking** requirement, while stairs/jogging serve as negative classes to prevent false positives. |
+| **PHYTMO** | IMU (9-DOF, 100Hz) | **Exercise Recognition** | We identified 23 classes. Critically, it contains **Gait (GAT)** and variations like **Heel-Toe (GHT)** which map directly to our target **Walking** requirements. It also contains **Squats (SQT), Knee Flexion-Extension (KFE), and Hip Abduction (HAA)**. While not ankle-specific, these are vital as *Negative Classes* so the model learns not to confuse a knee bend with an ankle dorsiflexion. |
 | **GAITEX** | Kinematic Models | **Movement Quality** | Evaluating *how well* an exercise is performed (e.g., Range of Motion, movement smoothness, trajectory consistency). |
 | **MM-Motion** | High-density Motion (48-ch) | **Stability & Balance** | Extracting postural sway, center-of-motion variation, and classifying stability states (Stable, Moderate, Unstable) during balance exercises. |
 | **AnkleImage** | Biomechanical (Force, CoP, EMG) | **Kinematics & Validation** | Used for compensation detection and biomechanical validation. Ground-reaction forces (Fx, Fy, Fz) and Center of Pressure (CoP) will cross-validate the stability index and evaluate abnormal loading/compensation patterns. |
 
-### 3.3. Other Identified Data Attributes
+### 3.3. Ankle-Specific Limitations & Proxy Mapping
+While the datasets provide excellent macro-movements (Walking, Gait, Balance), the highly specific micro-articulations (e.g., *Ankle Circles, Ankle Alphabet, pure isolated Dorsiflexion/Plantarflexion*) were **not** found as explicitly labeled classes in these general lower-limb datasets. 
+*   **Resolution**: As proposed in Phase 8 of your roadmap ("Map compatible labels -> Unified Exercise Classes"), we will use the `Heel-Toe (GHT)` and `Walking (GAT)` sequences from PHYTMO as proxy dynamic sequences to extract dorsiflexion/plantarflexion biomechanical signatures during the gait cycle. Isolated micro-articulations may require the model to generalize from these fundamental ranges of motion.
+
+### 3.4. Other Identified Data Attributes
 During the programmatic inspection of the datasets, several additional data attributes were discovered that will inform the feature engineering phase:
-*   **PHYTMO Activity Taxonomy**: Identified 23 specific labels including `GAT0`, `HAAL1`, `SQT0`, and `Calib`. These will be mapped to a unified exercise taxonomy (e.g., `Walking`, `Rest`, `Other`).
 *   **Zero-Crossing Rate (ZCR) & Frequency Entropy**: Identified as highly relevant features extracted from the IMU signals. These will be critical for differentiating rhythmic exercises (like walking or ankle pumps) from static exercises (like single-leg balance).
 *   **CoP and Force (AnkleImage)**: The identification of Center of Pressure (CoP) and Triaxial Forces (Fx, Fy, Fz) means we have clinical-grade ground truth for predicting weight-bearing confidence and stability, which are critical post-ORIF milestones.
