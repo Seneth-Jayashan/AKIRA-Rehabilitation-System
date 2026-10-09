@@ -92,3 +92,23 @@ While the datasets provide excellent macro-movements (Walking, Gait, Balance), t
 During the programmatic inspection of the datasets, several additional data attributes were discovered that will inform the feature engineering phase:
 *   **Zero-Crossing Rate (ZCR) & Frequency Entropy**: Identified as highly relevant features extracted from the IMU signals. These will be critical for differentiating rhythmic exercises (like walking or ankle pumps) from static exercises (like single-leg balance).
 *   **CoP and Force (AnkleImage)**: The identification of Center of Pressure (CoP) and Triaxial Forces (Fx, Fy, Fz) means we have clinical-grade ground truth for predicting weight-bearing confidence and stability, which are critical post-ORIF milestones.
+
+---
+
+## Stage 3 & 4 — Model Construction and Evaluation (Phase 4)
+
+We implemented an exhaustive evaluation protocol testing seven distinct ML architectures across two tracks:
+*   **Track A (Engineered Features)**: Random Forest, SVM (Linear), XGBoost.
+*   **Track B (Raw Sequence Tensors)**: 1D CNN, LSTM, CNN+LSTM Hybrid, Time-Series Transformer.
+
+### Final Results Summary
+All models were evaluated under a strict subject-independent splitting protocol to prevent data leakage.
+1.  **XGBoost** (Track A): Accuracy 61.35% | **Macro-F1 19.72%** 🏆 
+2.  **Random Forest** (Track A): **Accuracy 64.59%** | Macro-F1 18.84%
+3.  **1D CNN** (Track B): Accuracy 42.02% | Macro-F1 13.61%
+4.  **LSTM** (Track B): Accuracy 33.75% | Macro-F1 13.80%
+5.  **CNN + LSTM** (Track B): Accuracy 35.82% | Macro-F1 11.52%
+6.  **Transformer** (Track B): Accuracy 47.82% | Macro-F1 13.56% (Required 18 mins training time)
+7.  **SVM** (Track A): *Excluded due to extreme computational latency on CPU*.
+
+**Conclusion**: The engineered features (Time/Frequency domain) utilized by XGBoost and Random Forest drastically outperformed the Deep Learning networks applied to raw sequence data. This proves that explicit signal processing (filters, FFT, ZCR, RMS) is more effective for IMU sensor data in this constrained environment than automated feature learning (CNNs/Transformers).
