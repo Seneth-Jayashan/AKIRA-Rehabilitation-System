@@ -112,3 +112,20 @@ All models were evaluated under a strict subject-independent splitting protocol 
 7.  **SVM** (Track A): *Excluded due to extreme computational latency on CPU*.
 
 **Conclusion**: The engineered features (Time/Frequency domain) utilized by XGBoost and Random Forest drastically outperformed the Deep Learning networks applied to raw sequence data. This proves that explicit signal processing (filters, FFT, ZCR, RMS) is more effective for IMU sensor data in this constrained environment than automated feature learning (CNNs/Transformers).
+
+---
+
+## Stage 5 — Model Optimization & Export (Phase 5)
+
+With XGBoost and Random Forest identified as the leading architectures, we performed targeted optimization to address dataset imbalances and prepare the models for production hardware.
+
+### 1. Hyperparameter Tuning & Class Imbalance
+We executed RandomizedSearchCV (3-Fold CV, 15 iterations) while explicitly injecting sample weights and `class_weight='balanced'`. 
+*   **Result**: While overall raw accuracy dropped (due to no longer predicting the majority "Walking" class 90% of the time), the **Macro-F1 score increased from 19.72% to 20.89%**. The model successfully learned to identify the minority classes (Squats, Knee Flexion) at the cost of majority-class overfitting.
+
+### 2. Feature Importance Analysis
+We extracted SHAP (SHapley Additive exPlanations) values and XGBoost native Gain metrics to reverse-engineer the model's decision-making process.
+*   **Result**: We identified that Z-axis metrics (`az_var`, `az_std`) and specific frequency-domain entropy features were overwhelmingly the most critical indicators for differentiating movements.
+
+### 3. Mobile Optimization (ONNX)
+To deploy the models to the ultimate AKIRA Android application, both the optimized Random Forest and XGBoost models were serialized and exported into the ONNX (Open Neural Network Exchange) format (`rehab_rf.onnx`, `rehab_xgb.onnx`). This allows zero-latency, offline inference on edge devices using ONNX Runtime.

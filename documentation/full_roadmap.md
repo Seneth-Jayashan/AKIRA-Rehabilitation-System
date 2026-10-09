@@ -20,10 +20,10 @@
 - [x] Generate Confusion Matrices and Result Summaries
 
 ## Phase 5: Model Optimization & Fine-Tuning
-- [ ] Hyperparameter Tuning for top models (XGBoost, Random Forest) via GridSearchCV / RandomizedSearchCV
-- [ ] Address Class Imbalance via `class_weight='balanced'` and `scale_pos_weight`
-- [ ] Feature Importance Analysis (SHAP / Feature Permutation) to identify crucial sensors
-- [ ] Inference Optimization (Quantization/ONNX conversion for mobile)
+- [x] Hyperparameter Tuning for top models (XGBoost, Random Forest) via GridSearchCV / RandomizedSearchCV
+- [x] Address Class Imbalance via `class_weight='balanced'` and `scale_pos_weight`
+- [x] Feature Importance Analysis (SHAP / Feature Permutation) to identify crucial sensors
+- [x] Inference Optimization (Quantization/ONNX conversion for mobile)
 
 ## Phase 6: Exercise Quality & Stability Estimation
 - [ ] Map AnkleImage Force Plate (Fx, Fy, Fz, CoP) to Stability Indices
