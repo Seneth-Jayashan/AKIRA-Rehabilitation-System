@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKIRA | AI Kinematic Intelligence</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>AKIRA</h1>
+        <h2>AI Kinematic Intelligence for Rehabilitation Analysis</h2>
+        <h3>Elbow Rehabilitation — Kinematic Analysis Prototype</h3>
+        <div class="badge">Validated on healthy-subject public dataset data. Not clinically validated on Olecranon ORIF patients.</div>
+    </header>
+
+    <div class="container">
+        <!-- Integrity Warning -->
+        <div id="integrity-warning" class="hidden error-box">
+            MODEL INTEGRITY: ✗ FAILED (Hash mismatch)
+        </div>
+
+        <div class="row">
+            <!-- Research Status -->
+            <div class="card model-info">
+                <h3>Research Status</h3>
+                <ul>
+                    <li><strong>Model:</strong> Frozen TCN</li>
+                    <li><strong>Input:</strong> 2 IMUs / 12 channels / 240 samples</li>
+                    <li><strong>Primary outputs:</strong> Elbow Flexion/Extension, Forearm Pronation/Supination</li>
+                    <li><strong>Additional output:</strong> 20-class movement classification</li>
+                    <li><strong>Dataset:</strong> Healthy-subject public dataset</li>
+                    <li><strong>Clinical ORIF validation:</strong> Not yet performed</li>
+                    <li><strong>Real ESP32 validation:</strong> Not yet performed</li>
+                </ul>
+                <div class="hash-box" id="hash-box">
+                    MODEL INTEGRITY: ✓ VERIFIED<br>
+                    <span id="sha-hash" style="font-size: 0.8em; word-break: break-all;"></span>
+                </div>
+            </div>
+
+            <!-- Performance -->
+            <div class="card performance">
+                <h3>OFFICIAL TEST PERFORMANCE</h3>
+                <p class="subtitle">Official locked test-set results</p>
+                <ul>
+                    <li><strong>Test subjects:</strong> 2 unseen subjects</li>
+                    <li><strong>Dataset:</strong> Healthy public dataset</li>
+                    <hr>
+                    <li><strong>Elbow MAE:</strong> 13.38°</li>
+                    <li><strong>Elbow RMSE:</strong> 22.96°</li>
+                    <li><strong>Elbow R²:</strong> 0.72</li>
+                    <li><strong>Forearm MAE:</strong> 24.41°</li>
+                    <li><strong>Forearm Median Angular Error:</strong> 19.85°</li>
+                    <li><strong>Forearm 95th Percentile Angular Error:</strong> 72.09°</li>
+                    <li><strong>Classification Accuracy:</strong> 63.58%</li>
+                </ul>
+            </div>
+        </div>
+
+        
+        <div class="row">
+            <div class="card">
+                <h3>MODEL COMPARISON</h3>
+                <div class="row">
+                    <div style="flex: 1;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 15px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #ccc;">
+                                    <th style="padding: 8px;">Model</th>
+                                    <th style="padding: 8px;">Elbow MAE</th>
+                                    <th style="padding: 8px;">Forearm MAE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background-color: #e9f7ef; font-weight: bold; border-bottom: 1px solid #ccc;">
+                                    <td style="padding: 8px;">TCN</td>
+                                    <td style="padding: 8px;">13.38°</td>
+                                    <td style="padding: 8px;">24.41°</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #ccc;">
+                                    <td style="padding: 8px;">LSTM</td>
+                                    <td style="padding: 8px;">17.05°</td>
+                                    <td style="padding: 8px;">27.65°</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px;">Linear Baseline</td>
+                                    <td style="padding: 8px;">46.15°</td>
+                                    <td style="padding: 8px;">25.11°</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; font-weight: bold; margin-bottom: 10px;">
+                            ✓ SELECTED FINAL MODEL: TCN
+                        </div>
+                        <p style="font-size: 0.9em;">TCN achieved the lowest reported kinematic prediction error among the three tested approaches and was selected as the final model.</p>
+                        <p style="font-size: 0.9em; font-style: italic;">Lower MAE indicates lower average prediction error.</p>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="baselineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Input Section -->
+
+        <div class="card input-section">
+            <h3>Real-Time Dataset Replay</h3>
+            
+            <p style="font-size: 0.95em; color: #333; margin-top: 5px;">
+                Select a recorded held-out test-set trial to replay through the frozen AKIRA model. Primary demonstrations focus on elbow flexion/extension and forearm pronation/supination because these are the main kinematic targets of the current AKIRA component.
+            </p>
+            <p style="font-size: 0.85em; color: #666; font-style: italic; margin-bottom: 15px;">
+                The current dataset contains healthy-subject movements. These recordings validate the kinematic-analysis prototype and are not clinical Olecranon ORIF rehabilitation data.
+            </p>
+
+            <div class="demo-selector" style="margin-bottom: 15px;">
+                <label for="demo-select"><strong>Demo Recording:</strong></label>
+                <select id="demo-select" style="width: 100%; max-width: 600px; height: 40px; display: block; margin-top: 5px; background: #fff; border: 1px solid #ccc; padding: 5px; font-size: 16px; border-radius: 4px; color: #333; cursor: pointer;">
+                    
+                    <optgroup label="PRIMARY ELBOW / FOREARM">
+                        <option value="task1">Task 1 — Dynamic Elbow Flexion/Extension</option>
+                        <option value="task2">Task 2 — Dynamic Forearm Pronation/Supination</option>
+                    </optgroup>
+                    
+                    <optgroup label="SUPPORTING UPPER-LIMB">
+                        <option value="task3">Task 3 — Dynamic Shoulder Flexion</option>
+                        <option value="task4">Task 4 — Dynamic Shoulder Abduction</option>
+                    </optgroup>
+
+                    <optgroup label="FUNCTIONAL ACTIVITY">
+                        <option value="task8">Task 8 — Drinking From a Cup</option>
+                    </optgroup>
+
+                    <optgroup label="CALIBRATION">
+                        <option value="cali_elbowflex">Elbow Flexion/Extension Calibration</option>
+                    </optgroup>
+
+                    <optgroup label="MODEL LIMITATION">
+                        <option value="error">Classification Error Example</option>
+                    </optgroup>
+
+                </select>
+            </div>
+            
+            <div class="testing-info" style="background: #f8f9fa; padding: 10px; border-left: 4px solid #0056b3; margin-bottom: 15px; border-radius: 4px;">
+                <p style="margin: 0 0 5px 0;"><strong>Movement:</strong> <span id="desc-movement">Dynamic Elbow Flexion/Extension</span></p>
+                <p style="margin: 0 0 5px 0;"><strong>AKIRA relevance:</strong> <span id="desc-relevance">Primary elbow/forearm target</span></p>
+                <p style="margin: 0 0 5px 0;"><strong>Dataset class:</strong> <span id="desc-dataset">task 1</span></p>
+                <p style="margin: 0;"><strong>Purpose:</strong> <span id="desc-purpose">Evaluate elbow kinematic estimation and supporting movement classification.</span></p>
+            </div>
+
+            <div class="button-row" style="align-items: center;">
+                <button class="btn btn-primary" id="btn-play">Start Replay</button>
+                <button class="btn" id="btn-pause">Pause</button>
+                <button class="btn" id="btn-reset">Reset</button>
+                
+                <label for="speed-select" style="margin-left: 20px;"><strong>Replay Speed:</strong></label>
+                <select id="speed-select" style="height: 40px; background-color: white; color: black; border: 1px solid #ccc; padding: 5px; font-size: 16px; border-radius: 4px; cursor: pointer;">
+                    <option value="0.5">0.5×</option>
+                    <option value="1" selected>1×</option>
+                    <option value="2">2×</option>
+                </select>
+            </div>
+            
+            <div id="error-msg" class="error-msg"></div>
+        </div>
+        
+        <!-- Live Status -->
+        <div class="card status-panel">
+            <h3>Live Status Panel</h3>
+            <ul id="status-list">
+                <li id="s-model">✓ Frozen checkpoint loaded</li>
+                <li><strong>Status:</strong> <span id="s-state" style="color: blue;">READY</span></li>
+                <li><strong>Source:</strong> Test-set recording</li>
+                <li><strong>Window:</strong> <span id="s-window">0 / 0</span> samples</li>
+            </ul>
+            <progress id="replay-progress" value="0" max="100" style="width: 100%; margin-top: 10px;"></progress>
+        </div>
+
+        <!-- Visualization -->
+        <div class="visualization" id="vis-section" style="opacity: 0.5; pointer-events: none;">
+            
+            <div class="card pred-summary">
+                <h3>Movement Classification</h3>
+                <div class="row">
+                    <div style="flex: 1;">
+                        <p style="font-size:1.1em;"><strong>Model Prediction:</strong> <span id="pred-class-human" class="highlight">---</span></p>
+                        <p><strong>Category:</strong> <span id="pred-category">---</span></p>
+                        <p><strong>Dataset Class:</strong> <span id="pred-class-raw">---</span></p>
+                        <p><strong>Confidence:</strong> <span id="pred-conf">0.0</span>%</p>
+                    </div>
+                    <div style="flex: 1;">
+                        <p style="font-size:1.1em;"><strong>Ground Truth:</strong> <span id="gt-class-human" style="color: green; font-weight: bold;">---</span></p>
+                        <p><strong>Ground Truth Dataset Class:</strong> <span id="gt-class-raw">---</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="card">
+                    <h3>ELBOW FLEXION / EXTENSION</h3>
+                    <div class="chart-container">
+                        <canvas id="elbowChart"></canvas>
+                    </div>
+                    <ul>
+                        <li><strong>Predicted Elbow Angle (Current):</strong> <span id="m-e-cur"></span>°</li>
+                        <li><strong>Predicted Elbow ROM:</strong> <span id="m-e-rom"></span>°</li>
+                        <li><strong>Predicted Elbow Angular Velocity:</strong> <span id="m-vel"></span> °/s</li>
+                        <li><strong>Predicted Repetitions:</strong> <span id="m-reps"></span></li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>FOREARM PRONATION / SUPINATION</h3>
+                    <div class="chart-container">
+                        <canvas id="forearmChart"></canvas>
+                    </div>
+                    <ul>
+                        <li><strong>Predicted Forearm Angle (Current):</strong> <span id="m-f-cur"></span>°</li>
+                        <li><strong>Predicted Forearm ROM:</strong> <span id="m-f-rom"></span>°</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Probability Distribution</h3>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="probChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <h4>Research Boundary</h4>
+        <p>This demonstration uses the frozen AKIRA TCN model validated on a healthy public dataset. It demonstrates model inference and kinematic estimation. It does not constitute clinical validation, ORIF recovery prediction, or therapeutic effectiveness evaluation.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

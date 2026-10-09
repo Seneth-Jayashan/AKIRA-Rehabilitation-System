@@ -1,0 +1,27 @@
+Task/Exercise,Count
+Optotrak_ScapulaProtractionCali,16
+Optotrak_task 1,16
+Optotrak_task 2,16
+Optotrak_task 3,16
+Optotrak_task 4,16
+Optotrak_task 5,16
+Optotrak_task 6,16
+Optotrak_task 7,16
+Optotrak_task 8,16
+Optotrak_task 9,16
+Optotrak_ElbowFlexCali,16
+Optotrak_task 10,16
+Optotrak_ElbowProCali,16
+Optotrak_WristFlexCali,16
+Optotrak_WristDevCali,16
+Optotrak_ShoIntRotCali,16
+Optotrak_ShoFlexCali,16
+Optotrak_ShoAbdCali,16
+Optotrak_ScapulaElevationCali,16
+PHYTMO_Cal,58
+PHYTMO_EAH,232
+PHYTMO_EFE,216
+PHYTMO_SQZ,236
+JU-IMU_ElbFlex,41
+JU-IMU_FrontSupPro,41
+JU-IMU_SupPro,41

@@ -1,0 +1,38 @@
+# Environments and Caches
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Large Datasets and Raw Data
+data/processed/windows/
+datasets/
+
+# Temporary smoke tests
+models/smoke_test/
+
+# Generated training logs and intermediate CSV results
+# (Official test metrics are saved in reports/)
+results/
+
+# Temporary root scripts and artifacts
+bad.csv
+extract_demo_samples.py
+extract_full_trials.py
+fix_encoding.py
+fix_options.py
+fix_text.py
+move_files.py
+update_ui.py
+audit.py
+file_list.csv
+
+# Ensure critical demo files and official resources are NOT ignored
+!reports/
+!demo/demo_data/
+!data/processed/class_mapping.json
+!models/final/best_tcn.pth
+!models/final/best_lstm.pth
+!models/final/best_linear.pth
