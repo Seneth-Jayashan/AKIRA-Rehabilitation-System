@@ -11,21 +11,36 @@ class MLDatasetBuilder:
         os.makedirs(self.out_dir, exist_ok=True)
         
     def build_dataset(self):
-        print("1. Loading processed feature datasets...")
+        print("1. Loading processed feature datasets and raw tensors...")
         dfs = []
+        raws = []
+        
         for file in os.listdir(self.processed_data_dir):
             if file.endswith("_features.csv"):
                 print(f"   Loading {file}...")
                 path = os.path.join(self.processed_data_dir, file)
                 df = pd.read_csv(path)
-                dfs.append(df)
+                
+                # Load corresponding raw tensor
+                npy_file = file.replace("_features.csv", "_raw.npy")
+                npy_path = os.path.join(self.processed_data_dir, npy_file)
+                if os.path.exists(npy_path):
+                    raw_tensor = np.load(npy_path)
+                    if len(raw_tensor) == len(df):
+                        dfs.append(df)
+                        raws.append(raw_tensor)
+                    else:
+                        print(f"   Shape mismatch for {file}: CSV({len(df)}) vs NPY({len(raw_tensor)}). Skipping.")
+                else:
+                    print(f"   Warning: Raw tensor {npy_file} not found. Ensure pipeline saved it. Skipping.")
                 
         if not dfs:
-            print("No processed datasets found. Run the preprocessing pipeline first.")
+            print("No complete processed datasets found. Run the preprocessing pipeline first.")
             return
             
         master_df = pd.concat(dfs, ignore_index=True)
-        print(f"   Total Windows Loaded: {len(master_df)}")
+        master_raw = np.concatenate(raws, axis=0)
+        print(f"   Total Windows Loaded: {len(master_df)} (Raw Tensor shape: {master_raw.shape})")
         
         print("2. Mapping raw labels to unified taxonomy...")
         master_df["standard_activity"] = master_df["activity"].apply(map_label)
@@ -53,6 +68,10 @@ class MLDatasetBuilder:
             X_train, y_train = X.iloc[train_idx], y.iloc[train_idx]
             X_val, y_val = X.iloc[test_idx], y.iloc[test_idx] # Val is Test
             X_test, y_test = X.iloc[test_idx], y.iloc[test_idx]
+            
+            raw_train = master_raw[train_idx]
+            raw_val = master_raw[test_idx]
+            raw_test = master_raw[test_idx]
         else:
             gss1 = GroupShuffleSplit(n_splits=1, test_size=0.30, random_state=42)
             train_idx, temp_idx = next(gss1.split(X, y, groups))
@@ -61,12 +80,18 @@ class MLDatasetBuilder:
             groups_temp = groups.iloc[temp_idx]
             X_temp, y_temp = X.iloc[temp_idx], y.iloc[temp_idx]
             
+            raw_train = master_raw[train_idx]
+            raw_temp = master_raw[temp_idx]
+            
             # Split 2: Validation (15%) vs Test (15%)
             gss2 = GroupShuffleSplit(n_splits=1, test_size=0.50, random_state=42)
             val_idx, test_idx = next(gss2.split(X_temp, y_temp, groups_temp))
             
             X_val, y_val = X_temp.iloc[val_idx], y_temp.iloc[val_idx]
             X_test, y_test = X_temp.iloc[test_idx], y_temp.iloc[test_idx]
+            
+            raw_val = raw_temp[val_idx]
+            raw_test = raw_temp[test_idx]
         
         # Extract features vs metadata
         metadata_cols = ["dataset_name", "subject_id", "session_id", "trial_id", "sensor_id", "activity"]
@@ -91,12 +116,17 @@ class MLDatasetBuilder:
         y_val.to_csv(os.path.join(self.out_dir, "y_val.csv"), index=False)
         y_test.to_csv(os.path.join(self.out_dir, "y_test.csv"), index=False)
         
+        # Save raw 3D tensors
+        np.save(os.path.join(self.out_dir, "raw_train.npy"), raw_train)
+        np.save(os.path.join(self.out_dir, "raw_val.npy"), raw_val)
+        np.save(os.path.join(self.out_dir, "raw_test.npy"), raw_test)
+        
         # Save metadata for traceability
         X_train[metadata_cols].to_csv(os.path.join(self.out_dir, "meta_train.csv"), index=False)
         X_val[metadata_cols].to_csv(os.path.join(self.out_dir, "meta_val.csv"), index=False)
         X_test[metadata_cols].to_csv(os.path.join(self.out_dir, "meta_test.csv"), index=False)
         
-        print(f"ML datasets generated successfully in {self.out_dir}/")
+        print(f"ML datasets (CSV features and NPY tensors) generated successfully in {self.out_dir}/")
 
 if __name__ == "__main__":
     builder = MLDatasetBuilder()

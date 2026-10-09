@@ -1,3 +1,19 @@
-
 Proposal_Presentation.pptx
 .venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Datasets
+datasets/processed/*.npy
+datasets/processed/*.csv
+datasets/ml_ready/*.npy
+datasets/ml_ready/*.csv
+datasets/raw/
+
+# Models
+models/*.pkl
+models/*.pt
+models/*.pth

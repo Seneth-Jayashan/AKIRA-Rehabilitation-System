@@ -4,3 +4,4 @@ scipy
 matplotlib
 rarfile
 scikit-learn
+torch

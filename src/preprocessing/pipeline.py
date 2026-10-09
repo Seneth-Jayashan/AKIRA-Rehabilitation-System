@@ -4,6 +4,7 @@ from src.preprocessing.base_loader import DataType, BaseDatasetLoader
 from src.preprocessing.filters import SignalFilter
 from src.segmentation.windowing import TimeSeriesSegmenter
 from src.feature_extraction.extractors import FeatureExtractor
+import numpy as np
 
 class PreprocessingPipeline:
     """
@@ -58,8 +59,44 @@ class PreprocessingPipeline:
             
         features_df = FeatureExtractor.process_windows(windows, feature_cols, self.fs)
         
+        # Step 11: Create Raw 3D Tensor for Deep Learning
+        print("11. Creating 3D Tensor for Deep Learning...")
+        raw_list = []
+        target_cols = ["ax", "ay", "az", "gx", "gy", "gz"]
+        expected_len = int(2.0 * self.fs)
+        
+        for w in windows:
+            # Safely handle missing columns
+            available_cols = [c for c in target_cols if c in w.columns]
+            
+            if len(available_cols) > 0:
+                arr = w[available_cols].values
+                if len(arr) > expected_len:
+                    arr = arr[:expected_len, :]
+                elif len(arr) < expected_len:
+                    pad_width = expected_len - len(arr)
+                    arr = np.pad(arr, ((0, pad_width), (0, 0)), mode='constant')
+                
+                if len(available_cols) < 6:
+                    full_arr = np.zeros((expected_len, 6))
+                    for idx, col in enumerate(target_cols):
+                        if col in available_cols:
+                            full_arr[:, idx] = arr[:, available_cols.index(col)]
+                    arr = full_arr
+            else:
+                arr = np.zeros((expected_len, 6))
+                
+            raw_list.append(arr)
+            
+        if raw_list:
+            raw_tensor = np.stack(raw_list)
+        else:
+            raw_tensor = np.empty((0, expected_len, 6))
+            
+        print(f"   Raw tensor shape: {raw_tensor.shape}")
+        
         print("--- Pipeline Completed ---")
-        return features_df
+        return features_df, raw_tensor
 
     def check_data_quality(self, df: pd.DataFrame) -> pd.DataFrame:
         """Handles missing values, invalid timestamps, etc."""

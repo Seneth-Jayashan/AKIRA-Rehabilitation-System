@@ -4,8 +4,10 @@ import numpy as np
 import time
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, classification_report
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, classification_report, confusion_matrix
 import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def load_data(data_dir="datasets/ml_ready"):
     X_train = pd.read_csv(os.path.join(data_dir, "X_train.csv"))
@@ -42,6 +44,28 @@ def evaluate_model(model, name, X_train, y_train, X_test, y_test):
     print("\nDetailed Classification Report:")
     print(classification_report(y_test, y_pred))
     
+    os.makedirs("results", exist_ok=True)
+    
+    # Save Confusion Matrix Plot
+    cm = confusion_matrix(y_test, y_pred)
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+    plt.ylabel('True Label')
+    plt.xlabel('Predicted Label')
+    plt.title(f'Confusion Matrix - {name}')
+    plt.tight_layout()
+    plt.savefig(f"results/confusion_matrix_{name.replace(' ', '_').lower()}.png")
+    plt.close()
+    
+    # Append to results summary
+    summary_file = "results/results_summary.csv"
+    file_exists = os.path.isfile(summary_file)
+    with open(summary_file, 'a') as f:
+        if not file_exists:
+            f.write("Model,Accuracy,Macro_F1,Train_Time,Inference_Time\n")
+        f.write(f"{name},{acc:.4f},{f1:.4f},{train_time:.4f},{inference_time:.4f}\n")
+        
     return model, acc, f1
 
 def run_track_a():
