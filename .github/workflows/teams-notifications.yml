@@ -1,0 +1,212 @@
+
+name: GitHub to Microsoft Teams Notifications
+
+'on':
+  push:
+  pull_request:
+    types: [closed]
+    
+permissions:
+  contents: read
+
+jobs:
+  notify-teams:
+    name: Send Teams notification
+    runs-on: ubuntu-latest
+
+    # Notify on every push, but only on merged pull requests.
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.merged == true)
+
+    steps:
+      - name: Build and send Adaptive Card
+        env:
+          MS_TEAMS_WEBHOOK_URI: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.request
+          from datetime import datetime, timezone
+
+          webhook = os.environ.get("MS_TEAMS_WEBHOOK_URI", "")
+          if not webhook:
+              sys.exit("Missing MS_TEAMS_WEBHOOK_URI secret.")
+
+          with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as f:
+              event = json.load(f)
+
+          event_name = os.environ["GITHUB_EVENT_NAME"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          server = os.environ["GITHUB_SERVER_URL"].rstrip("/")
+          repo_url = f"{server}/{repo}"
+
+          def short_sha(value):
+              return (value or "N/A")[:7]
+
+          def text_block(text, size="Default", weight="Default",
+                         color="Default", wrap=True):
+              return {
+                  "type": "TextBlock",
+                  "text": str(text),
+                  "size": size,
+                  "weight": weight,
+                  "color": color,
+                  "wrap": wrap
+              }
+
+          def fact_set(facts):
+              return {
+                  "type": "FactSet",
+                  "facts": [
+                      {"title": str(k), "value": str(v)}
+                      for k, v in facts
+                  ]
+              }
+
+          def make_card(title, subtitle, facts, url, color="Good",
+                        extra_blocks=None):
+              body = [
+                  text_block(title, "Large", "Bolder", color),
+                  text_block(subtitle, "Small", "Default", "Default"),
+                  fact_set(facts)
+              ]
+              if extra_blocks:
+                  body.extend(extra_blocks)
+
+              return {
+                  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                  "type": "AdaptiveCard",
+                  "version": "1.2",
+                  "body": body,
+                  "actions": [
+                      {
+                          "type": "Action.OpenUrl",
+                          "title": "View on GitHub",
+                          "url": url
+                      }
+                  ]
+              }
+
+          if event_name == "push":
+              branch = event.get("ref", "").removeprefix("refs/heads/")
+              commits = event.get("commits") or []
+              head_sha = event.get("after", "")
+              if not head_sha or set(head_sha) == {"0"}:
+                  head_sha = event.get("head_commit", {}).get("id", "")
+
+              commit_url = (
+                  f"{repo_url}/commit/{head_sha}"
+                  if head_sha else f"{repo_url}/commits/{branch}"
+              )
+
+              facts = [
+                  ("Repository", repo),
+                  ("Branch", branch or "N/A"),
+                  ("Author", event.get("sender", {}).get("login", "Unknown")),
+                  ("Commit count", len(commits)),
+                  ("Latest SHA", short_sha(head_sha))
+              ]
+
+              details = []
+              for commit in commits[-5:]:
+                  message = (
+                      (commit.get("message") or "").splitlines() or ["(no commit message)"]
+                  )[0]
+                  details.append(
+                      text_block(
+                          f"• {message[:180]} "
+                          f"({short_sha(commit.get('id'))})",
+                          "Small"
+                      )
+                  )
+
+              if len(commits) > 5:
+                  details.insert(
+                      0,
+                      text_block(
+                          f"{len(commits) - 5} earlier commit(s) not shown.",
+                          "Small"
+                      )
+                  )
+
+              if not commits:
+                  details.append(
+                      text_block(
+                          "No individual commit details were provided.",
+                          "Small"
+                      )
+                  )
+
+              card = make_card(
+                  "🟢 New Commits Pushed",
+                  f"{repo} · {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
+                  facts,
+                  commit_url,
+                  "Good",
+                  details
+              )
+
+          elif event_name == "pull_request":
+              pr = event["pull_request"]
+              number = pr["number"]
+              pr_url = pr.get("html_url", f"{repo_url}/pull/{number}")
+              merged_at = pr.get("merged_at") or "Not provided"
+
+              facts = [
+                  ("Repository", repo),
+                  ("PR Number", f"#{number}"),
+                  ("Title", pr.get("title", "Untitled")),
+                  ("Author", pr.get("user", {}).get("login", "Unknown")),
+                  ("Source Branch", pr.get("head", {}).get("ref", "N/A")),
+                  ("Target Branch", pr.get("base", {}).get("ref", "N/A")),
+                  ("Merge Commit", short_sha(pr.get("merge_commit_sha"))),
+                  ("Merged At", merged_at)
+              ]
+
+              card = make_card(
+                  "✅ Pull Request Merged",
+                  f"{repo} · Pull request #{number}",
+                  facts,
+                  pr_url,
+                  "Good"
+              )
+
+          else:
+              sys.exit(f"Unsupported event: {event_name}")
+
+          payload = {
+              "type": "message",
+              "attachments": [
+                  {
+                      "contentType": "application/vnd.microsoft.card.adaptive",
+                      "contentUrl": None,
+                      "content": card
+                  }
+              ]
+          }
+
+          data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+          request = urllib.request.Request(
+              webhook,
+              data=data,
+              headers={"Content-Type": "application/json"},
+              method="POST"
+          )
+
+          try:
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  print(f"Teams webhook responded with HTTP {response.status}")
+                  if not 200 <= response.status < 300:
+                      sys.exit("Teams notification failed.")
+          except Exception as exc:
+              # Do not print the webhook URL or request headers.
+              print(f"Failed to send Teams notification: {type(exc).__name__}")
+              sys.exit(1)
+          PY

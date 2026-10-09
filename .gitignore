@@ -1,19 +1,33 @@
 Proposal_Presentation.pptx
-.venv/
 
-# Python
+# Python / Environment
+aiModels/.venv/
+.venv/
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Datasets
-datasets/processed/*.npy
-datasets/processed/*.csv
-datasets/ml_ready/*.npy
-datasets/ml_ready/*.csv
-datasets/raw/
+# Datasets (AI Models)
+aiModels/datasets/processed/*.npy
+aiModels/datasets/processed/*.csv
+aiModels/datasets/ml_ready/*.npy
+aiModels/datasets/ml_ready/*.csv
+aiModels/datasets/raw/
 
-# Models
-models/*.pkl
-models/*.pt
-models/*.pth
+# Trained Models (AI Models)
+aiModels/models/*.pkl
+aiModels/models/*.pt
+aiModels/models/*.pth
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/*.iml
+
+# Arduino
+arduino/build/
+arduino/*.hex
+arduino/*.bin

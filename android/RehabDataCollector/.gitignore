@@ -1,0 +1,15 @@
+# Gradle / Android Studio build output — never ship these, regenerate on sync
+*.iml
+.gradle/
+build/
+/local.properties
+.idea/
+.DS_Store
+/captures
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# Firebase (not used in this project, but ignore just in case it's added later)
+google-services.json
