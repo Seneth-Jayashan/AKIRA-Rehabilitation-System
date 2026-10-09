@@ -5,6 +5,8 @@ import time
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, classification_report, confusion_matrix
+from sklearn.preprocessing import LabelEncoder
+from xgboost import XGBClassifier
 import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -18,7 +20,7 @@ def load_data(data_dir="datasets/ml_ready"):
     
     return X_train, y_train, X_test, y_test
 
-def evaluate_model(model, name, X_train, y_train, X_test, y_test):
+def evaluate_model(model, name, X_train, y_train, X_test, y_test, class_names):
     print(f"\n{'='*40}")
     print(f"Evaluating Model: {name}")
     print(f"{'='*40}")
@@ -42,7 +44,7 @@ def evaluate_model(model, name, X_train, y_train, X_test, y_test):
     print(f"Recall         : {recall*100:.2f}%")
     
     print("\nDetailed Classification Report:")
-    print(classification_report(y_test, y_pred))
+    print(classification_report(y_test, y_pred, target_names=class_names))
     
     os.makedirs("results", exist_ok=True)
     
@@ -50,7 +52,7 @@ def evaluate_model(model, name, X_train, y_train, X_test, y_test):
     cm = confusion_matrix(y_test, y_pred)
     plt.figure(figsize=(10, 8))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-                xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+                xticklabels=class_names, yticklabels=class_names)
     plt.ylabel('True Label')
     plt.xlabel('Predicted Label')
     plt.title(f'Confusion Matrix - {name}')
@@ -72,13 +74,20 @@ def run_track_a():
     """Track A: Feature-Based Models"""
     X_train, y_train, X_test, y_test = load_data()
     
-    # Handle NaNs from FFT features (if any division by zero occurred)
+    # Handle NaNs from FFT features
     X_train = X_train.fillna(0)
     X_test = X_test.fillna(0)
     
+    # Encode labels for XGBoost compatibility
+    le = LabelEncoder()
+    y_train_encoded = le.fit_transform(y_train)
+    y_test_encoded = le.transform(y_test)
+    class_names = le.classes_
+    
     models = {
         "Random Forest (Baseline)": RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1),
-        "SVM (Linear)": SVC(kernel='linear', random_state=42)
+        "SVM (Linear)": SVC(kernel='linear', random_state=42),
+        "XGBoost": XGBClassifier(n_estimators=100, random_state=42, n_jobs=-1)
     }
     
     best_f1 = 0
@@ -86,7 +95,7 @@ def run_track_a():
     best_name = ""
     
     for name, model in models.items():
-        trained_model, acc, f1 = evaluate_model(model, name, X_train, y_train, X_test, y_test)
+        trained_model, acc, f1 = evaluate_model(model, name, X_train, y_train_encoded, X_test, y_test_encoded, class_names)
         if f1 > best_f1:
             best_f1 = f1
             best_model = trained_model
@@ -97,6 +106,7 @@ def run_track_a():
     # Save the best model
     os.makedirs("models", exist_ok=True)
     joblib.dump(best_model, f"models/track_a_best_{best_name.replace(' ', '_').lower()}.pkl")
+    joblib.dump(le, "models/label_encoder.pkl")
 
 if __name__ == "__main__":
     run_track_a()
