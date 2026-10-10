@@ -10,31 +10,43 @@
 - [x] Discovery of data structures, frequencies, and missing ankle-specific articulation classes
 - [x] Define proxy classes (e.g. Walking/Gait to substitute fundamental range of motion)
 
-## Phase 4: Data Engineering & Initial Model Evaluation
+## Phase 4: Data Engineering and Baseline Models
 - [x] Universal Dataset Loader (IMU vs Biomechanical)
 - [x] DSP Filtering (20Hz low-pass Butterworth)
 - [x] Temporal Windowing & Subject-Independent Splitting
 - [x] Feature Extraction (Time/Frequency domains)
-- [x] **Track A**: Train/Evaluate Classical ML (Random Forest, SVM, XGBoost)
-- [x] **Track B**: Train/Evaluate Deep Learning (1D CNN, LSTM, CNN-LSTM, Transformer)
-- [x] Generate Confusion Matrices and Result Summaries
+- [x] Train/Evaluate Classical ML and Deep Learning architectures
+- [x] Reproducibility and class-wise evaluation audit
 
-## Phase 5: Model Optimization & Fine-Tuning
-- [x] Hyperparameter Tuning for top models (XGBoost, Random Forest) via GridSearchCV / RandomizedSearchCV
-- [x] Address Class Imbalance via `class_weight='balanced'` and `scale_pos_weight`
-- [x] Feature Importance Analysis (SHAP / Feature Permutation) to identify crucial sensors
-- [x] Inference Optimization (Quantization/ONNX conversion for mobile)
+## Phase 5: Optimization and Export
+- [x] Hyperparameter Tuning for top models via GridSearchCV / RandomizedSearchCV
+- [x] Address Class Imbalance via `class_weight='balanced'`
+- [x] Feature Importance Analysis (SHAP)
+- [x] Inference Optimization (ONNX conversion for mobile)
+- [x] Verify saved models, preprocessing parity, and latency
 
-## Phase 6: Exercise Quality & Stability Estimation
-- [x] Map AnkleImage Force Plate (Fx, Fy, Fz, CoP) to Stability Indices
-- [x] Develop Regression model to predict balance/weight-bearing confidence from IMU
-- [x] Extract Kinematic smoothness metrics
+## Phase 6: Movement Quality and Stability
+- [x] CoP-based stability calculation (Algorithms Implemented)
+- [x] Smoothness metrics (RMS Jerk, SPARC) (Algorithms Implemented)
+- [x] IMU-to-stability regression (POC Simulated)
+- [ ] IMU-to-stability regression validated with valid paired data
+- [ ] Smoothness metrics reference-based validation
 
-## Phase 7: Cross-Dataset Generalization (Zero-Shot / Few-Shot)
-- [x] Train on PHYTMO, test on SDALLE or GAITEX to evaluate out-of-distribution robustness
-- [x] Apply Transfer Learning if required
+## Phase 7: Cross-Dataset Generalization
+- [x] Synthetic domain-shift and transfer learning experiment
+- [ ] Actual source-to-target dataset evaluation (PHYTMO -> SDALLE/GAITEX)
+- [ ] Subject-independent target testing
+- [ ] Compare against the synthetic domain-shift experiment
 
-## Phase 8: AKIRA Hardware Integration (Fine-Tuning)
-- [ ] Collect primary data using dual-IMU ankle hardware built for AKIRA
-- [ ] Fine-tune the pre-trained XGBoost / Random Forest on AKIRA data
-- [ ] Finalize model for Android / Embedded deployment
+## Phase 8: AKIRA Hardware and Ankle-Specific Data (Next Major Stage)
+- [ ] Collect paired tibia/foot IMU recordings from AKIRA hardware
+- [ ] Define a repeatable, supervised data-collection protocol
+- [ ] Label ankle exercises and establish reference measurements
+- [ ] Calibrate sensors and validate ankle kinematics
+- [ ] Fine-tune or retrain suitable models
+
+## Phase 9: Final System Validation (Clinical Readiness)
+- [ ] Integrate offline inference with the Android application
+- [ ] Evaluate real-time latency, reliability, and failure handling
+- [ ] Validate exercise recognition, ROM, and movement-quality estimates
+- [ ] Conduct appropriate expert/clinical validation before clinical claims

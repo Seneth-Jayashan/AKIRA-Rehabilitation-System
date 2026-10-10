@@ -43,9 +43,11 @@ class SDALLELoader(BaseDatasetLoader):
                     trial_id = parts[2].replace(".csv", "")
                     
                     try:
-                        # SDALLE contains accelerometer and gyroscope data
-                        # We limit nrows for development
-                        df = pd.read_csv(path, nrows=1000)
+                        # SDALLE contains Trigno IMU data without standard headers
+                        # First 7 rows are metadata. There are 54 columns. 
+                        # We'll take columns 1 to 6 as ax, ay, az, gx, gy, gz for the primary sensor.
+                        # (Column 0 is an EMG channel)
+                        df = pd.read_csv(path, skiprows=7, header=None)
                         
                         df["dataset_name"] = "SDALLE"
                         df["subject_id"] = subject_id
@@ -53,13 +55,22 @@ class SDALLELoader(BaseDatasetLoader):
                         df["trial_id"] = trial_id
                         df["activity"] = activity
                         
-                        # Add missing standard base columns
-                        if "timestamp" not in df.columns:
-                            df["timestamp"] = range(len(df))
+                        # Trigno CSVs are aligned to the highest freq channel (EMG @ 1259.2593 Hz)
+                        df["timestamp"] = [i * (1.0 / 1259.2593) for i in range(len(df))]
                         df["sensor_id"] = "IMU_1"
                         
-                        # Map columns if necessary (Assuming SDALLE has ax, ay, az, gx, gy, gz)
-                        # We rename them if they have different names in reality.
+                        # Map columns 1-6 to accelerometer and gyroscope and force numeric
+                        if df.shape[1] >= 7:
+                            df["ax"] = pd.to_numeric(df[1], errors='coerce')
+                            df["ay"] = pd.to_numeric(df[2], errors='coerce')
+                            df["az"] = pd.to_numeric(df[3], errors='coerce')
+                            df["gx"] = pd.to_numeric(df[4], errors='coerce')
+                            df["gy"] = pd.to_numeric(df[5], errors='coerce')
+                            df["gz"] = pd.to_numeric(df[6], errors='coerce')
+                        
+                        # Downsample from ~1259 Hz to ~157 Hz to match IMU actual frequency 
+                        # and prevent pipeline memory overflow / >1000Hz heuristic bugs
+                        df = df.iloc[::8].reset_index(drop=True)
                         
                         expected = self.get_expected_columns()
                         available = [c for c in expected if c in df.columns]

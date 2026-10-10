@@ -101,6 +101,85 @@ def run_cross_dataset_evaluation():
     transfer_model_path = "aiModels/models/optimized/transfer_learned_xgboost.pkl"
     joblib.dump(transfer_model, transfer_model_path)
     print(f"\nTransfer-learned model saved to: {transfer_model_path}")
+    
+    # ==========================================
+    # 7. GENUINE Cross-Dataset Evaluation (PHYTMO -> SDALLE)
+    # ==========================================
+    print("\n=== GENUINE CROSS-DATASET EVALUATION (PHYTMO -> SDALLE) ===")
+    sdalle_path = "aiModels/datasets/processed/sdalle_features.csv"
+    if os.path.exists(sdalle_path):
+        sdalle_df = pd.read_csv(sdalle_path).fillna(0)
+        
+        # In SDALLE, some activity names might differ slightly, but we map them to our taxonomy
+        # PHYTMO labels: 'Sit', 'Stand', 'Walk', 'Turn' (or similar based on earlier taxonomy)
+        # We need the true labels from SDALLE. Let's see what they are in sdalle_df['activity'].
+        if 'activity' in sdalle_df.columns:
+            # We must drop metadata cols just like in train_test split
+            meta_cols = ["dataset_name", "subject_id", "session_id", "trial_id", "activity", "sensor_id", "timestamp"]
+            X_genuine = sdalle_df.drop(columns=[c for c in meta_cols if c in sdalle_df.columns], errors='ignore')
+            
+            # Align columns to X_test (in case of missing/extra features)
+            for col in X_test.columns:
+                if col not in X_genuine.columns:
+                    X_genuine[col] = 0.0
+            X_genuine = X_genuine[X_test.columns] # Enforce order
+            
+            y_genuine_raw = sdalle_df['activity'].astype(str).str.lower()
+            
+            # The model was trained on PHYTMO labels. We map SDALLE labels to match.
+            # E.g. "walking" -> "walk", "jogging" -> "run", "stairs_up" -> "stairs_up" (etc)
+            # Since we don't know the exact PHYTMO classes the model expects, we can transform using `le`
+            # But we must only evaluate on classes the model knows about.
+            # Create lower-case to original-case mapping for known classes
+            known_classes_lower = {str(c).lower(): c for c in le.classes_}
+            
+            # Map SDALLE labels to PHYTMO taxonomy where possible
+            mapped_y = []
+            valid_indices = []
+            
+            for idx, label in enumerate(y_genuine_raw):
+                label_clean = label.strip()
+                mapped = None
+                
+                if 'walk' in label_clean:
+                    if 'walking' in known_classes_lower:
+                        mapped = known_classes_lower['walking']
+                    elif 'walk' in known_classes_lower:
+                        mapped = known_classes_lower['walk']
+                
+                if mapped:
+                    mapped_y.append(mapped)
+                    valid_indices.append(idx)
+                    
+            if len(valid_indices) > 0:
+                X_genuine_valid = X_genuine.iloc[valid_indices]
+                y_genuine_valid = le.transform(mapped_y)
+                
+                # Zero-Shot on Genuine Data
+                y_pred_genuine = model.predict(X_genuine_valid)
+                genuine_acc = accuracy_score(y_genuine_valid, y_pred_genuine)
+                print(f"[Genuine Zero-Shot] Accuracy on SDALLE Dataset: {genuine_acc*100:.2f}%")
+                
+                # Few-Shot on Genuine Data
+                # If we have enough data, let's fine-tune on 10%
+                if len(X_genuine_valid) > 10:
+                    X_g_train, X_g_test, y_g_train, y_g_test = train_test_split(
+                        X_genuine_valid, y_genuine_valid, test_size=0.90, random_state=42, stratify=y_genuine_valid
+                    )
+                    
+                    if len(np.unique(y_g_train)) > 1:
+                        genuine_transfer_model = XGBClassifier(n_estimators=50, learning_rate=0.05, max_depth=4, random_state=42)
+                        genuine_transfer_model.fit(X_g_train, y_g_train, xgb_model=model)
+                        
+                        y_pred_g_transfer = genuine_transfer_model.predict(X_g_test)
+                        g_transfer_acc = accuracy_score(y_g_test, y_pred_g_transfer)
+                        print(f"[Genuine Few-Shot] Accuracy on SDALLE (After Transfer Learning): {g_transfer_acc*100:.2f}%")
+                    else:
+                        print("[Genuine Few-Shot] Skipping transfer learning because the genuine mapped dataset only contains 1 unique class.")
+            else:
+                print("Could not map any SDALLE activities to the PHYTMO taxonomy for evaluation.")
+    else:
+        print("SDALLE features not found. Skipping Genuine Cross-Dataset test.")
 
 if __name__ == "__main__":
     run_cross_dataset_evaluation()
