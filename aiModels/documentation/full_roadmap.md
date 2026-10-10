@@ -29,14 +29,14 @@
 - [x] CoP-based stability calculation (Algorithms Implemented)
 - [x] Smoothness metrics (RMS Jerk, SPARC) (Algorithms Implemented)
 - [x] IMU-to-stability regression (POC Simulated)
-- [ ] IMU-to-stability regression validated with valid paired data
-- [ ] Smoothness metrics reference-based validation
+- [ ] *Deferred to Phase 8/9:* IMU-to-stability regression validated with valid paired data
+- [ ] *Deferred to Phase 8/9:* Smoothness metrics reference-based validation
 
 ## Phase 7: Cross-Dataset Generalization
 - [x] Synthetic domain-shift and transfer learning experiment
-- [ ] Actual source-to-target dataset evaluation (PHYTMO -> SDALLE/GAITEX)
-- [ ] Subject-independent target testing
-- [ ] Compare against the synthetic domain-shift experiment
+- [x] Actual source-to-target dataset evaluation (PHYTMO -> SDALLE/GAITEX)
+- [x] Subject-independent target testing (SDALLE represents completely independent subjects)
+- [x] Compare against the synthetic domain-shift experiment (Documented in Progress Report)
 
 ## Phase 8: AKIRA Hardware and Ankle-Specific Data (Next Major Stage)
 - [ ] Collect paired tibia/foot IMU recordings from AKIRA hardware
