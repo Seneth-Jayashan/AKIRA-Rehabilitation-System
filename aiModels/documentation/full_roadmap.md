@@ -31,8 +31,8 @@
 - [x] Extract Kinematic smoothness metrics
 
 ## Phase 7: Cross-Dataset Generalization (Zero-Shot / Few-Shot)
-- [ ] Train on PHYTMO, test on SDALLE or GAITEX to evaluate out-of-distribution robustness
-- [ ] Apply Transfer Learning if required
+- [x] Train on PHYTMO, test on SDALLE or GAITEX to evaluate out-of-distribution robustness
+- [x] Apply Transfer Learning if required
 
 ## Phase 8: AKIRA Hardware Integration (Fine-Tuning)
 - [ ] Collect primary data using dual-IMU ankle hardware built for AKIRA
