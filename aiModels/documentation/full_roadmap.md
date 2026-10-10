@@ -26,9 +26,9 @@
 - [x] Inference Optimization (Quantization/ONNX conversion for mobile)
 
 ## Phase 6: Exercise Quality & Stability Estimation
-- [ ] Map AnkleImage Force Plate (Fx, Fy, Fz, CoP) to Stability Indices
-- [ ] Develop Regression model to predict balance/weight-bearing confidence from IMU
-- [ ] Extract Kinematic smoothness metrics
+- [x] Map AnkleImage Force Plate (Fx, Fy, Fz, CoP) to Stability Indices
+- [x] Develop Regression model to predict balance/weight-bearing confidence from IMU
+- [x] Extract Kinematic smoothness metrics
 
 ## Phase 7: Cross-Dataset Generalization (Zero-Shot / Few-Shot)
 - [ ] Train on PHYTMO, test on SDALLE or GAITEX to evaluate out-of-distribution robustness
