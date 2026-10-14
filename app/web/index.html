@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AKIRA Edge-AI Knee Rehabilitation Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+  <!-- Top Header / Navigation -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/20">
+          A
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-xl font-bold tracking-tight text-slate-900">AKIRA <span class="text-blue-600">Edge-AI</span></h1>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+              ● Online / Test Mode
+            </span>
+          </div>
+          <p class="text-xs text-slate-500">Post-ORIF Tibial Plateau Knee Rehab Kinematics & Multi-Modal Evaluation</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <div class="text-right hidden sm:block">
+          <span class="text-xs font-medium text-slate-500">Held-Out Test Partition:</span>
+          <span class="text-xs font-bold text-slate-800 block">142 Unseen Trials (20% of 709)</span>
+        </div>
+        <a href="#benchmark-table" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-200">
+          Compare All 6
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Section 1: Model Selector (Choose out of 6 Hybrid Models) -->
+    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 inline-flex items-center justify-center text-xs font-bold">1</span>
+            Select Hybrid Deep Learning Architecture (Out of 6 Models)
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">
+            <strong class="text-slate-700">Multi-Modal Hybrids:</strong> All 6 models fuse raw 12-ch IMU sensor streams with 16 clinical biomechanical features.
+          </p>
+          <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] bg-slate-100 text-slate-700 border border-slate-200">
+            <span class="text-blue-600 font-bold">💡 Architectural Note:</span>
+            <span>All 6 are <strong>Multi-Modal Domain Hybrids</strong>; additionally, <strong>Hybrid 3 is an Architectural Hybrid (1D-CNN + BiLSTM)</strong>.</span>
+          </div>
+        </div>
+        <div id="active-model-badge" class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 self-start sm:self-center">
+          Selected: Hybrid 1: 1D-CNN
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="model-cards-container">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- Section 2: Model Overall Accuracy & Performance (20% Test Set) -->
+    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 inline-flex items-center justify-center text-xs font-bold">2</span>
+            Model Benchmark Performance on Held-Out Test Set (20% = 142 Trials)
+          </h2>
+          <p class="text-xs text-slate-500">Evaluated on trials completely unseen during training, preventing data leakage.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-toggle-cm" onclick="toggleConfusionMatrix()" class="text-xs font-medium text-blue-600 hover:text-blue-800 underline">
+            Toggle Confusion Matrix View
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200">
+          <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Exercise Accuracy</span>
+          <div class="text-2xl font-extrabold text-blue-600 mt-1" id="kpi-exercise-acc">--%</div>
+          <span class="text-[11px] text-slate-500 mt-0.5 block" id="kpi-exercise-f1">Macro F1: --%</span>
+        </div>
+
+        <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200">
+          <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Quality Accuracy</span>
+          <div class="text-2xl font-extrabold text-emerald-600 mt-1" id="kpi-quality-acc">--%</div>
+          <span class="text-[11px] text-slate-500 mt-0.5 block" id="kpi-quality-f1">Macro F1: --%</span>
+        </div>
+
+        <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200">
+          <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Combined Score</span>
+          <div class="text-2xl font-extrabold text-indigo-600 mt-1" id="kpi-combined-score">--%</div>
+          <span class="text-[11px] text-slate-500 mt-0.5 block">50% Class + 50% Quality</span>
+        </div>
+
+        <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200">
+          <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Model Size & Edge Latency</span>
+          <div class="text-2xl font-extrabold text-slate-800 mt-1" id="kpi-params">-- params</div>
+          <span class="text-[11px] text-slate-500 mt-0.5 block" id="kpi-latency">Edge: ~8 ms / trial</span>
+        </div>
+      </div>
+
+      <!-- Confusion Matrix Container (collapsible) -->
+      <div id="cm-container" class="border-t border-slate-100 pt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Exercise CM -->
+          <div class="bg-slate-50/60 rounded-xl p-3 border border-slate-200">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Exercise Recognition Confusion Matrix</h4>
+            <div id="cm-exercise-grid" class="overflow-x-auto"></div>
+          </div>
+          <!-- Quality CM -->
+          <div class="bg-slate-50/60 rounded-xl p-3 border border-slate-200">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Movement Quality Confusion Matrix</h4>
+            <div id="cm-quality-grid" class="overflow-x-auto"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Select 20% Test Sample & Live Inference -->
+    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 inline-flex items-center justify-center text-xs font-bold">3</span>
+            Select 1 Test Trial from the 20% Partition & Run Inference
+          </h2>
+          <p class="text-xs text-slate-500">Pick any of the 142 held-out test trials to inspect live model predictions and kinematics.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="pickRandomSample()" class="px-3.5 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
+            <span>🎲</span> Random Test Sample
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Controls & Dropdown Selector -->
+      <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-5">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Filter by Exercise</label>
+            <select id="filter-exercise" onchange="applyFilters()" class="w-full text-xs font-medium rounded-lg border-slate-200 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="all">All Exercises (142 trials)</option>
+              <option value="Mini Squat">Mini Squat (69: 38 Good, 31 Bad)</option>
+              <option value="Seated Knee Extension">Seated Knee Extension (55: 20 Good, 14 Lag, 21 Bad)</option>
+              <option value="Step-Up">Step-Up (15: 15 Good)</option>
+              <option value="Walking">Walking (3: 3 Good)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Filter by Clinical Quality</label>
+            <select id="filter-quality" onchange="applyFilters()" class="w-full text-xs font-medium rounded-lg border-slate-200 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="-1">All Quality Tiers (142 trials)</option>
+              <option value="0">Good / Correct Form (76 trials — All Exercises)</option>
+              <option value="1">Needs Improvement (14 trials — Seated Extension)</option>
+              <option value="2">Bad / Compensatory Fault (52 trials — Squat & Extension)</option>
+            </select>
+          </div>
+          <div class="flex items-end gap-2">
+            <button onclick="prevSample()" class="flex-1 px-3 py-2 text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200">
+              ⬅ Previous
+            </button>
+            <button onclick="nextSample()" class="flex-1 px-3 py-2 text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200">
+              Next ➡
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Filter Coordination Notice -->
+        <div id="filter-notice" class="hidden text-xs bg-amber-50 text-amber-900 border border-amber-200 rounded-lg p-2.5 mb-3"></div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Select Held-Out Test Trial</label>
+          <select id="sample-select" onchange="onSampleChanged()" class="w-full text-xs font-mono rounded-lg border-slate-200 bg-white p-2.5 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Sample Metadata Card -->
+      <div id="sample-metadata-card" class="bg-blue-50/50 rounded-xl p-4 border border-blue-100 mb-5 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div>
+          <span class="text-slate-500">Current Trial:</span>
+          <span class="font-bold text-slate-800 ml-1 font-mono" id="meta-file-id">--</span>
+          <span class="text-slate-400 mx-2">|</span>
+          <span class="text-slate-500">Subject:</span>
+          <span class="font-bold text-slate-800 ml-1" id="meta-subject">--</span>
+          <span class="text-slate-400 mx-2">|</span>
+          <span class="text-slate-500">Origin:</span>
+          <span class="font-bold text-slate-800 ml-1" id="meta-dataset">--</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-md bg-white border border-slate-200 font-semibold text-slate-700">
+            Ground Truth: <span id="meta-gt-exercise" class="text-blue-600 font-bold">--</span>
+          </span>
+          <span class="px-2.5 py-1 rounded-md bg-white border border-slate-200 font-semibold text-slate-700">
+            Grade: <span id="meta-gt-quality" class="text-emerald-600 font-bold">--</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- STAGE 1: GETTING RAW DATA (Input A)                                       -->
+      <!-- ========================================================================= -->
+      <div class="bg-slate-50/70 border border-slate-200 rounded-2xl p-5 mb-5 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-blue-600 text-white inline-flex items-center justify-center text-xs font-bold shadow-sm">1</span>
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
+              Stage 1: Raw Sensor Input Stream Received (Input A)
+            </h3>
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] font-mono text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-md">
+            <span>200 time steps @ 100 Hz</span>
+            <span>•</span>
+            <span class="text-blue-600 font-bold">12 IMU Channels (Thigh & Shin)</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mb-3">Continuous 3-axis acceleration and 3-axis angular velocity signals streamed directly from dual wearable straps (200 frames × 12 channels = 2,400 raw data points).</p>
+        
+        <!-- 12 Raw Sensor Channel Badges -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">The 12 Raw Physical Sensor Inputs</span>
+            <span class="text-[11px] font-mono text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              Thigh IMU (CH 1–6) & Shin IMU (CH 7–12)
+            </span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2" id="raw-channels-grid">
+            <!-- Populated via JS: 12 channel telemetry cards -->
+          </div>
+        </div>
+
+        <!-- View Mode Switcher -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pt-2 border-t border-slate-200">
+          <div class="flex items-center gap-1.5 text-xs font-semibold">
+            <span class="text-slate-500">Display Raw Data As:</span>
+            <button id="btn-view-waveforms" onclick="switchRawView('waveforms')" class="px-3 py-1 rounded-md text-xs font-bold bg-blue-600 text-white shadow-2xs transition-colors">
+              📈 12-Channel Waveforms
+            </button>
+            <button id="btn-view-matrix" onclick="switchRawView('matrix')" class="px-3 py-1 rounded-md text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition-colors">
+              🔢 Raw Data Telemetry Numbers (2,400 Values)
+            </button>
+          </div>
+          <div id="waveform-filter-group" class="flex items-center gap-1 text-[11px]">
+            <span class="text-slate-400">Filter Waves:</span>
+            <button id="wf-btn-all" onclick="filterIMUPlot('all')" class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-semibold">All 12 ch</button>
+            <button id="wf-btn-acc" onclick="filterIMUPlot('acc')" class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">6 Acc (g)</button>
+            <button id="wf-btn-gyro" onclick="filterIMUPlot('gyro')" class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">6 Gyro (deg/s)</button>
+          </div>
+        </div>
+
+        <!-- View 1: IMU Waveform Chart -->
+        <div id="raw-waveform-view" class="bg-white rounded-xl p-4 border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Synchronized 12-Channel IMU Telemetry Stream</h4>
+            <span class="text-[11px] text-slate-400">12 Channels / 200 time steps @ 100 Hz</span>
+          </div>
+          <div class="h-64">
+            <canvas id="imuSignalChart"></canvas>
+          </div>
+        </div>
+
+        <!-- View 2: Raw Numerical Matrix Table -->
+        <div id="raw-matrix-view" class="hidden bg-white rounded-xl p-4 border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Raw Numerical Telemetry Matrix Preview (dt = 0.01s):</h4>
+            <span class="text-[11px] font-mono text-slate-400">200 frames × 12 axes (Showing first 25 samples)</span>
+          </div>
+          <div class="overflow-x-auto max-h-72 border border-slate-200 rounded-lg">
+            <table class="w-full text-center text-[10px] font-mono border-collapse" id="raw-data-table">
+              <thead class="bg-slate-100 text-slate-700 sticky top-0 border-b border-slate-200 z-10">
+                <tr>
+                  <th class="p-1 border-r border-slate-200 bg-slate-200">Time (s)</th>
+                  <th class="p-1 bg-blue-50 text-blue-900 border-r border-slate-200">Thigh Acc X</th>
+                  <th class="p-1 bg-blue-50 text-blue-900 border-r border-slate-200">Thigh Acc Y</th>
+                  <th class="p-1 bg-blue-50 text-blue-900 border-r border-slate-200">Thigh Acc Z</th>
+                  <th class="p-1 bg-amber-50 text-amber-900 border-r border-slate-200">Thigh Gyro X</th>
+                  <th class="p-1 bg-amber-50 text-amber-900 border-r border-slate-200">Thigh Gyro Y</th>
+                  <th class="p-1 bg-amber-50 text-amber-900 border-r border-slate-200">Thigh Gyro Z</th>
+                  <th class="p-1 bg-emerald-50 text-emerald-900 border-r border-slate-200">Shin Acc X</th>
+                  <th class="p-1 bg-emerald-50 text-emerald-900 border-r border-slate-200">Shin Acc Y</th>
+                  <th class="p-1 bg-emerald-50 text-emerald-900 border-r border-slate-200">Shin Acc Z</th>
+                  <th class="p-1 bg-red-50 text-red-900 border-r border-slate-200">Shin Gyro X</th>
+                  <th class="p-1 bg-red-50 text-red-900 border-r border-slate-200">Shin Gyro Y</th>
+                  <th class="p-1 bg-red-50 text-red-900">Shin Gyro Z</th>
+                </tr>
+              </thead>
+              <tbody id="raw-data-tbody" class="divide-y divide-slate-100 bg-white">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow Flow Indicator -->
+      <div class="flex items-center justify-center my-3 text-slate-400 text-sm font-bold gap-2">
+        <span class="h-px bg-slate-200 w-24"></span>
+        <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-semibold shadow-xs">
+          ⬇ math_feature_extractor.py transforms raw signals into clinical kinematics
+        </span>
+        <span class="h-px bg-slate-200 w-24"></span>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- STAGE 2: TURN INTO 16 FEATURES (Input B)                                   -->
+      <!-- ========================================================================= -->
+      <div class="bg-emerald-50/40 border border-emerald-200 rounded-2xl p-5 mb-5 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white inline-flex items-center justify-center text-xs font-bold shadow-sm">2</span>
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
+              Stage 2: Turning Raw Data into 16 Clinical Features (Input B)
+            </h3>
+          </div>
+          <span id="features-badge-math" class="text-[11px] font-semibold text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full font-mono">
+            ⚡ Extracted in ~1.4 ms via math_feature_extractor.py
+          </span>
+        </div>
+        <p class="text-xs text-slate-600 mb-3">Our mathematical physics model integrates relative angular velocity to compute the anatomical knee angle curve, then extracts 16 clinical biomechanical metrics on-the-fly.</p>
+
+        <!-- Knee Angle Chart -->
+        <div class="bg-white rounded-xl p-4 border border-emerald-200/80 mb-4 shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Computed Anatomical Knee Flexion Angle Trajectory</h4>
+            <span class="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded">Sagittal Plane Angle θ(t)</span>
+          </div>
+          <div class="h-60">
+            <canvas id="kneeAngleChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 16 Clinical Features Grid -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">16 Extracted Clinical Biomechanical Features (Input B Matrix)</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5" id="features-grid">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow Flow Indicator -->
+      <div class="flex items-center justify-center my-3 text-slate-400 text-sm font-bold gap-2">
+        <span class="h-px bg-slate-200 w-24"></span>
+        <span class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full text-xs font-semibold shadow-xs">
+          ⬇ Dual-Stream AI Model combines [Raw Waves] + [16 Features]
+        </span>
+        <span class="h-px bg-slate-200 w-24"></span>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- STAGE 3: SHOW OUTPUT (Predictions & Diagnosis)                            -->
+      <!-- ========================================================================= -->
+      <div class="bg-indigo-50/40 border border-indigo-200 rounded-2xl p-5 mb-2 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white inline-flex items-center justify-center text-xs font-bold shadow-sm">3</span>
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
+              Stage 3: Multi-Modal AI Decision & Rehabilitation Verdict (Output)
+            </h3>
+          </div>
+          <span id="pipe-total-time" class="text-[11px] font-mono bg-indigo-900 text-indigo-200 border border-indigo-700 px-3 py-1 rounded-full font-bold">
+            ⚡ Total Pipeline Latency: ~9.2 ms
+          </span>
+        </div>
+        <p class="text-xs text-slate-600 mb-3">Dual multi-task classification heads predict exercise category and grade form quality with actionable orthopedic feedback.</p>
+
+        <!-- Live Inference Results Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <!-- Task 1 Output -->
+          <div class="bg-white rounded-xl p-4 border border-indigo-100 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Task 1: Exercise Recognition</span>
+              <span id="badge-class-match" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                ✅ Match
+              </span>
+            </div>
+            <div class="flex items-baseline justify-between mb-3">
+              <h3 class="text-xl font-extrabold text-slate-900" id="res-exercise-name">--</h3>
+              <span class="text-base font-bold text-blue-600 font-mono" id="res-exercise-conf">--%</span>
+            </div>
+            <!-- Probability Bars -->
+            <div class="space-y-2" id="prob-bars-exercise"></div>
+          </div>
+
+          <!-- Task 2 Output -->
+          <div class="bg-white rounded-xl p-4 border border-indigo-100 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Task 2: Movement Quality Assessment</span>
+              <span id="badge-qual-match" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                ✅ Match
+              </span>
+            </div>
+            <div class="flex items-baseline justify-between mb-3">
+              <h3 class="text-xl font-extrabold text-slate-900" id="res-quality-name">--</h3>
+              <span class="text-base font-bold text-emerald-600 font-mono" id="res-quality-conf">--%</span>
+            </div>
+            <!-- Probability Bars -->
+            <div class="space-y-2" id="prob-bars-quality"></div>
+          </div>
+        </div>
+
+        <!-- Clinical Biomechanical Feedback -->
+        <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4">
+          <h4 class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <span>🩺</span> Post-ORIF Clinical Biomechanical Evaluation & Rehabilitation Notes
+          </h4>
+          <ul id="clinical-feedback-list" class="text-xs text-amber-950 space-y-1.5 pl-4 list-disc mt-2">
+            <li>Evaluating kinematics...</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Section 4: Full 6-Model Benchmark Comparison Table -->
+    <section id="benchmark-table" class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+      <div class="mb-4">
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 inline-flex items-center justify-center text-xs font-bold">4</span>
+          All 6 Hybrid Models Benchmark Table (20% Held-Out Test Evaluation)
+        </h2>
+        <p class="text-xs text-slate-500">Sorted by Combined Clinical Score (50% Exercise Recognition + 50% Quality Assessment).</p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
+              <th class="py-2.5 px-3">Rank</th>
+              <th class="py-2.5 px-3">Model Architecture</th>
+              <th class="py-2.5 px-3 text-right">Parameters</th>
+              <th class="py-2.5 px-3 text-right">Exercise Acc (%)</th>
+              <th class="py-2.5 px-3 text-right">Exercise F1 (%)</th>
+              <th class="py-2.5 px-3 text-right">Quality Acc (%)</th>
+              <th class="py-2.5 px-3 text-right">Quality F1 (%)</th>
+              <th class="py-2.5 px-3 text-right">Combined Score</th>
+              <th class="py-2.5 px-3 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="benchmark-table-body" class="divide-y divide-slate-100">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+    AKIRA: Smart Post-ORIF Rehabilitation Ecosystem with Edge-AI Kinematic Tracking • Individual Component: Knee Rehabilitation
+  </footer>
+
+  <!-- Application Logic JS -->
+  <script src="js/app.js"></script>
+</body>
+</html>

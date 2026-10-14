@@ -1,0 +1,143 @@
+source_dataset,file_id,subject,exercise_name,class_id,quality_grade,rom_deg,duration_sec
+KneE-PAD,Subject_11_3_Trial_3,Subject_11,Seated Knee Extension,1,0,54.48542102707776,3.96
+PHYTMO,A07SQT1_2.csv,A07,Mini Squat,2,2,103.61105620418924,44.08
+KneE-PAD,Subject_5_3_Trial_1,Subject_5,Seated Knee Extension,1,0,78.12960117290773,3.95
+StrengthSense,s13_a10_t2_l.csv,s13,Step-Up,3,0,7411.932434295008,9.14
+KneE-PAD,Subject_6_2_Trial_1,Subject_6,Mini Squat,2,2,62.59439402046748,2.5
+PHYTMO,C02SQT0_1.csv,C02,Mini Squat,2,0,119.6167155801279,20.65
+PHYTMO,A05SQT0_1.csv,A05,Mini Squat,2,0,134.01030156885287,54.68
+StrengthSense,s13_a13_t1_l.csv,s13,Mini Squat,2,0,10363.49857682095,6.45
+KneE-PAD,Subject_5_4_Trial_4,Subject_5,Seated Knee Extension,1,1,54.679306947211,3.51
+KneE-PAD,Subject_5_0_Trial_1,Subject_5,Mini Squat,2,0,147.00202664381496,3.09
+PHYTMO,A04KFER0_2.csv,A04,Seated Knee Extension,1,0,140.98971955115346,42.19
+KneE-PAD,Subject_1_1_Trial_1,Subject_1,Mini Squat,2,2,83.33929330411486,3.28
+KneE-PAD,Subject_13_3_Trial_5,Subject_13,Seated Knee Extension,1,0,114.1017476906072,3.92
+KneE-PAD,Subject_9_5_Trial_4,Subject_9,Seated Knee Extension,1,2,53.30504355430509,4.11
+KneE-PAD,Subject_15_5_Trial_5,Subject_15,Seated Knee Extension,1,2,49.32088182761149,3.7
+KneE-PAD,Subject_7_5_Trial_2,Subject_7,Seated Knee Extension,1,2,5.158614605086131,4.01
+StrengthSense,s23_a13_t1_l.csv,s23,Mini Squat,2,0,8525.882830609313,6.84
+KneE-PAD,Subject_11_1_Trial_5,Subject_11,Mini Squat,2,2,106.2273637317302,4.65
+KneE-PAD,Subject_11_5_Trial_2,Subject_11,Seated Knee Extension,1,2,54.74018665517404,3.89
+KneE-PAD,Subject_6_0_Trial_2,Subject_6,Mini Squat,2,0,88.85509903168175,4.03
+KneE-PAD,Subject_7_0_Trial_3,Subject_7,Mini Squat,2,0,66.99020423702493,5.03
+KneE-PAD,Subject_8_5_Trial_2,Subject_8,Seated Knee Extension,1,2,68.65295346139818,3.35
+StrengthSense,s3_a13_t3_l.csv,s3,Mini Squat,2,0,8065.100319323398,2.22
+KneE-PAD,Subject_11_0_Trial_4,Subject_11,Mini Squat,2,0,109.82460515321058,3.96
+KneE-PAD,Subject_6_6_Trial_1,Subject_6,Walking,0,0,93.81833856199589,8.43
+PHYTMO,C02KFER0_1.csv,C02,Seated Knee Extension,1,0,73.06921169463794,19.52
+KneE-PAD,Subject_7_4_Trial_3,Subject_7,Seated Knee Extension,1,1,1.5079496076303212,3.99
+KneE-PAD,Subject_13_1_Trial_4,Subject_13,Mini Squat,2,2,94.11964067865,4.35
+KneE-PAD,Subject_9_3_Trial_2,Subject_9,Seated Knee Extension,1,0,76.35699557470662,2.95
+StrengthSense,s29_a13_t3_l.csv,s29,Mini Squat,2,0,10219.98432268107,5.53
+KneE-PAD,Subject_2_0_Trial_3,Subject_2,Mini Squat,2,0,84.9379891400798,4.44
+StrengthSense,s15_a10_t4_l.csv,s15,Step-Up,3,0,6949.029141494514,10.45
+KneE-PAD,Subject_10_6_Trial_1,Subject_10,Walking,0,0,154.8206251113034,11.06
+StrengthSense,s10_a13_t3_l.csv,s10,Mini Squat,2,0,10360.763553625393,6.3
+KneE-PAD,Subject_15_2_Trial_4,Subject_15,Mini Squat,2,2,82.37935467867337,4.05
+StrengthSense,s11_a13_t3_l.csv,s11,Mini Squat,2,0,6879.131002801944,8.45
+StrengthSense,s4_a13_t2_l.csv,s4,Mini Squat,2,0,11423.55716927864,7.22
+StrengthSense,s2_a13_t2_l.csv,s2,Mini Squat,2,0,8384.859306314342,6.07
+KneE-PAD,Subject_15_2_Trial_3,Subject_15,Mini Squat,2,2,83.43936257481805,4.03
+StrengthSense,s1_a13_t3_l.csv,s1,Mini Squat,2,0,6335.457526833995,5.07
+KneE-PAD,Subject_9_2_Trial_4,Subject_9,Mini Squat,2,2,88.50735673781969,4.49
+KneE-PAD,Subject_2_5_Trial_4,Subject_2,Seated Knee Extension,1,2,53.698859000922,3.66
+KneE-PAD,Subject_8_3_Trial_3,Subject_8,Seated Knee Extension,1,0,67.14162697142588,3.8
+StrengthSense,s18_a10_t4_l.csv,s18,Step-Up,3,0,3492.1238865659134,8.91
+KneE-PAD,Subject_1_5_Trial_3,Subject_1,Seated Knee Extension,1,2,64.87574938795224,4.63
+KneE-PAD,Subject_7_4_Trial_4,Subject_7,Seated Knee Extension,1,1,1.215460597102854,3.86
+StrengthSense,s15_a10_t3_l.csv,s15,Step-Up,3,0,5470.769891418275,10.38
+KneE-PAD,Subject_10_1_Trial_4,Subject_10,Mini Squat,2,2,91.24901870285436,2.61
+PHYTMO,A06SQT1_2.csv,A06,Mini Squat,2,2,98.73237274630924,46.0
+StrengthSense,s17_a10_t3_l.csv,s17,Step-Up,3,0,5683.229721554108,8.53
+StrengthSense,s25_a13_t2_l.csv,s25,Mini Squat,2,0,9665.99610558345,8.07
+KneE-PAD,Subject_2_4_Trial_2,Subject_2,Seated Knee Extension,1,1,59.54456838739447,4.17
+KneE-PAD,Subject_4_2_Trial_5,Subject_4,Mini Squat,2,2,76.23223628404499,4.39
+KneE-PAD,Subject_3_5_Trial_2,Subject_3,Seated Knee Extension,1,2,52.40073988654875,4.35
+KneE-PAD,Subject_11_5_Trial_1,Subject_11,Seated Knee Extension,1,2,51.890352857941984,5.17
+StrengthSense,s12_a10_t4_l.csv,s12,Step-Up,3,0,5051.505854499552,9.38
+StrengthSense,s18_a10_t3_l.csv,s18,Step-Up,3,0,3733.528860175421,10.07
+KneE-PAD,Subject_14_0_Trial_3,Subject_14,Mini Squat,2,0,77.92294724625482,3.78
+StrengthSense,s10_a10_t1_l.csv,s10,Step-Up,3,0,6070.84148063896,11.07
+PHYTMO,B04KFER0_1.csv,B04,Seated Knee Extension,1,0,154.83167923523095,22.59
+PHYTMO,A06SQT1_1.csv,A06,Mini Squat,2,2,120.36706922639786,54.76
+KneE-PAD,Subject_9_1_Trial_5,Subject_9,Mini Squat,2,2,74.9055848483011,4.55
+KneE-PAD,Subject_13_1_Trial_5,Subject_13,Mini Squat,2,2,97.30931699558492,4.42
+StrengthSense,s20_a10_t3_l.csv,s20,Step-Up,3,0,6093.631596600681,34.3
+StrengthSense,s22_a13_t1_l.csv,s22,Mini Squat,2,0,8396.294209300546,5.91
+PHYTMO,C05KFER1_2.csv,C05,Seated Knee Extension,1,2,115.47315052354872,27.11
+StrengthSense,s27_a13_t1_l.csv,s27,Mini Squat,2,0,9390.904032979644,7.53
+PHYTMO,A01KFER1_2.csv,A01,Seated Knee Extension,1,2,120.63161152200456,43.74
+StrengthSense,s2_a10_t3_l.csv,s2,Step-Up,3,0,7332.581010049746,9.22
+KneE-PAD,Subject_8_0_Trial_3,Subject_8,Mini Squat,2,0,98.70583683840576,3.2
+PHYTMO,A06KFER1_1.csv,A06,Seated Knee Extension,1,2,109.79174299953624,41.8
+KneE-PAD,Subject_11_0_Trial_1,Subject_11,Mini Squat,2,0,100.63259058277536,3.77
+KneE-PAD,Subject_9_2_Trial_2,Subject_9,Mini Squat,2,2,88.88109992173256,3.86
+PHYTMO,B02SQT0_2.csv,B02,Mini Squat,2,0,116.49556221083554,53.15
+KneE-PAD,Subject_13_5_Trial_4,Subject_13,Seated Knee Extension,1,2,76.23570065399812,3.42
+KneE-PAD,Subject_10_3_Trial_4,Subject_10,Seated Knee Extension,1,0,67.77636481957668,2.1
+StrengthSense,s22_a13_t4_l.csv,s22,Mini Squat,2,0,7580.468147258231,6.07
+StrengthSense,s2_a10_t5_l.csv,s2,Step-Up,3,0,5319.945103916404,9.68
+KneE-PAD,Subject_13_3_Trial_3,Subject_13,Seated Knee Extension,1,0,79.8271409957286,3.38
+KneE-PAD,Subject_3_2_Trial_2,Subject_3,Mini Squat,2,2,84.49105622502856,4.78
+PHYTMO,A07KFER0_1.csv,A07,Seated Knee Extension,1,0,88.63990913942469,44.25
+KneE-PAD,Subject_10_4_Trial_3,Subject_10,Seated Knee Extension,1,1,56.23020946015912,2.51
+PHYTMO,A05KFER1_1.csv,A05,Seated Knee Extension,1,2,94.83902372829556,47.1
+KneE-PAD,Subject_8_4_Trial_2,Subject_8,Seated Knee Extension,1,1,55.32267260839752,3.65
+PHYTMO,C04SQT0_2.csv,C04,Mini Squat,2,0,119.66171833005797,17.42
+KneE-PAD,Subject_10_0_Trial_3,Subject_10,Mini Squat,2,0,85.76197844196471,3.86
+KneE-PAD,Subject_5_1_Trial_5,Subject_5,Mini Squat,2,2,141.94824322601008,3.45
+KneE-PAD,Subject_12_2_Trial_4,Subject_12,Mini Squat,2,2,95.28297511864425,3.43
+KneE-PAD,Subject_14_3_Trial_4,Subject_14,Seated Knee Extension,1,0,68.83723053691944,3.14
+KneE-PAD,Subject_3_4_Trial_2,Subject_3,Seated Knee Extension,1,1,29.810939314281452,3.85
+KneE-PAD,Subject_8_5_Trial_4,Subject_8,Seated Knee Extension,1,2,64.27782802775864,3.59
+KneE-PAD,Subject_13_5_Trial_3,Subject_13,Seated Knee Extension,1,2,82.22418392201206,3.42
+PHYTMO,C02KFER1_1.csv,C02,Seated Knee Extension,1,2,96.66458109254576,16.78
+PHYTMO,A04SQT0_1.csv,A04,Mini Squat,2,0,137.36175946637428,43.94
+PHYTMO,C05KFER0_1.csv,C05,Seated Knee Extension,1,0,93.29316449959512,33.39
+StrengthSense,s5_a13_t2_l.csv,s5,Mini Squat,2,0,7676.167464544483,8.07
+StrengthSense,s23_a13_t3_l.csv,s23,Mini Squat,2,0,10060.5073428797,6.61
+StrengthSense,s20_a10_t6_l.csv,s20,Step-Up,3,0,5653.945308638857,68.38
+KneE-PAD,Subject_4_1_Trial_5,Subject_4,Mini Squat,2,2,62.70045619713687,3.85
+PHYTMO,B02SQT1_2.csv,B02,Mini Squat,2,2,114.84511296384753,52.48
+StrengthSense,s20_a10_t4_l.csv,s20,Step-Up,3,0,5354.07227445562,45.76
+KneE-PAD,Subject_14_5_Trial_2,Subject_14,Seated Knee Extension,1,2,48.11229530937149,2.65
+KneE-PAD,Subject_7_4_Trial_5,Subject_7,Seated Knee Extension,1,1,1.700696982916296,4.51
+KneE-PAD,Subject_14_3_Trial_2,Subject_14,Seated Knee Extension,1,0,71.35417323018748,3.96
+KneE-PAD,Subject_1_3_Trial_2,Subject_1,Seated Knee Extension,1,0,85.75759302122948,3.28
+StrengthSense,s2_a13_t3_l.csv,s2,Mini Squat,2,0,7900.230127447197,7.68
+KneE-PAD,Subject_6_2_Trial_2,Subject_6,Mini Squat,2,2,62.23396841930808,3.01
+KneE-PAD,Subject_9_4_Trial_4,Subject_9,Seated Knee Extension,1,1,52.09734888847825,2.74
+KneE-PAD,Subject_5_0_Trial_2,Subject_5,Mini Squat,2,0,115.8422092795384,2.7
+PHYTMO,B03KFER1_1.csv,B03,Seated Knee Extension,1,2,114.68809013071032,17.51
+KneE-PAD,Subject_13_3_Trial_4,Subject_13,Seated Knee Extension,1,0,110.86526411781406,3.92
+KneE-PAD,Subject_7_3_Trial_3,Subject_7,Seated Knee Extension,1,0,4.4148246629592265,3.77
+KneE-PAD,Subject_1_1_Trial_2,Subject_1,Mini Squat,2,2,84.84165702546015,3.12
+PHYTMO,A01SQT1_2.csv,A01,Mini Squat,2,2,147.7869934351437,47.91
+PHYTMO,B05SQT1_1.csv,B05,Mini Squat,2,2,125.2087525713558,25.83
+StrengthSense,s3_a13_t1_l.csv,s3,Mini Squat,2,0,10687.040965072309,6.45
+StrengthSense,s18_a13_t1_l.csv,s18,Mini Squat,2,0,9700.435692943534,6.07
+KneE-PAD,Subject_5_1_Trial_4,Subject_5,Mini Squat,2,2,138.7601346612166,3.38
+StrengthSense,s26_a13_t1_l.csv,s26,Mini Squat,2,0,9135.260220566115,8.14
+PHYTMO,C05SQT1_2.csv,C05,Mini Squat,2,2,109.65717401492618,34.04
+KneE-PAD,Subject_11_4_Trial_5,Subject_11,Seated Knee Extension,1,1,49.8376562283501,3.99
+StrengthSense,s7_a13_t1_l.csv,s7,Mini Squat,2,0,10482.077160997294,7.84
+StrengthSense,s29_a13_t1_l.csv,s29,Mini Squat,2,0,9288.84262236032,6.07
+KneE-PAD,Subject_8_4_Trial_5,Subject_8,Seated Knee Extension,1,1,69.02158533597306,4.03
+KneE-PAD,Subject_3_1_Trial_2,Subject_3,Mini Squat,2,2,97.8540127804458,3.85
+StrengthSense,s10_a13_t1_l.csv,s10,Mini Squat,2,0,9789.320395437377,6.07
+KneE-PAD,Subject_12_2_Trial_5,Subject_12,Mini Squat,2,2,96.46005618908356,4.13
+KneE-PAD,Subject_11_1_Trial_1,Subject_11,Mini Squat,2,2,100.38761721328108,3.95
+KneE-PAD,Subject_6_2_Trial_4,Subject_6,Mini Squat,2,2,62.74017896756053,3.76
+KneE-PAD,Subject_6_5_Trial_2,Subject_6,Seated Knee Extension,1,2,96.03677366239124,3.16
+KneE-PAD,Subject_9_4_Trial_1,Subject_9,Seated Knee Extension,1,1,79.23795269608517,3.22
+KneE-PAD,Subject_3_3_Trial_5,Subject_3,Seated Knee Extension,1,0,72.7249710785749,4.49
+KneE-PAD,Subject_6_3_Trial_5,Subject_6,Seated Knee Extension,1,0,97.42294916433389,2.61
+KneE-PAD,Subject_1_1_Trial_4,Subject_1,Mini Squat,2,2,82.28990573198948,3.46
+StrengthSense,s20_a10_t2_l.csv,s20,Step-Up,3,0,5569.967473457318,23.84
+KneE-PAD,Subject_5_3_Trial_2,Subject_5,Seated Knee Extension,1,0,77.70709636492896,3.65
+KneE-PAD,Subject_5_5_Trial_4,Subject_5,Seated Knee Extension,1,2,53.58355993423817,3.88
+StrengthSense,s18_a10_t6_l.csv,s18,Step-Up,3,0,4108.206217381516,9.3
+KneE-PAD,Subject_3_6_Trial_2,Subject_3,Walking,0,0,78.81889211830875,11.1
+StrengthSense,s30_a13_t3_l.csv,s30,Mini Squat,2,0,11673.777979100358,7.22
+KneE-PAD,Subject_5_4_Trial_3,Subject_5,Seated Knee Extension,1,1,50.9906122067924,3.39
+KneE-PAD,Subject_6_4_Trial_3,Subject_6,Seated Knee Extension,1,1,80.97672421640965,2.73

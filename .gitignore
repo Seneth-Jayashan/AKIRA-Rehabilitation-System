@@ -1,0 +1,47 @@
+# ======================================================================
+# Dataset_Common_Analysis — only app/ (AKIRA Knee Rehab System) is the project
+# ======================================================================
+
+# ---- Old / research material kept on disk but NOT tracked -------------
+# raw public datasets (multi-GB)
+/datasets/
+# research scripts, reports, intermediate data, plots
+/research/
+# superseded files (old monolithic root web app)
+/archive/
+
+# ---- AKIRA: generated / large data files -----------------------------
+# Trained models in api/models/ ARE committed so the app runs after cloning.
+app/api/datasets/*
+# ...except the small test split + catalog the dashboard needs at runtime
+!app/api/datasets/test_20percent_dataset.npz
+!app/api/datasets/test_20percent_catalog.csv
+
+# ---- Python ----------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ---- Virtual environments --------------------------------------------
+venv/
+.venv/
+env/
+.env
+
+# ---- Node (if web/ ever gets a build step) ---------------------------
+node_modules/
+dist/
+
+# ---- Editors / OS ----------------------------------------------------
+.vscode/
+.idea/
+.agents/
+*.swp
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ---- Logs ------------------------------------------------------------
+*.log
