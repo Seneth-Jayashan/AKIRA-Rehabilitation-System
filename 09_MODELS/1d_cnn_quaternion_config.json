@@ -1,0 +1,18 @@
+{
+  "max_time_steps": 250,
+  "num_features": 4,
+  "feature_names": [
+    "W",
+    "X",
+    "Y",
+    "Z"
+  ],
+  "gesture_map": {
+    "0": "NEUTRAL",
+    "1": "RADIAL_DEVIATION",
+    "2": "WRIST_FLEXION",
+    "3": "ULNAR_DEVIATION"
+  },
+  "padding_strategy": "post_zero_padding",
+  "truncation_strategy": "post_truncation"
+}

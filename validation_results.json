@@ -1,0 +1,79 @@
+{
+    "WatchHand": {
+        "status": "PASS",
+        "col_check": "PASS",
+        "row_count": 1048575,
+        "participants": 6,
+        "trials": 10,
+        "exercises": 1,
+        "missing": {
+            "dataset": 0,
+            "participant_id": 0,
+            "session_id": 0,
+            "trial_id": 0,
+            "timestamp": 0,
+            "exercise_original": 0,
+            "exercise_akira": 1048575,
+            "side": 0,
+            "sensor_id": 0,
+            "sensor_location": 0,
+            "ax": 0,
+            "ay": 0,
+            "az": 0,
+            "gx": 0,
+            "gy": 0,
+            "gz": 0,
+            "label": 0,
+            "sampling_rate": 0,
+            "source_file": 0
+        },
+        "duplicates": 35,
+        "no_mag": "PASS",
+        "fake_imu": "PASS",
+        "sensor_loc": "HAND",
+        "timestamp_valid": "PASS",
+        "accel_valid": "PASS",
+        "gyro_valid": "PASS"
+    },
+    "3DC": {
+        "status": "PASS",
+        "col_check": "PASS",
+        "row_count": 1452,
+        "participants": 22,
+        "trials": 11,
+        "exercises": 3,
+        "missing": {
+            "dataset": 0,
+            "participant_id": 0,
+            "trial_id": 0,
+            "exercise_original": 0,
+            "exercise_akira": 0,
+            "gesture_id": 0,
+            "source_file": 0
+        },
+        "duplicates": 0,
+        "no_quat": "PASS",
+        "relevant_mapped": "PASS"
+    },
+    "29666735": {
+        "status": "PASS",
+        "col_check": "PASS",
+        "row_count": 500000,
+        "participants": 2,
+        "trials": 9,
+        "exercises": 1,
+        "missing": {
+            "dataset": 0,
+            "participant_id": 0,
+            "trial_id": 0,
+            "timestamp": 0,
+            "movement": 0,
+            "flexion_extension_angle": 0,
+            "radial_ulnar_angle": 0,
+            "source_file": 0
+        },
+        "duplicates": 0,
+        "no_imu": "PASS",
+        "units": "PASS"
+    }
+}

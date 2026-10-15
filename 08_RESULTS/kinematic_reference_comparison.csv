@@ -1,0 +1,4 @@
+Metric,Kinematic_Dataset_29666735,IMU_Prototype_WatchHand
+Flexion-Extension Angle,Real Encoders (rad),Estimated (drifted)
+Movement Duration,Available,Available
+Constraint,Valid external reference,Do NOT convert encoder to fake IMU

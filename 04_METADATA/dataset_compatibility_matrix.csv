@@ -1,0 +1,6 @@
+Dataset,Raw IMU,Accelerometer,Gyroscope,Timestamp,Sampling Rate,Participant ID,Session ID,Trial ID,Sensor ID,Sensor Location,Forearm Sensor,Hand Sensor,Wrist Flexion,Wrist Extension,Radial Deviation,Ulnar Deviation,Pronation,Supination,3D Position,Wrist Angle,ROM,Movement Label,Correct/Incorrect Label,Usable for IMU Pipeline,Usable for Kinematic Reference,Usable for Common Dataset,Reason
+3DCDataset,NO,NO,NO,NO,YES,YES,UNKNOWN,YES,YES,YES,YES,NO,YES,YES,YES,YES,YES,YES,NO,NO,NO,YES,NO,NO,PARTIAL,NO,Provides quaternions only from a single forearm sensor. Not raw IMU data.
+Hand and Arm Rehabilitation 2D Dataset,NO,NO,NO,NO,NO,UNKNOWN,UNKNOWN,UNKNOWN,NO,NO,NO,NO,PARTIAL,PARTIAL,PARTIAL,PARTIAL,PARTIAL,PARTIAL,NO,NO,NO,NO,NO,NO,NO,NO,Contains only 2D image files.
+OpenMuscle Dataset,NO,NO,NO,YES,UNKNOWN,NO,YES,NO,YES,YES,YES,YES,PARTIAL,PARTIAL,PARTIAL,PARTIAL,PARTIAL,PARTIAL,NO,NO,NO,YES,NO,NO,NO,NO,Uses hall effect and pressure sensors; no IMU data.
+29666735 Wrist Kinematics Dataset,NO,NO,NO,YES,YES,YES,YES,YES,YES,YES,NO,YES,YES,YES,YES,YES,NO,NO,NO,YES,PARTIAL,YES,NO,NO,YES,NO,Contains high-quality wrist joint angles but no raw IMU data.
+WatchHand Dataset,YES,YES,YES,YES,UNKNOWN,YES,YES,YES,YES,YES,NO,YES,NO,NO,NO,NO,NO,NO,YES,NO,NO,YES,NO,PARTIAL,NO,NO,Contains single IMU on wrist; lacks forearm sensor and target wrist exercises.

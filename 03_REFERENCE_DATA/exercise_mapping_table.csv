@@ -1,0 +1,7 @@
+Exercise,Dataset availability,Raw IMU availability,Can be used for development?,Limitation,
+WRIST_FLEXION,3DCDataset,NO,NO,No raw IMU data (quaternion only), single sensor
+WRIST_EXTENSION,3DCDataset,NO,NO,No raw IMU data, single sensor
+RADIAL_DEVIATION,3DCDataset,NO,NO,No raw IMU data, single sensor
+ULNAR_DEVIATION,3DCDataset,NO,NO,No raw IMU data, single sensor
+PRONATION,3DCDataset,NO,NO,No raw IMU data, single sensor
+SUPINATION,3DCDataset,NO,NO,No raw IMU data, single sensor

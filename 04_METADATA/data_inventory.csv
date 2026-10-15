@@ -1,0 +1,6 @@
+Dataset,Participants,Recordings/Sessions,Trials,Samples (approx),Sampling Frequency,Missing Values,Duplicated Rows,Missing Timestamps,Irregular Sampling,Corrupted Files,Empty Files,Sensor Dropout,Abnormal Values,Available Labels
+3DCDataset,22,22,3875 files,Unknown,1000 Hz (EMG),None observed,Not checked,YES (no timestamp column),Unknown,None observed,None observed,Unknown,Unknown,Gesture IDs (0-10)
+Hand and Arm Rehabilitation 2D Dataset,Unknown,Unknown,960 images,N/A,N/A,N/A,N/A,N/A,N/A,None observed,None observed,N/A,N/A,Visual inference
+OpenMuscle Dataset,Unknown,36+ sessions,116 files,Unknown,Variable,Unknown,Unknown,NO,Unknown,None observed,None observed,Unknown,Unknown,Dict metadata
+29666735 Wrist Kinematics Dataset,At least 11,1 per participant,Multiple runs,Unknown,Unknown,None observed,Unknown,NO,Unknown,None observed,None observed,Unknown,Unknown,Events and joint angles
+WatchHand Dataset,Multiple (e.g. sub10),Multiple blocks,2607 files,Unknown,Unknown,Unknown,Unknown,NO,YES (bundled in strings),None observed,18 empty files,Unknown,Unknown,3D Hand poses
