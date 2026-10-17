@@ -4,6 +4,9 @@ let testSamplesList = [];
 let modelsList = [];
 let kneeChart = null;
 let imuChart = null;
+let longitudinalChart = null;
+let lastSessionOutputs = null;
+let webSerialPort = null;
 let showConfusionMatrix = true;
 
 async function initDashboard() {
@@ -12,6 +15,8 @@ async function initDashboard() {
   await loadModelMetrics(currentModelKey);
   await loadBenchmarkTable();
   await selectSample(0);
+  await loadESP32Status();
+  await loadLongitudinalData();
 }
 
 async function loadModels() {
@@ -328,6 +333,11 @@ async function runInference() {
       if (badgeMath) badgeMath.innerText = `⚡ Computed On-The-Fly in ${lat.math_ms} ms via math_feature_extractor.py`;
     }
 
+    // Populate Box 07 (Official 7 Session-Level Outputs)
+    if (pred.session_outputs) {
+      updateBox07UI(pred.session_outputs);
+    }
+
     // Clinical feedback list
     const feedbackList = document.getElementById('clinical-feedback-list');
     feedbackList.innerHTML = '';
@@ -589,6 +599,408 @@ function highlightTableRow(key) {
   if (activeRow) {
     activeRow.classList.add('bg-blue-50/50', 'font-semibold');
   }
+}
+
+// ============================================================================
+// BOX 07: POPULATE THE 7 OFFICIAL SESSION-LEVEL OUTPUTS
+// ============================================================================
+function updateBox07UI(so) {
+  if (!so) return;
+  lastSessionOutputs = so;
+
+  const setEl = (id, txt) => {
+    const el = document.getElementById(id);
+    if (el) el.innerText = txt;
+  };
+
+  setEl('box07-ex', so.out_01_recognized_exercise);
+  setEl('box07-ex-conf', `Conf: ${so.out_01_confidence_pct}%`);
+  setEl('box07-rom', `${so.out_02_rom_deg}°`);
+  setEl('box07-max-angle', `Max θ: ${so.out_02_max_knee_angle_deg}°`);
+  setEl('box07-depth', `${so.out_03_movement_depth_deg}°`);
+  setEl('box07-lag', `Quad Lag: ${so.out_03_extension_lag_deg}°`);
+  setEl('box07-reps', `${so.out_04_repetition_count} rep(s)`);
+  setEl('box07-smooth', `${so.out_05_smoothness_norm}`);
+  setEl('box07-sparc', `SPARC: ${so.out_05_sparc_raw}`);
+  setEl('box07-dur', `${so.out_06_duration_sec} s`);
+  setEl('box07-vel', `Peak ω: ${so.out_06_peak_velocity_deg_s}°/s`);
+  setEl('box07-qscore', `${so.out_07_quality_score_100} / 100`);
+  setEl('box07-qgrade', so.out_07_quality_grade_name.split(' ')[0]);
+}
+
+// ============================================================================
+// OPTION 1: LIVE ESP32 DUAL-IMU SENSOR RECORDER & DATASET BUILDER
+// ============================================================================
+function switchInputSourceMode(mode) {
+  const espPanel = document.getElementById('esp32-recorder-panel');
+  const testPanel = document.getElementById('testset-selector-panel');
+  const btnTest = document.getElementById('tab-btn-testset');
+  const btnEsp = document.getElementById('tab-btn-esp32');
+
+  if (mode === 'esp32') {
+    espPanel.classList.remove('hidden');
+    testPanel.classList.add('hidden');
+    btnEsp.className = 'px-3.5 py-1.5 text-xs font-bold bg-rose-600 text-white rounded-lg shadow-sm ring-2 ring-rose-300 transition-colors flex items-center gap-1.5';
+    btnTest.className = 'px-3.5 py-1.5 text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition-colors';
+    loadESP32Status();
+  } else {
+    espPanel.classList.add('hidden');
+    testPanel.classList.remove('hidden');
+    btnTest.className = 'px-3.5 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-lg shadow-sm transition-colors';
+    btnEsp.className = 'px-3.5 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition-colors flex items-center gap-1.5';
+  }
+}
+
+async function loadESP32Status() {
+  try {
+    const res = await fetch('/api/esp32/status');
+    const data = await res.json();
+    const countEl = document.getElementById('esp32-csv-count');
+    if (countEl) countEl.innerText = data.recorded_files_count;
+  } catch (err) {
+    console.error('Error loading ESP32 status:', err);
+  }
+}
+
+async function connectWebSerialESP32() {
+  const statusEl = document.getElementById('esp32-record-status');
+  if (!('serial' in navigator)) {
+    if (statusEl) statusEl.innerText = 'ℹ️ Using Backend Serial / Live Wi-Fi Stream Mode';
+    return;
+  }
+  try {
+    webSerialPort = await navigator.serial.requestPort();
+    await webSerialPort.open({ baudRate: 115200 });
+    if (statusEl) statusEl.innerText = '✅ Connected to ESP32 via Browser USB/BLE Serial (115200 baud)';
+  } catch (e) {
+    if (statusEl) statusEl.innerText = '📡 Ready in Backend Dual-IMU Stream Mode';
+  }
+}
+
+async function startESP32Recording() {
+  const btn = document.getElementById('btn-record-esp32');
+  const statusEl = document.getElementById('esp32-record-status');
+  const subjectId = document.getElementById('esp32-subject-id').value || 'P01_ORIF';
+  const exerciseCode = document.getElementById('esp32-exercise').value;
+  const qualityGrade = parseInt(document.getElementById('esp32-quality').value);
+  const connMode = document.getElementById('esp32-conn-mode').value;
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span> Recording 200 Samples @ 100 Hz...';
+  }
+  if (statusEl) statusEl.innerText = '🔴 Sampling Thigh IMU (0x68) & Shin IMU (0x69) @ 100 Hz...';
+
+  try {
+    const res = await fetch('/api/esp32/record_and_analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject_id: subjectId,
+        exercise_code: exerciseCode,
+        quality_grade: qualityGrade,
+        connection_mode: connMode,
+        model_key: currentModelKey
+      })
+    });
+    const out = await res.json();
+    const data = out.sample_detail;
+    const pred = out.prediction;
+    currentSampleData = data;
+
+    // Update Metadata Card
+    document.getElementById('meta-file-id').innerText = data.file_id;
+    document.getElementById('meta-subject').innerText = data.subject;
+    document.getElementById('meta-dataset').innerText = data.source_dataset;
+    document.getElementById('meta-gt-exercise').innerText = data.exercise_name;
+    document.getElementById('meta-gt-quality').innerText = data.quality_name;
+
+    // Stage 1: Raw 12-Channel Sensor Stream
+    if (data.raw_channels_summary) renderRawChannelsGrid(data.raw_channels_summary);
+    if (data.raw_matrix_rows) renderRawMatrixTable(data.raw_matrix_rows);
+    if (data.all_12_channels) render12ChannelIMUChart(data.time_axis, data.all_12_channels, currentRawFilter);
+
+    // Stage 2: 16 Clinical Features & Knee Angle Curve
+    renderFeaturesGrid(data.features);
+    renderKneeChart(data.time_axis, data.knee_angle);
+
+    // Stage 3: AI Predictions & Box 07 (7 Session Outputs)
+    const ex = pred.predicted_exercise;
+    document.getElementById('res-exercise-name').innerText = ex.name;
+    document.getElementById('res-exercise-conf').innerText = `${ex.confidence}%`;
+    const badgeEx = document.getElementById('badge-class-match');
+    badgeEx.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
+    badgeEx.innerText = `✅ Recorded: ${ex.true_name}`;
+    renderProbBars('prob-bars-exercise', ex.class_names, ex.probabilities, ex.class_id, 'blue');
+
+    const q = pred.predicted_quality;
+    document.getElementById('res-quality-name').innerText = q.name;
+    document.getElementById('res-quality-conf').innerText = `${q.confidence}%`;
+    const badgeQ = document.getElementById('badge-qual-match');
+    badgeQ.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
+    badgeQ.innerText = `✅ Label: ${q.true_name.split(' ')[0]}`;
+    renderProbBars('prob-bars-quality', q.grade_names, q.probabilities, q.grade_id, 'emerald');
+
+    if (pred.session_outputs) {
+      updateBox07UI(pred.session_outputs);
+    }
+
+    const feedbackList = document.getElementById('clinical-feedback-list');
+    feedbackList.innerHTML = '';
+    pred.clinical_feedback.forEach(fb => {
+      const li = document.createElement('li');
+      li.innerText = fb;
+      feedbackList.appendChild(li);
+    });
+
+    if (statusEl) statusEl.innerText = `✅ Saved ${out.saved_csv_filename}`;
+    await loadESP32Status();
+  } catch (err) {
+    console.error('Error recording from ESP32:', err);
+    if (statusEl) statusEl.innerText = '⚠️ Error during recording';
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>🔴</span> Start Recording (2.0s)';
+    }
+  }
+}
+
+async function openFirmwareModal() {
+  const modal = document.getElementById('firmware-modal');
+  const codeBox = document.getElementById('firmware-code-box');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  try {
+    const res = await fetch('/api/esp32/firmware');
+    const data = await res.json();
+    codeBox.innerText = data.code;
+  } catch (e) {
+    codeBox.innerText = '// Error loading firmware file';
+  }
+}
+
+function closeFirmwareModal() {
+  const modal = document.getElementById('firmware-modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+function copyFirmwareCode() {
+  const code = document.getElementById('firmware-code-box').innerText;
+  navigator.clipboard.writeText(code);
+}
+
+// ============================================================================
+// BOX 08 & BOX 09: LONGITUDINAL TRACKING & RECOVERY PREDICTION ENGINE
+// ============================================================================
+async function loadLongitudinalData() {
+  const targetRom = parseFloat(document.getElementById('clin-target-rom')?.value || 120);
+  const safeLimit = parseFloat(document.getElementById('clin-safe-limit')?.value || 125);
+  const freq = parseFloat(document.getElementById('clin-freq')?.value || 2);
+
+  try {
+    const res = await fetch(`/api/longitudinal?target_rom_deg=${targetRom}&max_safe_flexion_deg=${safeLimit}&sessions_per_week=${freq}`);
+    const data = await res.json();
+    renderLongitudinalUI(data);
+  } catch (err) {
+    console.error('Error loading longitudinal data:', err);
+  }
+}
+
+async function saveCurrentSessionToLongitudinal() {
+  if (!lastSessionOutputs) return;
+  const targetRom = parseFloat(document.getElementById('clin-target-rom')?.value || 120);
+  const safeLimit = parseFloat(document.getElementById('clin-safe-limit')?.value || 125);
+  const freq = parseFloat(document.getElementById('clin-freq')?.value || 2);
+
+  try {
+    const res = await fetch('/api/longitudinal/add_session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        exercise: lastSessionOutputs.out_01_recognized_exercise,
+        rom_deg: lastSessionOutputs.out_02_rom_deg,
+        depth_deg: lastSessionOutputs.out_03_movement_depth_deg,
+        smoothness: lastSessionOutputs.out_05_smoothness_norm,
+        quality_score: lastSessionOutputs.out_07_quality_score_100,
+        rep_count: lastSessionOutputs.out_04_repetition_count,
+        duration_s: lastSessionOutputs.out_06_duration_sec,
+        target_rom_deg: targetRom,
+        max_safe_flexion_deg: safeLimit,
+        sessions_per_week: freq
+      })
+    });
+    const data = await res.json();
+    renderLongitudinalUI(data);
+    document.getElementById('longitudinal-section')?.scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    console.error('Error saving session to longitudinal history:', err);
+  }
+}
+
+async function resetLongitudinalHistory() {
+  const targetRom = parseFloat(document.getElementById('clin-target-rom')?.value || 120);
+  const safeLimit = parseFloat(document.getElementById('clin-safe-limit')?.value || 125);
+  const freq = parseFloat(document.getElementById('clin-freq')?.value || 2);
+
+  try {
+    const res = await fetch(`/api/longitudinal/reset?target_rom_deg=${targetRom}&max_safe_flexion_deg=${safeLimit}&sessions_per_week=${freq}`, {
+      method: 'POST'
+    });
+    const data = await res.json();
+    renderLongitudinalUI(data);
+  } catch (err) {
+    console.error('Error resetting longitudinal history:', err);
+  }
+}
+
+function renderLongitudinalUI(data) {
+  const tr = data.trend_analysis;
+  const mp = data.milestone_prediction;
+
+  // Update 4 Trend KPIs
+  document.getElementById('long-rom-rate').innerText = `${tr.rom_rate_per_session >= 0 ? '+' : ''}${tr.rom_rate_per_session}° / session`;
+  document.getElementById('long-rom-total').innerText = `Total Gain: ${tr.total_rom_gain_deg >= 0 ? '+' : ''}${tr.total_rom_gain_deg}° (S1: ${tr.initial_rom_deg}° → Now: ${tr.current_rom_deg}°)`;
+  document.getElementById('long-smooth-rate').innerText = `${tr.smoothness_rate_per_session >= 0 ? '+' : ''}${tr.smoothness_rate_per_session} / session`;
+  document.getElementById('long-qual-rate').innerText = `${tr.quality_rate_per_session >= 0 ? '+' : ''}${tr.quality_rate_per_session} pts / session`;
+  document.getElementById('long-r2').innerText = `R² = ${tr.r2_regression_fit}`;
+
+  // Update Milestone Countdown Badge
+  const estEl = document.getElementById('long-est-time');
+  if (mp.sessions_to_milestone === 0) {
+    estEl.innerText = `🎉 Target (${mp.target_rom_deg}°) Achieved!`;
+  } else if (mp.sessions_to_milestone > 0) {
+    estEl.innerText = `~${mp.sessions_to_milestone} Sessions (~${mp.days_to_milestone} Days)`;
+  } else {
+    estEl.innerText = `Plateau — Adjust Protocol`;
+  }
+
+  document.getElementById('long-status-banner').innerText = mp.milestone_status;
+
+  // Render Box 08 Table (Actual Sessions + 3 Forecasted Sessions)
+  const tbody = document.getElementById('longitudinal-table-body');
+  tbody.innerHTML = '';
+
+  data.sessions.forEach((s, idx) => {
+    const row = document.createElement('tr');
+    row.className = 'hover:bg-slate-50 transition-colors';
+    const deltaStr = idx === 0 ? 'Baseline' : `${s.delta_rom >= 0 ? '+' : ''}${s.delta_rom}°`;
+    const deltaCls = idx === 0 ? 'text-slate-400' : (s.delta_rom >= 0 ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold');
+
+    row.innerHTML = `
+      <td class="py-2 px-2.5 font-bold text-slate-900">
+        ${s.session_id} <span class="text-[10px] font-normal text-slate-500 block">${s.exercise}</span>
+      </td>
+      <td class="py-2 px-2 text-right font-bold text-blue-700">${s.rom_deg}°</td>
+      <td class="py-2 px-2 text-right text-[11px] ${deltaCls}">${deltaStr}</td>
+      <td class="py-2 px-2 text-right text-slate-700">${s.depth_deg}°</td>
+      <td class="py-2 px-2 text-right text-teal-700 font-semibold">${s.smoothness}</td>
+      <td class="py-2 px-2.5 text-right font-extrabold text-emerald-700">${s.quality_score}</td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  data.forecast_sessions.forEach(fs => {
+    const row = document.createElement('tr');
+    row.className = 'bg-indigo-50/40 text-indigo-900 italic';
+    row.innerHTML = `
+      <td class="py-1.5 px-2.5 font-bold text-indigo-700">🔮 ${fs.session_id}</td>
+      <td class="py-1.5 px-2 text-right font-bold">${fs.rom_deg}°</td>
+      <td class="py-1.5 px-2 text-right text-[10px] text-indigo-500">Predicted</td>
+      <td class="py-1.5 px-2 text-right">${fs.depth_deg}°</td>
+      <td class="py-1.5 px-2 text-right">${fs.smoothness}</td>
+      <td class="py-1.5 px-2.5 text-right font-bold">${fs.quality_score}</td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Render Box 09 Trajectory & Milestone Chart
+  const ctx = document.getElementById('longitudinalChart').getContext('2d');
+  if (longitudinalChart) longitudinalChart.destroy();
+
+  const labels = [
+    ...data.sessions.map(s => s.session_id),
+    ...data.forecast_sessions.map(f => f.session_id.replace(' (Forecast)', '*'))
+  ];
+  const nActual = data.sessions.length;
+  const totalLen = labels.length;
+
+  const actualRomData = data.sessions.map(s => s.rom_deg).concat(Array(data.forecast_sessions.length).fill(null));
+  const forecastRomData = Array(nActual - 1).fill(null)
+    .concat([data.sessions[nActual - 1].rom_deg])
+    .concat(data.forecast_sessions.map(f => f.rom_deg));
+
+  const qualData = [
+    ...data.sessions.map(s => s.quality_score),
+    ...data.forecast_sessions.map(f => f.quality_score)
+  ];
+  const targetLine = Array(totalLen).fill(mp.target_rom_deg);
+
+  longitudinalChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Actual Recorded ROM (°)',
+          data: actualRomData,
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.12)',
+          borderWidth: 2.8,
+          pointRadius: 4,
+          fill: true,
+          tension: 0.25
+        },
+        {
+          label: 'Predicted Trajectory ROM (°)',
+          data: forecastRomData,
+          borderColor: '#6366f1',
+          borderDash: [6, 4],
+          borderWidth: 2.5,
+          pointRadius: 4,
+          fill: false,
+          tension: 0.25
+        },
+        {
+          label: 'Session Quality Score (0–100)',
+          data: qualData,
+          borderColor: '#10b981',
+          borderWidth: 2,
+          pointRadius: 3,
+          fill: false,
+          tension: 0.25
+        },
+        {
+          label: `Target Milestone (${mp.target_rom_deg}°)`,
+          data: targetLine,
+          borderColor: '#e11d48',
+          borderDash: [4, 4],
+          borderWidth: 1.8,
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } }
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 140,
+          title: { display: true, text: 'Degrees (°) / Quality Score (0–100)', font: { size: 10 } },
+          ticks: { font: { size: 10 } }
+        },
+        x: {
+          ticks: { font: { size: 10 } }
+        }
+      }
+    }
+  });
 }
 
 // Initialize on window load

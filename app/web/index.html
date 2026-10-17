@@ -133,25 +133,108 @@
       </div>
     </section>
 
-    <!-- Section 3: Select 20% Test Sample & Live Inference -->
+    <!-- Section 3: Select 20% Test Sample OR Live ESP32 Device Recorder & Run Inference -->
     <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
           <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
             <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 inline-flex items-center justify-center text-xs font-bold">3</span>
-            Select 1 Test Trial from the 20% Partition & Run Inference
+            Data Acquisition & Live 3-Stage Pipeline (Test Partition or Live ESP32 Recorder)
           </h2>
-          <p class="text-xs text-slate-500">Pick any of the 142 held-out test trials to inspect live model predictions and kinematics.</p>
+          <p class="text-xs text-slate-500">Pick any of the 142 held-out test trials OR connect your 2-IMU ESP32 device to record, save 12-ch CSVs, and run live inference.</p>
         </div>
-        <div class="flex items-center gap-2">
-          <button onclick="pickRandomSample()" class="px-3.5 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
-            <span>🎲</span> Random Test Sample
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="tab-btn-testset" onclick="switchInputSourceMode('testset')" class="px-3.5 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-lg shadow-sm transition-colors">
+            📂 Held-Out Test Set (142 Trials)
+          </button>
+          <button id="tab-btn-esp32" onclick="switchInputSourceMode('esp32')" class="px-3.5 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
+            <span>🔴</span> Option 1: Live ESP32 Sensor Recorder
+          </button>
+          <button onclick="pickRandomSample()" class="px-3 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition-colors flex items-center gap-1">
+            <span>🎲</span> Random
           </button>
         </div>
       </div>
 
-      <!-- Filter Controls & Dropdown Selector -->
-      <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-5">
+      <!-- ========================================================================= -->
+      <!-- OPTION 1 PANEL: LIVE ESP32 DUAL-IMU SENSOR RECORDER (Box 02 Hardware)     -->
+      <!-- ========================================================================= -->
+      <div id="esp32-recorder-panel" class="hidden bg-rose-50/60 rounded-2xl p-4 border-2 border-rose-200 mb-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-rose-200/80">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white animate-pulse">
+              ● LIVE RECORDER
+            </span>
+            <h3 class="text-sm font-bold text-slate-900">
+              Option 1: ESP32 Dual-IMU Live Data Recorder (100 Hz • 12 Channels • Auto-Save CSV)
+            </h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="connectWebSerialESP32()" id="btn-webserial" class="px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-slate-100 text-slate-800 rounded-lg border border-slate-300 shadow-2xs">
+              🔌 Connect Browser USB/BLE Serial
+            </button>
+            <button onclick="openFirmwareModal()" class="px-2.5 py-1 text-[11px] font-bold bg-slate-800 hover:bg-slate-900 text-white rounded-lg shadow-2xs">
+              💻 View ESP32 Arduino Code (.ino)
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Participant / Patient ID</label>
+            <input id="esp32-subject-id" type="text" value="P01_ORIF" class="w-full text-xs font-mono font-bold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">2. Exercise (All 6 Proposal Exercises)</label>
+            <select id="esp32-exercise" class="w-full text-xs font-semibold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="01_Heel_Slides">01 Heel Slides (Missing — Record Now)</option>
+              <option value="02_Quadriceps_Sets">02 Quadriceps Sets (Missing — Record Now)</option>
+              <option value="03_Straight_Leg_Raise">03 Straight-Leg Raise (Missing — Record Now)</option>
+              <option value="04_Seated_Knee_Extension">04 Seated Knee Extension (Calibration)</option>
+              <option value="05_Mini_Squat">05 Mini Squat (Calibration)</option>
+              <option value="06_Step_Up">06 Step-Up (Calibration)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">3. Quality Tier Label</label>
+            <select id="esp32-quality" class="w-full text-xs font-semibold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="0">Grade 0: Good (Correct Form)</option>
+              <option value="1">Grade 1: Needs Improvement (Lag / Hesitation)</option>
+              <option value="2">Grade 2: Bad (Compensatory Fault / Jerk)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">4. ESP32 Connection Mode</label>
+            <select id="esp32-conn-mode" class="w-full text-xs font-semibold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="device_stream">Wi-Fi / Live Dual-IMU Stream (100 Hz)</option>
+              <option value="serial_com">USB / Bluetooth COM Port (115200 baud)</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button id="btn-record-esp32" onclick="startESP32Recording()" class="w-full py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-lg shadow-md transition-all flex items-center justify-center gap-1.5">
+              <span>🔴</span> Start Recording (2.0s)
+            </button>
+          </div>
+        </div>
+
+        <!-- Status & Saved CSV Counter Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 rounded-xl px-3.5 py-2 border border-rose-200 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-700">Sensor Placement Reminder:</span>
+            <span class="text-slate-600">Thigh IMU <strong>10 cm above kneecap</strong> (0x68) • Shin IMU <strong>10 cm below kneecap</strong> (0x69) • Hold leg still at 0° before clicking record.</span>
+          </div>
+          <div class="flex items-center gap-2 font-mono text-[11px]">
+            <span id="esp32-record-status" class="text-emerald-700 font-bold">Ready to record @ 100 Hz</span>
+            <span>|</span>
+            <span class="bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-bold text-slate-800">
+              Saved CSVs: <span id="esp32-csv-count" class="text-rose-600">0</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Controls & Dropdown Selector (Held-Out Test Set Mode) -->
+      <div id="testset-selector-panel" class="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-5">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Filter by Exercise</label>
@@ -417,6 +500,62 @@
           </div>
         </div>
 
+        <!-- ===================================================================== -->
+        <!-- BOX 07: OFFICIAL 7 SESSION-LEVEL OUTPUTS (Proposal Figure 3, Box 07)  -->
+        <!-- ===================================================================== -->
+        <div class="bg-white border-2 border-indigo-200 rounded-xl p-4 mb-4 shadow-xs">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-100">
+            <div>
+              <h4 class="text-xs font-extrabold text-indigo-950 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded bg-indigo-600 text-white text-[10px] font-bold">BOX 07</span>
+                Official 7 Session-Level Outputs (Proposal Figure 3 & FR-10)
+              </h4>
+              <p class="text-[11px] text-slate-500 mt-0.5">Standardized session summary record ready for longitudinal comparison across rehabilitation sessions.</p>
+            </div>
+            <button onclick="saveCurrentSessionToLongitudinal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
+              <span>➕</span> Save Session to Longitudinal History (Box 08)
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+            <div class="bg-indigo-50/70 border border-indigo-200 rounded-lg p-2.5">
+              <span class="text-[10px] font-bold text-indigo-800 uppercase block">01. Recognized Exercise</span>
+              <div id="box07-ex" class="text-xs font-extrabold text-slate-900 mt-1 truncate">--</div>
+              <span id="box07-ex-conf" class="text-[10px] font-mono text-indigo-700 font-semibold">Conf: --%</span>
+            </div>
+            <div class="bg-blue-50/70 border border-blue-200 rounded-lg p-2.5">
+              <span class="text-[10px] font-bold text-blue-800 uppercase block">02. Knee Angle & ROM</span>
+              <div id="box07-rom" class="text-sm font-extrabold text-slate-900 font-mono mt-1">--°</div>
+              <span id="box07-max-angle" class="text-[10px] font-mono text-slate-500">Max θ: --°</span>
+            </div>
+            <div class="bg-cyan-50/70 border border-cyan-200 rounded-lg p-2.5">
+              <span class="text-[10px] font-bold text-cyan-800 uppercase block">03. Movement Depth</span>
+              <div id="box07-depth" class="text-sm font-extrabold text-slate-900 font-mono mt-1">--°</div>
+              <span id="box07-lag" class="text-[10px] font-mono text-slate-500">Quad Lag: --°</span>
+            </div>
+            <div class="bg-violet-50/70 border border-violet-200 rounded-lg p-2.5">
+              <span class="text-[10px] font-bold text-violet-800 uppercase block">04. Repetition Count</span>
+              <div id="box07-reps" class="text-sm font-extrabold text-slate-900 font-mono mt-1">-- reps</div>
+              <span class="text-[10px] text-slate-500">Peak Segmented</span>
+            </div>
+            <div class="bg-teal-50/70 border border-teal-200 rounded-lg p-2.5">
+              <span class="text-[10px] font-bold text-teal-800 uppercase block">05. Smoothness (0–1)</span>
+              <div id="box07-smooth" class="text-sm font-extrabold text-slate-900 font-mono mt-1">--</div>
+              <span id="box07-sparc" class="text-[10px] font-mono text-slate-500">SPARC: --</span>
+            </div>
+            <div class="bg-amber-50/70 border border-amber-200 rounded-lg p-2.5">
+              <span class="text-[10px] font-bold text-amber-800 uppercase block">06. Movement Duration</span>
+              <div id="box07-dur" class="text-sm font-extrabold text-slate-900 font-mono mt-1">-- s</div>
+              <span id="box07-vel" class="text-[10px] font-mono text-slate-500">Peak ω: --°/s</span>
+            </div>
+            <div class="bg-emerald-50/80 border-2 border-emerald-300 rounded-lg p-2.5">
+              <span class="text-[10px] font-bold text-emerald-900 uppercase block">07. Quality Score</span>
+              <div id="box07-qscore" class="text-base font-extrabold text-emerald-700 font-mono mt-0.5">-- / 100</div>
+              <span id="box07-qgrade" class="text-[10px] font-bold text-emerald-800 truncate block">--</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Clinical Biomechanical Feedback -->
         <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4">
           <h4 class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1.5">
@@ -428,6 +567,149 @@
         </div>
       </div>
 
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- BOX 08 & BOX 09: LONGITUDINAL TRACKING & RECOVERY PREDICTION (FR-11..17)  -->
+    <!-- ========================================================================= -->
+    <section id="longitudinal-section" class="bg-white rounded-2xl p-5 border-2 border-emerald-200 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-xs font-extrabold">BOX 08 & BOX 09</span>
+            <h2 class="text-base font-bold text-slate-900">
+              Longitudinal Recovery Tracking & Milestone Prediction Engine (Proposal Figure 3)
+            </h2>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Stores multi-session history (<code class="font-mono text-emerald-700">S1 → S5+</code>), evaluates improvement rates across sessions (<code class="font-mono">FR-11, FR-12</code>), and runs regression forecasting to estimate time to the next clinical milestone (<code class="font-mono">FR-13, FR-17</code>).
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="saveCurrentSessionToLongitudinal()" class="px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-2xs transition-colors">
+            ➕ Append Current Session
+          </button>
+          <button onclick="resetLongitudinalHistory()" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-200 transition-colors">
+            🔄 Reset to Proposal S1–S5
+          </button>
+        </div>
+      </div>
+
+      <!-- Clinician External Protocol & Milestone Inputs (FR-17) -->
+      <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+            <span>⚙️</span> External Clinician Protocol & Milestone Parameters (Requirement FR-17)
+          </span>
+          <span class="text-[11px] text-slate-500">Defined by Treating Physiotherapist / Orthopedic Surgeon</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Target ROM Milestone (°)</label>
+            <select id="clin-target-rom" onchange="loadLongitudinalData()" class="w-full text-xs font-bold rounded-lg border-slate-300 bg-white p-2 border">
+              <option value="90">90° — Mid-Stage Sitting Flexion Milestone</option>
+              <option value="110">110° — Late-Stage Stair Descent Milestone</option>
+              <option value="120" selected>120° — Full Functional ORIF Recovery Milestone</option>
+              <option value="130">130° — Advanced Deep Flexion Milestone</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Max Safe Flexion Restriction (°)</label>
+            <select id="clin-safe-limit" onchange="loadLongitudinalData()" class="w-full text-xs font-bold rounded-lg border-slate-300 bg-white p-2 border">
+              <option value="60">Max 60° (Weeks 1–3 Early ORIF Protection)</option>
+              <option value="90">Max 90° (Weeks 4–6 Progressive Loading)</option>
+              <option value="125" selected>Max 125° (Weeks 6+ Full Active Range)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Scheduled Rehab Frequency</label>
+            <select id="clin-freq" onchange="loadLongitudinalData()" class="w-full text-xs font-bold rounded-lg border-slate-300 bg-white p-2 border">
+              <option value="1">1 Session / Week</option>
+              <option value="2" selected>2 Sessions / Week (Every ~3.5 Days)</option>
+              <option value="3">3 Sessions / Week (Every ~2.3 Days)</option>
+              <option value="7">Daily Home Rehab (7 Sessions / Week)</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <div id="milestone-countdown-badge" class="w-full bg-emerald-50 border border-emerald-300 rounded-lg p-2 text-center">
+              <span class="text-[10px] font-bold text-emerald-800 uppercase block">Estimated Time to Milestone</span>
+              <span id="long-est-time" class="text-sm font-extrabold text-emerald-700 font-mono">-- Sessions (-- Days)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Longitudinal Trend KPI Cards (Box 08 & Box 09 Summary) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div class="bg-blue-50/60 rounded-xl p-3.5 border border-blue-200">
+          <span class="text-[11px] font-bold text-blue-800 uppercase block">ROM Improvement Rate</span>
+          <div class="text-xl font-extrabold text-blue-700 font-mono mt-1" id="long-rom-rate">+--° / session</div>
+          <span class="text-[11px] text-slate-600 mt-0.5 block" id="long-rom-total">Total Gain: +--° (S1 → Sn)</span>
+        </div>
+        <div class="bg-teal-50/60 rounded-xl p-3.5 border border-teal-200">
+          <span class="text-[11px] font-bold text-teal-800 uppercase block">Smoothness Progression</span>
+          <div class="text-xl font-extrabold text-teal-700 font-mono mt-1" id="long-smooth-rate">+-- / session</div>
+          <span class="text-[11px] text-slate-600 mt-0.5 block">0.0–1.0 Motor Fluidity Scale</span>
+        </div>
+        <div class="bg-indigo-50/60 rounded-xl p-3.5 border border-indigo-200">
+          <span class="text-[11px] font-bold text-indigo-800 uppercase block">Quality Score Growth</span>
+          <div class="text-xl font-extrabold text-indigo-700 font-mono mt-1" id="long-qual-rate">+-- pts / session</div>
+          <span class="text-[11px] text-slate-600 mt-0.5 block">0–100 Composite Clinical Score</span>
+        </div>
+        <div class="bg-amber-50/60 rounded-xl p-3.5 border border-amber-200">
+          <span class="text-[11px] font-bold text-amber-900 uppercase block">Regression Model Fit (R²)</span>
+          <div class="text-xl font-extrabold text-amber-700 font-mono mt-1" id="long-r2">R² = --</div>
+          <span class="text-[11px] text-slate-600 mt-0.5 block">Trajectory Forecast Confidence</span>
+        </div>
+      </div>
+
+      <!-- Main Grid: Box 08 Session Table (Left) + Box 09 Trajectory Forecast Chart (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Box 08: Accumulated Sessions Table + Forecast -->
+        <div class="lg:col-span-6 bg-slate-50/70 rounded-xl p-4 border border-slate-200">
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+              📊 Box 08: Accumulated Session History & Forecast (S1 → Sn+3)
+            </h3>
+            <span class="text-[11px] font-mono text-emerald-700 font-semibold">Figure 3 Specification</span>
+          </div>
+          <div class="overflow-x-auto max-h-80 border border-slate-200 rounded-lg bg-white">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-100 text-slate-700 text-[10px] font-bold uppercase sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th class="py-2 px-2.5">Session</th>
+                  <th class="py-2 px-2 text-right">ROM (°)</th>
+                  <th class="py-2 px-2 text-right">Δ ROM</th>
+                  <th class="py-2 px-2 text-right">Depth (°)</th>
+                  <th class="py-2 px-2 text-right">Smooth (0–1)</th>
+                  <th class="py-2 px-2.5 text-right">Quality (0–100)</th>
+                </tr>
+              </thead>
+              <tbody id="longitudinal-table-body" class="divide-y divide-slate-100 font-mono text-xs">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Box 09: Recovery Prediction Trajectory Chart -->
+        <div class="lg:col-span-6 bg-slate-50/70 rounded-xl p-4 border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+                📈 Box 09: Recovery Trajectory & Milestone Regression Forecast
+              </h3>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-bold">Actual + 3-Session Forecast</span>
+            </div>
+            <div class="h-64 bg-white rounded-lg p-3 border border-slate-200">
+              <canvas id="longitudinalChart"></canvas>
+            </div>
+          </div>
+          <div id="long-status-banner" class="mt-3 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-950">
+            Loading longitudinal milestone evaluation...
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Section 4: Full 6-Model Benchmark Comparison Table -->
@@ -463,6 +745,23 @@
     </section>
 
   </main>
+
+  <!-- Modal: ESP32 Dual-IMU Firmware Code (.ino) -->
+  <div id="firmware-modal" class="fixed inset-0 bg-slate-900/60 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-bold">ESP32 Dual-IMU 100 Hz Arduino Firmware (akira_knee_esp32.ino)</h3>
+          <p class="text-[11px] text-slate-300">Thigh IMU = 0x68 (AD0→GND, 10 cm above patella) • Shin IMU = 0x69 (AD0→3.3V, 10 cm below patella)</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="copyFirmwareCode()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-bold">📋 Copy Code</button>
+          <button onclick="closeFirmwareModal()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold">✖ Close</button>
+        </div>
+      </div>
+      <pre id="firmware-code-box" class="p-4 text-[11px] font-mono bg-slate-950 text-emerald-300 overflow-y-auto flex-1"></pre>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">

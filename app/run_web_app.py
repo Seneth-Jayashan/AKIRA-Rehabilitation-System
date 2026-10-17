@@ -54,5 +54,5 @@ if __name__ == "__main__":
     sys.path.insert(0, api_dir)
     os.chdir(api_dir)
 
-    # Start Uvicorn ASGI server running main:app
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
+    # Start Uvicorn ASGI server running main:app (0.0.0.0 allows access from both PC and Phone on Wi-Fi)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
