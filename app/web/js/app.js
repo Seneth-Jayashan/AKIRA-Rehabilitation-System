@@ -657,6 +657,57 @@ async function loadESP32Status() {
     const data = await res.json();
     const countEl = document.getElementById('esp32-csv-count');
     if (countEl) countEl.innerText = data.recorded_files_count;
+
+    const portSelect = document.getElementById('esp32-com-port');
+    const hwBadge = document.getElementById('esp32-hw-badge');
+    const statusEl = document.getElementById('esp32-record-status');
+
+    if (portSelect) {
+      portSelect.innerHTML = '';
+      if (webSerialPort) {
+        const opt = document.createElement('option');
+        opt.value = 'WEBSERIAL';
+        opt.innerText = '🟢 Browser USB/BLE Serial Connected';
+        portSelect.appendChild(opt);
+      }
+      if (data.port_details && data.port_details.length > 0) {
+        data.port_details.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.port;
+          opt.innerText = `${p.port} — ${p.description}`;
+          portSelect.appendChild(opt);
+        });
+      }
+      if (data.wifi_stream_active) {
+        const opt = document.createElement('option');
+        opt.value = 'WIFI_STREAM';
+        opt.innerText = '🟢 ESP32 Wi-Fi Stream Active';
+        portSelect.appendChild(opt);
+      }
+      if (portSelect.options.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = 'NONE';
+        opt.innerText = '❌ No ESP32 Detected (Plug in USB or Pair Bluetooth)';
+        portSelect.appendChild(opt);
+      }
+    }
+
+    const isConnected = Boolean(webSerialPort) || data.hardware_connected;
+    if (hwBadge) {
+      if (isConnected) {
+        hwBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600 text-white';
+        hwBadge.innerText = '🟢 ESP32 Hardware Detected';
+      } else {
+        hwBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700 border border-slate-300';
+        hwBadge.innerText = '⚪ ESP32 Disconnected';
+      }
+    }
+    if (statusEl) {
+      statusEl.className = isConnected ? 'text-emerald-700 font-bold' : 'text-rose-600 font-bold';
+      statusEl.innerText = isConnected
+        ? '✅ ESP32 port ready — Click Start Recording'
+        : '❌ No ESP32 connected — Connect USB/Bluetooth first';
+    }
   } catch (err) {
     console.error('Error loading ESP32 status:', err);
   }
@@ -664,34 +715,112 @@ async function loadESP32Status() {
 
 async function connectWebSerialESP32() {
   const statusEl = document.getElementById('esp32-record-status');
+  const errBox = document.getElementById('esp32-error-box');
+  if (errBox) errBox.classList.add('hidden');
+
   if (!('serial' in navigator)) {
-    if (statusEl) statusEl.innerText = 'ℹ️ Using Backend Serial / Live Wi-Fi Stream Mode';
+    if (errBox) {
+      errBox.innerText = '❌ Browser WebSerial requires Chrome or Edge. Or plug in your ESP32 via USB/Bluetooth and click "🔄 Scan USB/BT Ports".';
+      errBox.classList.remove('hidden');
+    }
     return;
   }
   try {
     webSerialPort = await navigator.serial.requestPort();
     await webSerialPort.open({ baudRate: 115200 });
-    if (statusEl) statusEl.innerText = '✅ Connected to ESP32 via Browser USB/BLE Serial (115200 baud)';
+    await loadESP32Status();
+    if (statusEl) {
+      statusEl.className = 'text-emerald-700 font-bold';
+      statusEl.innerText = '✅ Connected to ESP32 via Browser USB/BLE Serial (115200 baud)';
+    }
   } catch (e) {
-    if (statusEl) statusEl.innerText = '📡 Ready in Backend Dual-IMU Stream Mode';
+    webSerialPort = null;
+    await loadESP32Status();
+    if (errBox) {
+      errBox.innerText = `⚠️ No serial device selected or connection cancelled: ${e.message}`;
+      errBox.classList.remove('hidden');
+    }
   }
+}
+
+async function read200SamplesFromWebSerial() {
+  const reader = webSerialPort.readable.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  const rows = [];
+  const tStart = Date.now();
+
+  try {
+    while (rows.length < 200 && (Date.now() - tStart) < 4500) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        const parts = line.trim().split(',');
+        if (parts.length === 12) {
+          const nums = parts.map(Number);
+          if (nums.every(n => !Number.isNaN(n))) {
+            rows.push(nums);
+            if (rows.length >= 200) break;
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return rows;
 }
 
 async function startESP32Recording() {
   const btn = document.getElementById('btn-record-esp32');
   const statusEl = document.getElementById('esp32-record-status');
+  const errBox = document.getElementById('esp32-error-box');
   const subjectId = document.getElementById('esp32-subject-id').value || 'P01_ORIF';
   const exerciseCode = document.getElementById('esp32-exercise').value;
   const qualityGrade = parseInt(document.getElementById('esp32-quality').value);
-  const connMode = document.getElementById('esp32-conn-mode').value;
+  const selectedPort = document.getElementById('esp32-com-port')?.value || 'NONE';
+
+  if (errBox) errBox.classList.add('hidden');
+
+  // STRICT CHECK: Block recording immediately if no ESP32 hardware is connected!
+  if (!webSerialPort && (!selectedPort || selectedPort === 'NONE')) {
+    if (errBox) {
+      errBox.innerHTML = '❌ <b>Cannot Record — No ESP32 Device Connected!</b><br>Please plug in your ESP32 + 2 IMUs via USB cable or pair Bluetooth (<code>AKIRA_Knee_ESP32</code>), then click <b>"🔄 Scan USB/BT Ports"</b> or <b>"🔌 Connect Browser USB/BLE Serial"</b>.';
+      errBox.classList.remove('hidden');
+    }
+    if (statusEl) {
+      statusEl.className = 'text-rose-600 font-bold';
+      statusEl.innerText = '❌ Recording blocked: ESP32 not connected';
+    }
+    return;
+  }
 
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = '<span>⏳</span> Recording 200 Samples @ 100 Hz...';
+    btn.innerHTML = '<span>⏳</span> Reading 200 Samples @ 100 Hz...';
   }
-  if (statusEl) statusEl.innerText = '🔴 Sampling Thigh IMU (0x68) & Shin IMU (0x69) @ 100 Hz...';
+  if (statusEl) {
+    statusEl.className = 'text-amber-700 font-bold';
+    statusEl.innerText = `🔴 Reading live 12-channel stream from ${selectedPort}...`;
+  }
 
   try {
+    let rawRows = null;
+    let connMode = 'serial_com';
+
+    if (selectedPort === 'WEBSERIAL' && webSerialPort) {
+      connMode = 'web_serial_raw';
+      rawRows = await read200SamplesFromWebSerial();
+      if (!rawRows || rawRows.length < 50) {
+        throw new Error(`Received only ${rawRows ? rawRows.length : 0} valid 12-channel IMU lines from WebSerial (expected 200 @ 100Hz). Make sure akira_knee_esp32.ino is running on the ESP32.`);
+      }
+    } else if (selectedPort === 'WIFI_STREAM') {
+      connMode = 'wifi_stream';
+    }
+
     const res = await fetch('/api/esp32/record_and_analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -700,10 +829,17 @@ async function startESP32Recording() {
         exercise_code: exerciseCode,
         quality_grade: qualityGrade,
         connection_mode: connMode,
-        model_key: currentModelKey
+        com_port: selectedPort,
+        model_key: currentModelKey,
+        raw_rows: rawRows
       })
     });
+
     const out = await res.json();
+    if (!res.ok) {
+      throw new Error(out.detail || 'No ESP32 device stream detected.');
+    }
+
     const data = out.sample_detail;
     const pred = out.prediction;
     currentSampleData = data;
@@ -753,11 +889,21 @@ async function startESP32Recording() {
       feedbackList.appendChild(li);
     });
 
-    if (statusEl) statusEl.innerText = `✅ Saved ${out.saved_csv_filename}`;
+    if (statusEl) {
+      statusEl.className = 'text-emerald-700 font-bold';
+      statusEl.innerText = `✅ Saved ${out.saved_csv_filename}`;
+    }
     await loadESP32Status();
   } catch (err) {
     console.error('Error recording from ESP32:', err);
-    if (statusEl) statusEl.innerText = '⚠️ Error during recording';
+    if (errBox) {
+      errBox.innerHTML = `❌ <b>Hardware Recording Failed:</b> ${err.message}`;
+      errBox.classList.remove('hidden');
+    }
+    if (statusEl) {
+      statusEl.className = 'text-rose-600 font-bold';
+      statusEl.innerText = '❌ ESP32 recording failed — Check hardware connection';
+    }
   } finally {
     if (btn) {
       btn.disabled = false;

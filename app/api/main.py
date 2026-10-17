@@ -801,99 +801,58 @@ def build_box07_session_outputs(
     }
 
 
-def synthesize_or_capture_dual_imu_stream(exercise_code: str, quality_grade: int, duration_sec: float = 2.0) -> np.ndarray:
-    """
-    Generates or captures a realistic 12-channel Dual-IMU stream (200 samples @ 100 Hz)
-    following the exact biomechanics of the 6 Tibial Plateau ORIF rehabilitation exercises
-    when recording in simulated/pilot mode or when testing before physical COM port attachment.
-    """
-    T = 200
-    t = np.linspace(0, duration_sec, T)
-    rng = np.random.default_rng(int(time.time() * 1000) % 100000)
+# Live Wi-Fi buffer for real ESP32 HTTP stream packets
+ESP32_WIFI_BUFFER = {
+    "rows": [],
+    "last_received_ts": 0.0
+}
 
-    # Quality modifiers: Grade 0 = Smooth/Full, Grade 1 = Incomplete/Lag, Grade 2 = Jerky/Fault
-    rom_scale = 1.0 if quality_grade == 0 else (0.72 if quality_grade == 1 else 0.48)
-    tremor_amp = 1.8 if quality_grade == 0 else (6.5 if quality_grade == 1 else 16.0)
-    lag_offset = 1.0 if quality_grade == 0 else (9.5 if quality_grade == 1 else 18.0)
 
-    X_raw = np.zeros((T, 12), dtype=np.float32)
-
-    # Smooth bell-shaped movement profile
-    bell = np.sin(np.pi * t / duration_sec) ** 2
-    deriv = (np.pi / duration_sec) * np.sin(2 * np.pi * t / duration_sec)
-
-    if "01_Heel_Slides" in exercise_code:
-        # Supine: heel slides along bed, knee flexes up to ~95 deg (Grade 0)
-        target_deg = 92.0 * rom_scale
-        thigh_gyr_y = -0.35 * target_deg * deriv + rng.normal(0, tremor_amp * 0.5, T)
-        shin_gyr_y  =  0.65 * target_deg * deriv + rng.normal(0, tremor_amp, T)
-        X_raw[:, 0] = 0.15 * bell + rng.normal(0, 0.02, T)
-        X_raw[:, 2] = 0.95 - 0.20 * bell + rng.normal(0, 0.02, T)
-        X_raw[:, 6] = -0.25 * bell + rng.normal(0, 0.03, T)
-        X_raw[:, 8] = 0.92 - 0.30 * bell + rng.normal(0, 0.03, T)
-    elif "02_Quadriceps_Sets" in exercise_code:
-        # Isometric quad contraction: knee locked near 0-5 deg with micro-isometric vibration
-        target_deg = 6.0 if quality_grade == 0 else (11.0 if quality_grade == 1 else 19.0)
-        thigh_gyr_y = -0.2 * target_deg * deriv + rng.normal(0, tremor_amp * 0.4, T)
-        shin_gyr_y  =  0.8 * target_deg * deriv + rng.normal(0, tremor_amp * 0.6, T)
-        X_raw[:, 2] = 0.98 + rng.normal(0, 0.015, T)
-        X_raw[:, 8] = 0.98 + rng.normal(0, 0.015, T)
-    elif "03_Straight_Leg_Raise" in exercise_code:
-        # Supine SLR: Thigh & Shin lift together at 35-45 deg; knee stays locked (0 deg) unless quad lag!
-        hip_lift_vel = 40.0 * deriv
-        lag_vel = (2.5 if quality_grade == 0 else (10.5 if quality_grade == 1 else 22.0)) * deriv
-        thigh_gyr_y = hip_lift_vel + rng.normal(0, tremor_amp * 0.4, T)
-        shin_gyr_y  = hip_lift_vel + lag_vel + rng.normal(0, tremor_amp * 0.8, T)
-        X_raw[:, 0] = 0.45 * bell + rng.normal(0, 0.02, T)
-        X_raw[:, 2] = 0.88 - 0.25 * bell + rng.normal(0, 0.02, T)
-        X_raw[:, 6] = 0.42 * bell + rng.normal(0, 0.02, T)
-        X_raw[:, 8] = 0.88 - 0.25 * bell + rng.normal(0, 0.02, T)
-    else:
-        # Pull a real template from the held-out dataset matching Seated Extension / Mini Squat / Step-Up
-        load_data_and_models()
-        ex_map = {"04_Seated_Knee_Extension": 1, "05_Mini_Squat": 2, "06_Step_Up": 3}
-        target_cls = ex_map.get(exercise_code, 1)
-        df = CACHE["test_catalog"]
-        matches = df[(df["class_id"] == target_cls) & (df["quality_grade"] == quality_grade)]
-        if len(matches) == 0:
-            matches = df[df["class_id"] == target_cls]
-        chosen_idx = int(matches.iloc[int(time.time()) % len(matches)].name)
-        base_seq = CACHE["test_data"]["X_seq_raw"][chosen_idx].copy()
-        noise = rng.normal(0, 0.015, base_seq.shape).astype(np.float32)
-        return base_seq + noise
-
-    # Populate Gyro Y channels (Channel 4 = Thigh Gyro Y, Channel 10 = Shin Gyro Y)
-    X_raw[:, 4]  = thigh_gyr_y
-    X_raw[:, 10] = shin_gyr_y
-    # Secondary minor axes
-    X_raw[:, 1]  = rng.normal(0, 0.03, T)
-    X_raw[:, 3]  = rng.normal(0, 2.5, T)
-    X_raw[:, 5]  = rng.normal(0, 2.5, T)
-    X_raw[:, 7]  = rng.normal(0, 0.03, T)
-    X_raw[:, 9]  = rng.normal(0, 3.0, T)
-    X_raw[:, 11] = rng.normal(0, 3.0, T)
-    return X_raw
+class ESP32WifiPushPayload(BaseModel):
+    rows: list  # List of 12-float arrays pushed directly by an ESP32 over Wi-Fi
 
 
 class ESP32RecordRequest(BaseModel):
     subject_id: str = "P01"
     exercise_code: str = "01_Heel_Slides"
     quality_grade: int = 0
-    connection_mode: str = "device_stream"  # 'serial_com', 'web_serial_raw', or 'device_stream'
-    com_port: str = "COM3"
+    connection_mode: str = "serial_com"  # 'serial_com', 'web_serial_raw', or 'wifi_stream'
+    com_port: str = ""
     model_key: str = "hybrid_2_bilstm"
     raw_rows: Optional[list] = None
 
 
+@app.post("/api/esp32/wifi_push")
+def esp32_wifi_push(payload: ESP32WifiPushPayload):
+    """Endpoint for physical ESP32 to push live 12-channel IMU rows over Wi-Fi HTTP POST."""
+    valid_rows = []
+    for r in payload.rows:
+        if isinstance(r, list) and len(r) >= 12:
+            try:
+                valid_rows.append([float(x) for x in r[:12]])
+            except ValueError:
+                pass
+    if valid_rows:
+        ESP32_WIFI_BUFFER["rows"].extend(valid_rows)
+        ESP32_WIFI_BUFFER["rows"] = ESP32_WIFI_BUFFER["rows"][-400:]  # Keep latest 4 seconds
+        ESP32_WIFI_BUFFER["last_received_ts"] = time.time()
+    return {"status": "ok", "buffered_samples": len(ESP32_WIFI_BUFFER["rows"])}
+
+
 @app.get("/api/esp32/status")
 def get_esp32_recorder_status():
-    """Returns available COM ports, recorded CSV files count, and 6 target exercises."""
+    """Returns real detected hardware COM ports, Wi-Fi stream state, and saved CSV files."""
     ports = []
+    port_details = []
     try:
         import serial.tools.list_ports
-        ports = [p.device for p in serial.tools.list_ports.comports()]
+        for p in serial.tools.list_ports.comports():
+            ports.append(p.device)
+            port_details.append({"port": p.device, "description": p.description})
     except Exception:
         ports = []
+
+    wifi_connected = (time.time() - ESP32_WIFI_BUFFER["last_received_ts"]) < 5.0 and len(ESP32_WIFI_BUFFER["rows"]) >= 50
 
     files = []
     if os.path.exists(RECORDED_TRIALS_DIR):
@@ -907,7 +866,10 @@ def get_esp32_recorder_status():
                 })
 
     return {
+        "hardware_connected": (len(ports) > 0) or wifi_connected,
         "available_com_ports": ports,
+        "port_details": port_details,
+        "wifi_stream_active": wifi_connected,
         "recorded_files_count": len(files),
         "recorded_files": files[:15],
         "recorded_dir": RECORDED_TRIALS_DIR,
@@ -927,28 +889,41 @@ def get_esp32_firmware_code():
 @app.post("/api/esp32/record_and_analyze")
 def record_from_esp32_and_analyze(req: ESP32RecordRequest):
     """
-    OPTION 1 LIVE WORKFLOW:
-      1. Captures 200 samples @ 100 Hz (12 channels: Thigh IMU + Shin IMU) from ESP32
-         (via Serial COM, Web Serial / Wi-Fi raw payload, or live device stream).
-      2. Saves the raw 12-channel recording as a labeled .CSV file in datasets/recorded_trials/.
-      3. Runs math_feature_extractor.py on-the-fly to compute continuous Knee Angle and 16 Features.
-      4. Runs the selected Deep Learning model and outputs Stage 1, Stage 2, Stage 3, and Box 07 (7 Session Outputs).
+    STRICT PHYSICAL HARDWARE RECORDER:
+      1. Requires a real connected ESP32 Dual-IMU device (via Browser WebSerial, USB/BT COM Port, or Wi-Fi Push).
+      2. If NO physical ESP32 device is connected or streaming 12-channel data, returns HTTP 400 Error (NEVER fakes data).
+      3. Saves the real 12-channel recording as a labeled .CSV file in datasets/recorded_trials/.
+      4. Runs math_feature_extractor.py and the Deep Learning model on the captured hardware stream.
     """
     load_data_and_models()
     source_mode_used = req.connection_mode
 
-    # 1. ACQUIRE (200, 12) RAW 12-CHANNEL SENSOR STREAM:
-    if req.raw_rows and len(req.raw_rows) >= 20:
+    # 1. ACQUIRE (200, 12) RAW 12-CHANNEL SENSOR STREAM FROM PHYSICAL HARDWARE ONLY:
+    if req.raw_rows and len(req.raw_rows) >= 50:
         arr = np.array(req.raw_rows, dtype=np.float32)
-        if arr.shape[1] >= 12:
-            arr = arr[:, :12]
-        if len(arr) != 200:
-            arr = signal.resample(arr, 200, axis=0).astype(np.float32)
-        X_seq_raw = arr
-        source_mode_used = "ESP32 Live Stream (WebSerial / Wi-Fi)"
+        if arr.ndim != 2 or arr.shape[1] < 12:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid sensor frame format from device: Expected 12 comma-separated IMU channels per sample."
+            )
+        arr = arr[:, :12]
+        X_seq_raw = signal.resample(arr, 200, axis=0).astype(np.float32) if len(arr) != 200 else arr
+        source_mode_used = "ESP32 Physical Hardware (Browser WebSerial @ 100Hz)"
+
     elif req.connection_mode == "serial_com":
+        if not req.com_port or req.com_port == "NONE":
+            raise HTTPException(
+                status_code=400,
+                detail="No ESP32 COM port detected! Please plug in your ESP32 via USB cable or pair Bluetooth ('AKIRA_Knee_ESP32') first."
+            )
         try:
             import serial
+        except ImportError:
+            raise HTTPException(
+                status_code=400,
+                detail="Python 'pyserial' library is not installed. Run 'pip install pyserial' or click 'Connect Browser USB/BLE Serial' to use WebSerial."
+            )
+        try:
             ser = serial.Serial(req.com_port, 115200, timeout=3.0)
             rows = []
             t_start = time.time()
@@ -961,19 +936,37 @@ def record_from_esp32_and_analyze(req: ESP32RecordRequest):
                     except ValueError:
                         pass
             ser.close()
-            if len(rows) >= 50:
-                arr = np.array(rows, dtype=np.float32)
-                X_seq_raw = signal.resample(arr, 200, axis=0).astype(np.float32) if len(arr) != 200 else arr
-                source_mode_used = f"ESP32 Physical Hardware ({req.com_port} @ 100Hz)"
-            else:
-                X_seq_raw = synthesize_or_capture_dual_imu_stream(req.exercise_code, req.quality_grade)
-                source_mode_used = f"ESP32 Stream Buffer ({req.exercise_code})"
-        except Exception:
-            X_seq_raw = synthesize_or_capture_dual_imu_stream(req.exercise_code, req.quality_grade)
-            source_mode_used = f"ESP32 Dual-IMU Capture ({req.exercise_code})"
+        except Exception as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Could not open ESP32 on port '{req.com_port}': {str(e)}. Check that your ESP32 is plugged in and not open in Arduino Serial Monitor."
+            )
+
+        if len(rows) < 50:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Connected to '{req.com_port}', but received {len(rows)} valid 12-channel IMU frames (need 200 @ 100Hz). Ensure akira_knee_esp32.ino is flashed and both MPU6050 sensors (0x68 & 0x69) are wired."
+            )
+        arr = np.array(rows, dtype=np.float32)
+        X_seq_raw = signal.resample(arr, 200, axis=0).astype(np.float32) if len(arr) != 200 else arr
+        source_mode_used = f"ESP32 Physical Hardware ({req.com_port} @ 100Hz)"
+
+    elif req.connection_mode == "wifi_stream":
+        wifi_age = time.time() - ESP32_WIFI_BUFFER["last_received_ts"]
+        if wifi_age > 5.0 or len(ESP32_WIFI_BUFFER["rows"]) < 50:
+            raise HTTPException(
+                status_code=400,
+                detail="No live ESP32 Wi-Fi stream detected! Ensure your ESP32 is powered on and streaming 12-channel data to /api/esp32/wifi_push, or use USB/Bluetooth COM port."
+            )
+        arr = np.array(ESP32_WIFI_BUFFER["rows"][-200:], dtype=np.float32)
+        X_seq_raw = signal.resample(arr, 200, axis=0).astype(np.float32) if len(arr) != 200 else arr
+        source_mode_used = "ESP32 Physical Hardware (Wi-Fi Stream @ 100Hz)"
+
     else:
-        X_seq_raw = synthesize_or_capture_dual_imu_stream(req.exercise_code, req.quality_grade)
-        source_mode_used = f"ESP32 Dual-IMU Live Recorder ({req.exercise_code})"
+        raise HTTPException(
+            status_code=400,
+            detail="No ESP32 device connected! Please connect your ESP32 via USB/Bluetooth COM port or Browser WebSerial before recording."
+        )
 
     # 2. SAVE CLEAN 12-CHANNEL CSV TO DATASET FOLDER:
     qual_short = ["Good", "NeedsImp", "Bad"][int(req.quality_grade) % 3]
