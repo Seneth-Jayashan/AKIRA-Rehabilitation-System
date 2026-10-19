@@ -30,11 +30,14 @@
 // MPU6500 REGISTERS
 // =====================================
 #define WHO_AM_I_REG   0x75
-#define PWR_MGMT_1     0x6B
-#define ACCEL_CONFIG   0x1C
+#define CONFIG_REG     0x1A
 #define GYRO_CONFIG    0x1B
+#define ACCEL_CONFIG   0x1C
 #define ACCEL_XOUT_H   0x3B
 #define GYRO_XOUT_H    0x43
+#define USER_CTRL_REG  0x6A
+#define PWR_MGMT_1     0x6B
+#define PWR_MGMT_2     0x6C
 
 // =====================================
 // OLED DISPLAY
@@ -112,14 +115,16 @@ bool writeRegister(uint8_t reg, uint8_t value) {
 }
 
 // =====================================
-// READ MULTIPLE BYTES
+// READ MULTIPLE BYTES (With STOP & Turnaround Delay)
 // =====================================
 bool readBytes(uint8_t reg, uint8_t *buffer, uint8_t length) {
   Wire.beginTransmission(MPU6500_ADDR);
   Wire.write(reg);
-  if (Wire.endTransmission(false) != 0) {
+  // Releasing the bus with STOP condition (true) ensures PCA9548A multiplexer does not glitch
+  if (Wire.endTransmission(true) != 0) {
     return false;
   }
+  delayMicroseconds(50);
   uint8_t received = Wire.requestFrom((uint8_t)MPU6500_ADDR, length);
   if (received != length) {
     return false;
@@ -139,20 +144,30 @@ inline int16_t combineBytes(uint8_t high, uint8_t low) {
 
 // =====================================
 // READ MPU6500 INTO ImuReading STRUCT
+// Explicitly reads ACCEL (0x3B) and GYRO (0x43) separately
+// to prevent auto-increment stalls across the temperature registers.
 // =====================================
 bool readMPU6500(ImuReading &out) {
-  uint8_t rawBuffer[14];
-  if (!readBytes(ACCEL_XOUT_H, rawBuffer, 14)) {
+  uint8_t accelData[6];
+  uint8_t gyroData[6];
+
+  // 1. Read 6 bytes of Accelerometer data (0x3B..0x40)
+  if (!readBytes(ACCEL_XOUT_H, accelData, 6)) {
     return false;
   }
 
-  int16_t rawAx = combineBytes(rawBuffer[0], rawBuffer[1]);
-  int16_t rawAy = combineBytes(rawBuffer[2], rawBuffer[3]);
-  int16_t rawAz = combineBytes(rawBuffer[4], rawBuffer[5]);
-  // rawBuffer[6..7] is temperature
-  int16_t rawGx = combineBytes(rawBuffer[8], rawBuffer[9]);
-  int16_t rawGy = combineBytes(rawBuffer[10], rawBuffer[11]);
-  int16_t rawGz = combineBytes(rawBuffer[12], rawBuffer[13]);
+  // 2. Read 6 bytes of Gyroscope data (0x43..0x48)
+  if (!readBytes(GYRO_XOUT_H, gyroData, 6)) {
+    return false;
+  }
+
+  int16_t rawAx = combineBytes(accelData[0], accelData[1]);
+  int16_t rawAy = combineBytes(accelData[2], accelData[3]);
+  int16_t rawAz = combineBytes(accelData[4], accelData[5]);
+
+  int16_t rawGx = combineBytes(gyroData[0], gyroData[1]);
+  int16_t rawGy = combineBytes(gyroData[2], gyroData[3]);
+  int16_t rawGz = combineBytes(gyroData[4], gyroData[5]);
 
   // Accelerometer: ±2g full scale -> 16384 LSB/g
   out.ax = rawAx / 16384.0f;
@@ -169,30 +184,61 @@ bool readMPU6500(ImuReading &out) {
 
 // =====================================
 // INITIALIZE AN IMU ON SPECIFIC CHANNEL
+// Ensures device reset, Gyro PLL clock selection, and active gyro axes
 // =====================================
 bool initSensorOnChannel(uint8_t channel, const char* sensorName) {
   if (!selectChannel(channel)) {
     Serial.printf("ERROR: PCA9548A failed to select channel %d (%s)\n", channel, sensorName);
     return false;
   }
-  delay(10);
+  delay(15);
 
-  // Check WHO_AM_I register
-  uint8_t whoami = 0;
-  readBytes(WHO_AM_I_REG, &whoami, 1);
-  Serial.printf("%s WHO_AM_I: 0x%02X\n", sensorName, whoami);
+  // 1. Device Reset to clear any corrupted state or standby locks
+  writeRegister(PWR_MGMT_1, 0x80);
+  delay(100);
 
-  // Wake up MPU6500 (clear sleep bit in PWR_MGMT_1)
-  if (!writeRegister(PWR_MGMT_1, 0x00)) {
-    Serial.printf("ERROR: %s wake failed\n", sensorName);
+  // 2. Wake up and set clock source to PLL with Gyro X reference (0x01)
+  // CLKSEL 1 powers up the gyroscope drive circuitry and provides a stable clock reference
+  if (!writeRegister(PWR_MGMT_1, 0x01)) {
+    Serial.printf("ERROR: %s wake/clock init failed\n", sensorName);
     return false;
   }
+  delay(15);
+
+  // 3. Clear all standby bits in PWR_MGMT_2 (0x6C)
+  // STBY_XG (bit 2), STBY_YG (bit 1), STBY_ZG (bit 0) MUST be 0 for Gyro to run!
+  writeRegister(PWR_MGMT_2, 0x00);
   delay(10);
 
-  // Configure Accelerometer ±2g (0x00)
+  // 4. Disable FIFO and I2C Master mode
+  writeRegister(USER_CTRL_REG, 0x00);
+  delay(5);
+
+  // 5. Configure Accelerometer ±2g (0x00)
   writeRegister(ACCEL_CONFIG, 0x00);
-  // Configure Gyroscope ±250 deg/s (0x00)
+  delay(5);
+
+  // 6. Configure Gyroscope ±250 deg/s (0x00)
   writeRegister(GYRO_CONFIG, 0x00);
+  delay(5);
+
+  // 7. Configure Digital Low Pass Filter (DLPF ~42Hz bandwidth)
+  writeRegister(CONFIG_REG, 0x03);
+  delay(5);
+
+  // Diagnostic readback
+  uint8_t whoami = 0, pwr1 = 0, pwr2 = 0, gyroCfg = 0;
+  readBytes(WHO_AM_I_REG, &whoami, 1);
+  readBytes(PWR_MGMT_1, &pwr1, 1);
+  readBytes(PWR_MGMT_2, &pwr2, 1);
+  readBytes(GYRO_CONFIG, &gyroCfg, 1);
+
+  Serial.printf("%s [CH%d]: WHO_AM_I=0x%02X, PWR1=0x%02X, PWR2=0x%02X, GYRO_CFG=0x%02X\n",
+                sensorName, channel, whoami, pwr1, pwr2, gyroCfg);
+
+  if (pwr2 != 0x00) {
+    Serial.printf("WARNING: %s PWR_MGMT_2 is 0x%02X (standby bits non-zero!)\n", sensorName, pwr2);
+  }
 
   Serial.printf("%s ready on PCA9548A channel %d!\n", sensorName, channel);
   return true;
