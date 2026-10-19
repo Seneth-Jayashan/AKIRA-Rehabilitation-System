@@ -38,12 +38,13 @@
 - [x] Subject-independent target testing (SDALLE represents completely independent subjects)
 - [x] Compare against the synthetic domain-shift experiment (Documented in Progress Report)
 
-## Phase 8: AKIRA Hardware and Ankle-Specific Data (Next Major Stage)
-- [ ] Collect paired tibia/foot IMU recordings from AKIRA hardware
-- [ ] Define a repeatable, supervised data-collection protocol
-- [ ] Label ankle exercises and establish reference measurements
-- [ ] Calibrate sensors and validate ankle kinematics
-- [ ] Fine-tune or retrain suitable models
+## Phase 8: AKIRA Hardware and Ankle-Specific Data (Active Stage)
+- [x] Configure ESP32 firmware for synchronized paired tibia/foot IMU recordings (PCA9548A CH0 & CH1 @ 100Hz, 12 motion channels)
+- [x] Build multi-member Android data collection tool with standardized trial/exercise metadata and participant-specific CSV export
+- [x] Implement AKIRA Python preprocessing pipeline loader (`AkiraDatasetLoader`) with quality checks, sync verification, and subject-independent splits
+- [ ] Conduct pilot collection with participating members across standardized ankle exercises
+- [ ] Calibrate sensors and validate ankle kinematics on collected trials
+- [ ] Retrain / fine-tune Random Forest, XGBoost, and deep models on participant-independent splits
 
 ## Phase 9: Final System Validation (Clinical Readiness)
 - [ ] Integrate offline inference with the Android application
