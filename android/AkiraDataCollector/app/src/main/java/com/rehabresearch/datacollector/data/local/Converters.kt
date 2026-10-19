@@ -5,6 +5,7 @@ import com.rehabresearch.datacollector.data.local.entity.BodySide
 import com.rehabresearch.datacollector.data.local.entity.Difficulty
 import com.rehabresearch.datacollector.data.local.entity.ExerciseType
 import com.rehabresearch.datacollector.data.local.entity.Gender
+import com.rehabresearch.datacollector.data.local.entity.RehabComponent
 import com.rehabresearch.datacollector.data.local.entity.SessionStatus
 import com.rehabresearch.datacollector.data.local.entity.SurgeryType
 
@@ -18,6 +19,9 @@ class Converters {
 
     @TypeConverter fun sideToString(v: BodySide) = v.name
     @TypeConverter fun sideFromString(v: String) = BodySide.valueOf(v)
+
+    @TypeConverter fun componentToString(v: RehabComponent) = v.name
+    @TypeConverter fun componentFromString(v: String) = RehabComponent.valueOf(v)
 
     @TypeConverter fun exerciseToString(v: ExerciseType) = v.name
     @TypeConverter fun exerciseFromString(v: String) = ExerciseType.valueOf(v)

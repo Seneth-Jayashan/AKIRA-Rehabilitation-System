@@ -17,12 +17,6 @@
         tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <!-- This app is local-only by design (research tool, no login, no cloud sync),
-         so it intentionally does NOT request INTERNET. If you later add cloud sync,
-         camera-based video capture, or a foreground recording notification, add
-         INTERNET/ACCESS_NETWORK_STATE, CAMERA/RECORD_AUDIO, or POST_NOTIFICATIONS
-         back here alongside the feature that needs them. -->
-
     <application
         android:name=".RehabApp"
         android:allowBackup="true"
@@ -30,6 +24,17 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AkiraDataCollector">
+
+        <!-- FileProvider for sharing exported research CSV datasets -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <activity
             android:name=".MainActivity"

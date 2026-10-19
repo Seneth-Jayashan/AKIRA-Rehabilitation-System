@@ -14,8 +14,7 @@ object BleConstants {
     const val CONNECTION_TIMEOUT_MILLIS = 10000L
 
     // ===========================
-    // BLE UUIDs
-    // MUST MATCH ESP32
+    // BLE UUIDs (MUST MATCH ESP32)
     // ===========================
 
     val IMU_SERVICE_UUID: UUID =
@@ -31,10 +30,15 @@ object BleConstants {
         UUID.fromString("00002902-0000-1000-8000-00805F9B34FB")
 
     // ===========================
-    // Packet Format
+    // Packet Format (Dual IMU 12-Channel)
     // ===========================
 
-    const val EXPECTED_PACKET_SIZE_BYTES = 28
+    // Dual IMU packet: uint32 timestamp (4B) + Tibia 6 floats (24B) + Foot 6 floats (24B) = 52 bytes
+    const val DUAL_IMU_PACKET_SIZE_BYTES = 52
+    // Legacy single IMU packet: uint32 timestamp (4B) + 6 floats (24B) = 28 bytes
+    const val LEGACY_PACKET_SIZE_BYTES = 28
+
+    const val EXPECTED_PACKET_SIZE_BYTES = DUAL_IMU_PACKET_SIZE_BYTES
 
     // ===========================
     // Connection

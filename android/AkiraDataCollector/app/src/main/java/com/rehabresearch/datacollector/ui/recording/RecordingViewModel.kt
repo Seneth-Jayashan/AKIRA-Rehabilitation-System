@@ -8,9 +8,11 @@ import com.rehabresearch.datacollector.ble.ImuPacket
 import com.rehabresearch.datacollector.data.local.entity.BodySide
 import com.rehabresearch.datacollector.data.local.entity.Difficulty
 import com.rehabresearch.datacollector.data.local.entity.ExerciseType
+import com.rehabresearch.datacollector.data.local.entity.RehabComponent
 import com.rehabresearch.datacollector.data.local.entity.SensorReadingEntity
 import com.rehabresearch.datacollector.data.local.entity.SessionEntity
 import com.rehabresearch.datacollector.data.local.entity.SessionStatus
+import com.rehabresearch.datacollector.data.local.entity.component
 import com.rehabresearch.datacollector.data.repository.PatientRepository
 import com.rehabresearch.datacollector.data.repository.SessionRepository
 import com.rehabresearch.datacollector.ui.NavRoutes
@@ -19,27 +21,45 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 data class RecordingSetupState(
     val patientId: String = "",
-    val exercise: ExerciseType = ExerciseType.SIT_TO_STAND,
-    val side: BodySide = BodySide.LEFT,
+    val trialNumber: Int = 1,
+    val trialId: String = "Trial_1",
+    val component: RehabComponent = RehabComponent.ANKLE,
+    val exercise: ExerciseType = ExerciseType.DORSIFLEXION,
+    val sensor1Placement: String = RehabComponent.ANKLE.sensor1Default,
+    val sensor2Placement: String = RehabComponent.ANKLE.sensor2Default,
+    val side: BodySide = BodySide.RIGHT,
     val difficulty: Difficulty = Difficulty.EASY,
     val targetReps: Int = 10,
     val therapistName: String = "",
     val recoveryWeek: Int = 1
 )
 
-data class LiveChartPoint(val t: Long, val ax: Float, val ay: Float, val az: Float, val gx: Float, val gy: Float, val gz: Float)
+data class LiveChartPoint(
+    val t: Long,
+    val s1Ax: Float, val s1Ay: Float, val s1Az: Float,
+    val s1Gx: Float, val s1Gy: Float, val s1Gz: Float,
+    val s2Ax: Float, val s2Ay: Float, val s2Az: Float,
+    val s2Gx: Float, val s2Gy: Float, val s2Gz: Float,
+    // Aliases for Tibia/Foot
+    val tAx: Float = s1Ax, val tAy: Float = s1Ay, val tAz: Float = s1Az,
+    val tGx: Float = s1Gx, val tGy: Float = s1Gy, val tGz: Float = s1Gz,
+    val fAx: Float = s2Ax, val fAy: Float = s2Ay, val fAz: Float = s2Az,
+    val fGx: Float = s2Gx, val fGy: Float = s2Gy, val fGz: Float = s2Gz,
+    // Single-sensor aliases
+    val ax: Float = s1Ax, val ay: Float = s1Ay, val az: Float = s1Az,
+    val gx: Float = s1Gx, val gy: Float = s1Gy, val gz: Float = s1Gz
+)
 
 data class RecordingUiState(
     val isRecording: Boolean = false,
     val isCountingDown: Boolean = false,
     val countdownValue: Int = 3,
     val latestPacket: ImuPacket? = null,
-    val chartBuffer: List<LiveChartPoint> = emptyList(), // last N points for the live chart
+    val chartBuffer: List<LiveChartPoint> = emptyList(),
     val elapsedMillis: Long = 0,
     val currentReps: Int = 0,
     val sampleRateHz: Float = 0f,
@@ -49,7 +69,7 @@ data class RecordingUiState(
     val finished: Boolean = false
 )
 
-private const val CHART_BUFFER_SIZE = 150 // ~1.5s of chart history at 100Hz, enough to look "live" without lagging Compose
+private const val CHART_BUFFER_SIZE = 150 // ~1.5s of chart history at 100Hz
 
 @HiltViewModel
 class RecordingViewModel @Inject constructor(
@@ -71,13 +91,30 @@ class RecordingViewModel @Inject constructor(
     private var timerJob: Job? = null
     private var sessionStartMillis: Long = 0
     private val pendingBatch = mutableListOf<SensorReadingEntity>()
-    private val batchFlushSize = 50 // flush to Room every 50 samples (~0.5s @100Hz)
+    private val batchFlushSize = 50
 
     fun updateSetup(transform: (RecordingSetupState) -> RecordingSetupState) {
         _setup.value = transform(_setup.value)
     }
 
-    /** 3-2-1-GO countdown, then begins the actual BLE subscription + recording. */
+    fun setComponent(c: RehabComponent) {
+        val defaultEx = ExerciseType.entries.firstOrNull { it.component == c } ?: ExerciseType.DORSIFLEXION
+        _setup.value = _setup.value.copy(
+            component = c,
+            exercise = defaultEx,
+            sensor1Placement = c.sensor1Default,
+            sensor2Placement = c.sensor2Default
+        )
+    }
+
+    fun setTrialNumber(number: Int) {
+        _setup.value = _setup.value.copy(
+            trialNumber = number,
+            trialId = "Trial_$number"
+        )
+    }
+
+    /** 3-2-1-GO countdown, then begins BLE recording. */
     fun startCountdownThenRecord() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isCountingDown = true, countdownValue = 3)
@@ -95,23 +132,21 @@ class RecordingViewModel @Inject constructor(
         val sessionId = sessionRepository.newSessionId()
         sessionStartMillis = System.currentTimeMillis()
 
-        // IMPORTANT: the session row must exist in Room before any sensor_readings
-        // batch is inserted, because sensor_readings has a FOREIGN KEY on sessionId.
-        // Previously this ran as two independent launch{} blocks — the BLE collector
-        // could start flushing samples before the session insert actually committed,
-        // which risks a foreign-key constraint failure (or a crash) on the very first
-        // batch. Sequencing them in one coroutine guarantees insert-then-stream order.
         viewModelScope.launch {
             sessionRepository.startSession(
                 SessionEntity(
                     sessionId = sessionId,
                     patientId = s.patientId,
+                    trialId = s.trialId,
+                    component = s.component,
                     exercise = s.exercise,
                     side = s.side,
                     difficulty = s.difficulty,
                     recoveryWeek = s.recoveryWeek,
                     targetReps = s.targetReps,
-                    therapistName = s.therapistName.ifBlank { "Unspecified" },
+                    therapistName = s.therapistName.ifBlank { "Participant" },
+                    sensor1Placement = s.sensor1Placement,
+                    sensor2Placement = s.sensor2Placement,
                     startedAtEpochMillis = sessionStartMillis,
                     status = SessionStatus.RECORDING
                 )
@@ -133,7 +168,13 @@ class RecordingViewModel @Inject constructor(
 
     private suspend fun onPacket(sessionId: String, packet: ImuPacket) {
         val stats = bleManager.linkStats.value
-        val point = LiveChartPoint(packet.timestampMillis, packet.ax, packet.ay, packet.az, packet.gx, packet.gy, packet.gz)
+        val point = LiveChartPoint(
+            t = packet.timestampMillis,
+            s1Ax = packet.s1Ax, s1Ay = packet.s1Ay, s1Az = packet.s1Az,
+            s1Gx = packet.s1Gx, s1Gy = packet.s1Gy, s1Gz = packet.s1Gz,
+            s2Ax = packet.s2Ax, s2Ay = packet.s2Ay, s2Az = packet.s2Az,
+            s2Gx = packet.s2Gx, s2Gy = packet.s2Gy, s2Gz = packet.s2Gz
+        )
         val newBuffer = (_uiState.value.chartBuffer + point).takeLast(CHART_BUFFER_SIZE)
 
         _uiState.value = _uiState.value.copy(
@@ -148,8 +189,10 @@ class RecordingViewModel @Inject constructor(
             SensorReadingEntity(
                 sessionId = sessionId,
                 timestampMillis = packet.timestampMillis,
-                ax = packet.ax, ay = packet.ay, az = packet.az,
-                gx = packet.gx, gy = packet.gy, gz = packet.gz,
+                s1Ax = packet.s1Ax, s1Ay = packet.s1Ay, s1Az = packet.s1Az,
+                s1Gx = packet.s1Gx, s1Gy = packet.s1Gy, s1Gz = packet.s1Gz,
+                s2Ax = packet.s2Ax, s2Ay = packet.s2Ay, s2Az = packet.s2Az,
+                s2Gx = packet.s2Gx, s2Gy = packet.s2Gy, s2Gz = packet.s2Gz,
                 quatW = packet.quatW, quatX = packet.quatX, quatY = packet.quatY, quatZ = packet.quatZ,
                 temperatureC = packet.temperatureC
             )
@@ -170,7 +213,6 @@ class RecordingViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(currentReps = _uiState.value.currentReps + 1)
     }
 
-    /** Stops the BLE stream and finalizes the session row (duration, packet totals). */
     fun stopRecording() {
         streamJob?.cancel()
         timerJob?.cancel()

@@ -12,8 +12,8 @@ import com.rehabresearch.datacollector.data.local.entity.SessionEntity
 
 @Database(
     entities = [PatientEntity::class, SessionEntity::class, SensorReadingEntity::class],
-    version = 1,
-    exportSchema = true // schema history matters for a research dataset app — never turn this off
+    version = 2,
+    exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

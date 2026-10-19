@@ -40,25 +40,25 @@ manager / `adb pull`) for the training pipeline.
 ## What's stubbed / needs your input before shipping
 
 1. **ESP32 firmware UUIDs** (`ble/BleConstants.kt`) — must exactly match your firmware.
-2. **Packet format** (`ble/ImuPacketParser.kt`) — a fixed 28-byte little-endian
-   struct: `uint32 timestamp_ms, float ax, ay, az, gx, gy, gz`. `ImuPacket` also
-   has optional magnetometer/quaternion/temperature fields defined but **not yet
-   wired end-to-end** (parser doesn't populate them, Room doesn't store them, CSV
-   doesn't export them) — treat those as a placeholder for a future firmware
-   upgrade, not working functionality.
-3. **Video recording** (spec's optional "Live Video" module) — not implemented;
-   would hook into CameraX alongside the recording session. Camera/mic permissions
-   were removed from the manifest since this isn't wired up — add them back
-   alongside the feature if you build it.
+2. **Packet format** (`ble/ImuPacketParser.kt`) — a synchronized 52-byte little-endian
+   struct: `uint32 timestamp_ms, float tibia_ax, ay, az, gx, gy, gz, float foot_ax, ay, az, gx, gy, gz`.
+   Also provides backward-compatible fallback for 28-byte single-sensor packets.
+3. **Participant filtering & export** (`ui/history/HistoryScreen.kt`) — allows each member
+   or researcher to filter sessions by their anonymous Participant ID and trigger an instant
+   export & share sheet (`P00X_all_sessions.csv`) without needing ADB.
 
 ## Firmware contract (what the ESP32 must send)
 
-Little-endian, one BLE notification per sample, ≤ negotiated MTU:
+Little-endian, one BLE notification per sample @ 100Hz (10ms interval), ≤ negotiated MTU (52 bytes total):
 
 ```
-uint32 timestamp_ms
-float32 ax, ay, az   // g
-float32 gx, gy, gz   // deg/s
+uint32 timestamp_ms       // 4 bytes: ESP32 millis()
+// Tibia IMU (PCA9548A CH0 - Lower Leg)
+float32 tibia_ax, ay, az  // 12 bytes: g (±2g)
+float32 tibia_gx, gy, gz  // 12 bytes: deg/s (±250 dps)
+// Foot IMU (PCA9548A CH1 - Foot Dorsum)
+float32 foot_ax, ay, az   // 12 bytes: g (±2g)
+float32 foot_gx, gy, gz   // 12 bytes: deg/s (±250 dps)
 ```
 
 Advertise with a device name starting with `ESP32-REHAB` so the app's scan filter finds it.

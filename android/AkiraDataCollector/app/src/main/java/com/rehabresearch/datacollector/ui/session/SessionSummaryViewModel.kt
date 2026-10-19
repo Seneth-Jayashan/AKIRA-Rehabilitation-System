@@ -1,6 +1,7 @@
 package com.rehabresearch.datacollector.ui.session
 
 import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 data class SessionSummaryUiState(
@@ -59,7 +61,7 @@ class SessionSummaryViewModel @Inject constructor(
     fun updateAssistiveDevice(v: String) { _uiState.value = _uiState.value.copy(assistiveDevice = v) }
     fun updateNotes(v: String) { _uiState.value = _uiState.value.copy(notes = v) }
 
-    /** Saves labels to Room, then writes the CSV dataset row + metadata sidecar to disk. */
+    /** Saves labels to Room, then writes the 12-channel CSV dataset row + metadata sidecar to disk. */
     fun saveLabelsAndExport() {
         val state = _uiState.value
         val session = state.session ?: return
@@ -85,5 +87,12 @@ class SessionSummaryViewModel @Inject constructor(
             )
             _uiState.value = _uiState.value.copy(isExporting = false, exportedFilePath = csvFile.absolutePath)
         }
+    }
+
+    fun getShareIntent(): Intent? {
+        val path = _uiState.value.exportedFilePath ?: return null
+        val file = File(path)
+        if (!file.exists()) return null
+        return CsvExporter.createShareIntent(context, file)
     }
 }

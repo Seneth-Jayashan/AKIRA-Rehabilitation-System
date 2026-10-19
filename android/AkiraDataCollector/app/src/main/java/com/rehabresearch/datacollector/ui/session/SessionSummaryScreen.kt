@@ -7,11 +7,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -24,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
@@ -34,8 +36,9 @@ fun SessionSummaryScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val session = state.session
+    val context = LocalContext.current
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Session Summary") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text("Trial Summary & Annotation") }) }) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -43,7 +46,7 @@ fun SessionSummaryScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             if (session == null) {
-                Text("Loading session...")
+                Text("Loading trial details...")
                 return@Column
             }
 
@@ -53,10 +56,14 @@ fun SessionSummaryScreen(
                 colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text(session.exercise.name.replace("_", " "), style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "${session.exercise.name.replace("_", " ")} — ${session.trialId}",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text("Participant: ${session.patientId} · Side: ${session.side.name}")
                     Text("Duration: %.1fs".format(session.durationMillis / 1000f))
                     Text("Repetitions: ${session.actualReps} / ${session.targetReps}")
-                    Text("Samples recorded: ${state.sampleCount}")
+                    Text("Synchronized 12-Ch samples: ${state.sampleCount}")
                     Text("Avg frequency: %.1f Hz".format(session.avgSampleFrequencyHz))
                     Text("Dropped packets: ${session.droppedPacketCount}")
                 }
@@ -93,14 +100,33 @@ fun SessionSummaryScreen(
             OutlinedTextField(
                 value = state.notes,
                 onValueChange = viewModel::updateNotes,
-                label = { Text("Therapist Notes") },
+                label = { Text("Trial Quality & Biomechanical Notes") },
                 minLines = 3,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            state.exportedFilePath?.let {
-                Spacer(Modifier.height(12.dp))
-                Text("Exported to: $it", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
+            state.exportedFilePath?.let { filePath ->
+                Spacer(Modifier.height(16.dp))
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                ) {
+                    Column(Modifier.padding(14.dp)) {
+                        Text("Exported CSV:", style = MaterialTheme.typography.labelMedium)
+                        Text(filePath, style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(8.dp))
+                        FilledTonalButton(
+                            onClick = {
+                                viewModel.getShareIntent()?.let { intent ->
+                                    context.startActivity(android.content.Intent.createChooser(intent, "Share CSV dataset"))
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Share CSV File")
+                        }
+                    }
+                }
             }
 
             Spacer(Modifier.height(24.dp))
