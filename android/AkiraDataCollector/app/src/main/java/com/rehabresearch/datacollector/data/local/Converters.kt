@@ -15,7 +15,11 @@ class Converters {
     @TypeConverter fun genderFromString(v: String) = Gender.valueOf(v)
 
     @TypeConverter fun surgeryToString(v: SurgeryType) = v.name
-    @TypeConverter fun surgeryFromString(v: String) = SurgeryType.valueOf(v)
+    @TypeConverter fun surgeryFromString(v: String) = try {
+        SurgeryType.valueOf(v)
+    } catch (_: Exception) {
+        SurgeryType.OTHER
+    }
 
     @TypeConverter fun sideToString(v: BodySide) = v.name
     @TypeConverter fun sideFromString(v: String) = BodySide.valueOf(v)

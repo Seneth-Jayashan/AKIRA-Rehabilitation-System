@@ -77,7 +77,7 @@ private fun PatientRow(patient: PatientEntity, onClick: () -> Unit) {
             Text(
                 "${patient.age} yrs · ${patient.gender.name.lowercase().replaceFirstChar { it.uppercase() }} · " +
                     "${patient.surgerySide.name.lowercase().replaceFirstChar { it.uppercase() }} " +
-                    patient.surgeryType.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+                    patient.surgeryType.displayName,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

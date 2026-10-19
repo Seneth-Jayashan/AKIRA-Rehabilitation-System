@@ -23,7 +23,7 @@ data class NewPatientForm(
     val gender: Gender = Gender.MALE,
     val heightCm: String = "",
     val weightKg: String = "",
-    val surgeryType: SurgeryType = SurgeryType.KNEE_REPLACEMENT,
+    val surgeryType: SurgeryType = SurgeryType.ANKLE_ORIF,
     val surgerySide: BodySide = BodySide.LEFT,
     val surgeryDate: LocalDate = LocalDate.now(),
     val therapistName: String = "",

@@ -1,5 +1,6 @@
 package com.rehabresearch.datacollector.ui.patient
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,15 +8,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,13 +31,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rehabresearch.datacollector.data.local.entity.BodySide
 import com.rehabresearch.datacollector.data.local.entity.Gender
+import com.rehabresearch.datacollector.data.local.entity.RehabComponent
 import com.rehabresearch.datacollector.data.local.entity.SurgeryType
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPatientScreen(
     onSaved: () -> Unit,
@@ -42,9 +48,18 @@ fun AddPatientScreen(
     viewModel: PatientViewModel = hiltViewModel()
 ) {
     val form by viewModel.form.collectAsState()
+    var selectedComponentFilter by remember { mutableStateOf<RehabComponent?>(RehabComponent.ANKLE) }
 
     LaunchedEffect(form.saved) {
         if (form.saved) onSaved()
+    }
+
+    val availableSurgeries = remember(selectedComponentFilter) {
+        if (selectedComponentFilter == null) {
+            SurgeryType.entries.toList()
+        } else {
+            SurgeryType.entries.filter { it.component == selectedComponentFilter || it.component == null }
+        }
     }
 
     Scaffold(topBar = { TopAppBar(title = { Text("New Patient") }) }) { padding ->
@@ -97,26 +112,80 @@ fun AddPatientScreen(
                     modifier = Modifier.weight(1f)
                 )
             }
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(14.dp))
 
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                EnumDropdown(
-                    label = "Surgery",
-                    options = SurgeryType.entries.toList(),
-                    selected = form.surgeryType,
-                    display = { it.name.replace("_", " ").lowercase().replaceFirstChar { c -> c.uppercase() } },
-                    onSelected = { v -> viewModel.updateForm { it.copy(surgeryType = v) } },
-                    modifier = Modifier.weight(1f)
+            // Component Quick-Filter Chips
+            Text(
+                "Relevant Rehab Component",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(6.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = selectedComponentFilter == RehabComponent.ANKLE,
+                    onClick = {
+                        selectedComponentFilter = RehabComponent.ANKLE
+                        viewModel.updateForm { it.copy(surgeryType = SurgeryType.ANKLE_ORIF) }
+                    },
+                    label = { Text("Ankle (Member 1)") }
                 )
-                EnumDropdown(
-                    label = "Side",
-                    options = BodySide.entries.toList(),
-                    selected = form.surgerySide,
-                    display = { it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
-                    onSelected = { v -> viewModel.updateForm { it.copy(surgerySide = v) } },
-                    modifier = Modifier.weight(1f)
+                FilterChip(
+                    selected = selectedComponentFilter == RehabComponent.KNEE,
+                    onClick = {
+                        selectedComponentFilter = RehabComponent.KNEE
+                        viewModel.updateForm { it.copy(surgeryType = SurgeryType.TOTAL_KNEE_REPLACEMENT) }
+                    },
+                    label = { Text("Knee (Member 2)") }
+                )
+                FilterChip(
+                    selected = selectedComponentFilter == RehabComponent.WRIST,
+                    onClick = {
+                        selectedComponentFilter = RehabComponent.WRIST
+                        viewModel.updateForm { it.copy(surgeryType = SurgeryType.DISTAL_RADIUS_ORIF) }
+                    },
+                    label = { Text("Wrist (Member 3)") }
+                )
+                FilterChip(
+                    selected = selectedComponentFilter == RehabComponent.ELBOW,
+                    onClick = {
+                        selectedComponentFilter = RehabComponent.ELBOW
+                        viewModel.updateForm { it.copy(surgeryType = SurgeryType.OLECRANON_ORIF) }
+                    },
+                    label = { Text("Elbow (Member 4)") }
+                )
+                FilterChip(
+                    selected = selectedComponentFilter == null,
+                    onClick = { selectedComponentFilter = null },
+                    label = { Text("All Surgeries") }
                 )
             }
+            Spacer(Modifier.height(10.dp))
+
+            // Full-width Surgery Selector with Component Categories
+            SurgeryDropdown(
+                label = "Surgery / Orthopedic Condition",
+                options = availableSurgeries,
+                selected = form.surgeryType,
+                onSelected = { v -> viewModel.updateForm { it.copy(surgeryType = v) } },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(10.dp))
+
+            // Side and Therapist Name
+            EnumDropdown(
+                label = "Affected Side",
+                options = BodySide.entries.toList(),
+                selected = form.surgerySide,
+                display = { it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
+                onSelected = { v -> viewModel.updateForm { it.copy(surgerySide = v) } },
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(Modifier.height(10.dp))
 
             OutlinedTextField(
@@ -140,6 +209,74 @@ fun AddPatientScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SurgeryDropdown(
+    label: String,
+    options: List<SurgeryType>,
+    selected: SurgeryType,
+    onSelected: (SurgeryType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = selected.displayName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            var lastCategory = ""
+            options.forEach { surgery ->
+                if (surgery.category != lastCategory) {
+                    lastCategory = surgery.category
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "— ${lastCategory.uppercase()} —",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        onClick = {},
+                        enabled = false
+                    )
+                }
+                DropdownMenuItem(
+                    text = {
+                        Column {
+                            Text(surgery.displayName, style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                surgery.category,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    onClick = {
+                        onSelected(surgery)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun <T> EnumDropdown(
     label: String,
