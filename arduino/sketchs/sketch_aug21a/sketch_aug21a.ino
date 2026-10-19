@@ -5,53 +5,74 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
+// =====================================
+// BLE UUIDs
+// =====================================
 #define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
 #define DATA_CHAR_UUID         "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 #define STATUS_CHAR_UUID       "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
-// =====================================
-// I2C ADDRESSES
-// =====================================
-
+// =====================================================================
+// I2C ADDRESSES & PCA9548A MULTIPLEXER CHANNELS
+// Supports all 4 Project Members / Body Components:
+// - Member 1 (Ankle): Sensor 1 = Tibia (CH0),     Sensor 2 = Foot (CH1)
+// - Member 2 (Knee):  Sensor 1 = Thigh (CH0),     Sensor 2 = Shank (CH1)
+// - Member 3 (Wrist): Sensor 1 = Wrist (CH0),     Sensor 2 = Hand (CH1)
+// - Member 4 (Elbow): Sensor 1 = Upper Arm (CH0), Sensor 2 = Forearm (CH1)
+// =====================================================================
 #define PCA9548A_ADDR 0x70
 #define MPU6500_ADDR  0x68
+
+#define CH_SENSOR_1   0  // Proximal Segment (Tibia / Thigh / Wrist / Upper Arm)
+#define CH_SENSOR_2   1  // Distal Segment   (Foot / Shank / Hand / Forearm)
 
 // =====================================
 // MPU6500 REGISTERS
 // =====================================
-
 #define WHO_AM_I_REG   0x75
 #define PWR_MGMT_1     0x6B
+#define ACCEL_CONFIG   0x1C
+#define GYRO_CONFIG    0x1B
 #define ACCEL_XOUT_H   0x3B
 #define GYRO_XOUT_H    0x43
 
 // =====================================
-// OLED
+// OLED DISPLAY
 // =====================================
-
 U8G2_SH1106_128X64_NONAME_F_HW_I2C oled(U8G2_R0, U8X8_PIN_NONE);
 
 // =====================================
-// SENSOR DATA
+// SENSOR DATA TYPES & SYNCHRONIZED PACKET
 // =====================================
-
-float ax;
-float ay;
-float az;
-
-float gx;
-float gy;
-float gz;
-
-struct __attribute__((packed)) ImuPacket {
-    uint32_t timestamp;
-    float ax;
-    float ay;
-    float az;
-    float gx;
-    float gy;
-    float gz;
+struct ImuReading {
+    float ax, ay, az;
+    float gx, gy, gz;
 };
+
+// 12-channel synchronized IMU packet (52 bytes total)
+// Sensor 1 (6 channels) + Sensor 2 (6 channels) sampled synchronously
+struct __attribute__((packed)) DualImuPacket {
+    uint32_t timestamp;  // 4 bytes: ESP32 millis() timestamp
+    // Sensor 1 / Proximal IMU (CH0) - 24 bytes
+    float s1_ax;
+    float s1_ay;
+    float s1_az;
+    float s1_gx;
+    float s1_gy;
+    float s1_gz;
+    // Sensor 2 / Distal IMU (CH1) - 24 bytes
+    float s2_ax;
+    float s2_ay;
+    float s2_az;
+    float s2_gx;
+    float s2_gy;
+    float s2_gz;
+};
+
+ImuReading sensor1Data = {0};
+ImuReading sensor2Data = {0};
+bool sensor1Available = false;
+bool sensor2Available = false;
 
 // =====================================
 // BLE VARIABLES
@@ -72,43 +93,34 @@ class MyServerCallbacks: public BLEServerCallbacks {
 };
 
 // =====================================
-// SELECT PCA9548A CHANNEL
+// SELECT PCA9548A CHANNEL (Fast, No Delay)
 // =====================================
-
 bool selectChannel(uint8_t channel) {
   Wire.beginTransmission(PCA9548A_ADDR);
   Wire.write(1 << channel);
-  uint8_t error = Wire.endTransmission(true);
-  if (error != 0) {
-    return false;
-  }
-  delay(5);
-  return true;
+  return (Wire.endTransmission(true) == 0);
 }
 
 // =====================================
 // WRITE MPU6500 REGISTER
 // =====================================
-
 bool writeRegister(uint8_t reg, uint8_t value) {
   Wire.beginTransmission(MPU6500_ADDR);
   Wire.write(reg);
   Wire.write(value);
-  return Wire.endTransmission(true) == 0;
+  return (Wire.endTransmission(true) == 0);
 }
 
 // =====================================
 // READ MULTIPLE BYTES
 // =====================================
-
 bool readBytes(uint8_t reg, uint8_t *buffer, uint8_t length) {
   Wire.beginTransmission(MPU6500_ADDR);
   Wire.write(reg);
-  if (Wire.endTransmission(true) != 0) {
+  if (Wire.endTransmission(false) != 0) {
     return false;
   }
-  delayMicroseconds(100);
-  uint8_t received = Wire.requestFrom(MPU6500_ADDR, length);
+  uint8_t received = Wire.requestFrom((uint8_t)MPU6500_ADDR, length);
   if (received != length) {
     return false;
   }
@@ -121,76 +133,97 @@ bool readBytes(uint8_t reg, uint8_t *buffer, uint8_t length) {
 // =====================================
 // COMBINE HIGH + LOW BYTES
 // =====================================
-
-int16_t combineBytes(uint8_t high, uint8_t low) {
+inline int16_t combineBytes(uint8_t high, uint8_t low) {
   return (int16_t)((high << 8) | low);
 }
 
 // =====================================
-// READ MPU6500
+// READ MPU6500 INTO ImuReading STRUCT
 // =====================================
-
-bool readMPU6500() {
-  uint8_t accelData[6];
-  uint8_t gyroData[6];
-
-  if (!readBytes(ACCEL_XOUT_H, accelData, 6)) {
-    return false;
-  }
-  if (!readBytes(GYRO_XOUT_H, gyroData, 6)) {
+bool readMPU6500(ImuReading &out) {
+  uint8_t rawBuffer[14];
+  if (!readBytes(ACCEL_XOUT_H, rawBuffer, 14)) {
     return false;
   }
 
-  int16_t rawAx = combineBytes(accelData[0], accelData[1]);
-  int16_t rawAy = combineBytes(accelData[2], accelData[3]);
-  int16_t rawAz = combineBytes(accelData[4], accelData[5]);
+  int16_t rawAx = combineBytes(rawBuffer[0], rawBuffer[1]);
+  int16_t rawAy = combineBytes(rawBuffer[2], rawBuffer[3]);
+  int16_t rawAz = combineBytes(rawBuffer[4], rawBuffer[5]);
+  // rawBuffer[6..7] is temperature
+  int16_t rawGx = combineBytes(rawBuffer[8], rawBuffer[9]);
+  int16_t rawGy = combineBytes(rawBuffer[10], rawBuffer[11]);
+  int16_t rawGz = combineBytes(rawBuffer[12], rawBuffer[13]);
 
-  int16_t rawGx = combineBytes(gyroData[0], gyroData[1]);
-  int16_t rawGy = combineBytes(gyroData[2], gyroData[3]);
-  int16_t rawGz = combineBytes(gyroData[4], gyroData[5]);
+  // Accelerometer: ±2g full scale -> 16384 LSB/g
+  out.ax = rawAx / 16384.0f;
+  out.ay = rawAy / 16384.0f;
+  out.az = rawAz / 16384.0f;
 
-  // Accelerometer ±2g
-  ax = rawAx / 16384.0;
-  ay = rawAy / 16384.0;
-  az = rawAz / 16384.0;
-
-  // Gyroscope ±250 °/s
-  gx = rawGx / 131.0;
-  gy = rawGy / 131.0;
-  gz = rawGz / 131.0;
+  // Gyroscope: ±250 °/s full scale -> 131 LSB/(°/s)
+  out.gx = rawGx / 131.0f;
+  out.gy = rawGy / 131.0f;
+  out.gz = rawGz / 131.0f;
 
   return true;
 }
 
 // =====================================
-// OLED DISPLAY
+// INITIALIZE AN IMU ON SPECIFIC CHANNEL
 // =====================================
+bool initSensorOnChannel(uint8_t channel, const char* sensorName) {
+  if (!selectChannel(channel)) {
+    Serial.printf("ERROR: PCA9548A failed to select channel %d (%s)\n", channel, sensorName);
+    return false;
+  }
+  delay(10);
 
+  // Check WHO_AM_I register
+  uint8_t whoami = 0;
+  readBytes(WHO_AM_I_REG, &whoami, 1);
+  Serial.printf("%s WHO_AM_I: 0x%02X\n", sensorName, whoami);
+
+  // Wake up MPU6500 (clear sleep bit in PWR_MGMT_1)
+  if (!writeRegister(PWR_MGMT_1, 0x00)) {
+    Serial.printf("ERROR: %s wake failed\n", sensorName);
+    return false;
+  }
+  delay(10);
+
+  // Configure Accelerometer ±2g (0x00)
+  writeRegister(ACCEL_CONFIG, 0x00);
+  // Configure Gyroscope ±250 deg/s (0x00)
+  writeRegister(GYRO_CONFIG, 0x00);
+
+  Serial.printf("%s ready on PCA9548A channel %d!\n", sensorName, channel);
+  return true;
+}
+
+// =====================================
+// OLED DISPLAY FUNCTIONS
+// =====================================
 void displaySensorData() {
   oled.clearBuffer();
-
-  // Title
   oled.setFont(u8g2_font_6x10_tf);
-  
+
   if (deviceConnected) {
     oled.drawStr(0, 9, "BLE: Connected");
   } else {
     oled.drawStr(0, 9, "BLE: Disconnected");
   }
+  oled.drawHLine(0, 11, 128);
 
-  oled.drawHLine(0, 12, 128);
-
-  // Accelerometer
-  oled.drawStr(0, 23, "ACC (g)");
+  // Sensor 1 (Proximal: Tibia / Thigh / Wrist / UpperArm)
   char line[32];
-  snprintf(line, sizeof(line), "X:%5.2f Y:%5.2f", ax, ay);
-  oled.drawStr(0, 34, line);
-  snprintf(line, sizeof(line), "Z:%5.2f", az);
-  oled.drawStr(0, 44, line);
+  oled.drawStr(0, 22, "S1 Prox (CH0)");
+  snprintf(line, sizeof(line), "A:%4.1f %4.1f %4.1f", sensor1Data.ax, sensor1Data.ay, sensor1Data.az);
+  oled.drawStr(0, 32, line);
 
-  // Gyroscope
-  oled.drawStr(0, 55, "GYRO (deg/s)");
-  snprintf(line, sizeof(line), "X:%4.0f Y:%4.0f Z:%4.0f", gx, gy, gz);
+  // Sensor 2 (Distal: Foot / Shank / Hand / Forearm)
+  oled.drawStr(0, 44, "S2 Dist (CH1)");
+  snprintf(line, sizeof(line), "A:%4.1f %4.1f %4.1f", sensor2Data.ax, sensor2Data.ay, sensor2Data.az);
+  oled.drawStr(0, 54, line);
+
+  snprintf(line, sizeof(line), "AKIRA Hub @ 100Hz");
   oled.drawStr(0, 64, line);
 
   oled.sendBuffer();
@@ -199,36 +232,40 @@ void displaySensorData() {
 void displayStreamingScreen() {
   oled.clearBuffer();
   oled.setFont(u8g2_font_6x10_tf);
-  oled.drawStr(0, 20, "BLE: Connected");
-  oled.drawStr(0, 40, "Streaming data...");
-  oled.drawStr(0, 55, "See app for values");
+  oled.drawStr(0, 15, "AKIRA 4-Member Hub");
+  oled.drawHLine(0, 18, 128);
+  oled.drawStr(0, 30, "BLE: Connected");
+  oled.drawStr(0, 44, "S1(CH0) + S2(CH1)");
+  oled.drawStr(0, 58, "Streaming @ 100 Hz");
   oled.sendBuffer();
 }
 
 // =====================================
 // SETUP
 // =====================================
-
 void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  // ESP32 I2C
+  // 400kHz Fast Mode I2C
   Wire.begin(21, 22);
-  Wire.setClock(100000);
+  Wire.setClock(400000);
 
-  // OLED
+  // Initialize OLED
   oled.begin();
   oled.clearBuffer();
   oled.setFont(u8g2_font_6x10_tf);
-  oled.drawStr(0, 20, "Initializing...");
-  oled.drawStr(0, 40, "MPU6500 CH0");
+  oled.drawStr(0, 15, "AKIRA Rehab System");
+  oled.drawStr(0, 30, "4-Member Data Hub");
+  oled.drawStr(0, 48, "Initializing...");
   oled.sendBuffer();
 
   Serial.println();
-  Serial.println("======================================");
-  Serial.println("ESP32 REHAB SENSOR SYSTEM");
-  Serial.println("======================================");
+  Serial.println("=================================================");
+  Serial.println("AKIRA REHABILITATION: 4-MEMBER DUAL-IMU PLATFORM");
+  Serial.println("M1: Ankle (Tibia/Foot)  | M2: Knee (Thigh/Shank)");
+  Serial.println("M3: Wrist (Wrist/Hand)  | M4: Elbow (UpperArm/Forearm)");
+  Serial.println("=================================================");
 
   // Initialize BLE
   BLEDevice::init("ESP32-REHAB");
@@ -247,7 +284,7 @@ void setup() {
                       STATUS_CHAR_UUID,
                       BLECharacteristic::PROPERTY_READ
                     );
-  pStatusCharacteristic->setValue("OK");
+  pStatusCharacteristic->setValue("AKIRA Dual-IMU 12-Channel Hub Ready");
 
   pService->start();
 
@@ -258,91 +295,96 @@ void setup() {
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
 
-  Serial.println("BLE Ready!");
+  Serial.println("BLE Ready to Pair!");
 
-  // Select CH0
-  if (!selectChannel(0)) {
-    Serial.println("ERROR: PCA9548A CH0 failed");
-    oled.clearBuffer();
-    oled.drawStr(0, 25, "PCA9548A ERROR");
-    oled.sendBuffer();
-    return;
-  }
+  // Initialize Sensor 1 (CH0 - Proximal) & Sensor 2 (CH1 - Distal)
+  sensor1Available = initSensorOnChannel(CH_SENSOR_1, "Sensor 1 (Proximal CH0)");
+  sensor2Available = initSensorOnChannel(CH_SENSOR_2, "Sensor 2 (Distal CH1)");
 
-  // Wake MPU6500
-  if (!writeRegister(PWR_MGMT_1, 0x00)) {
-    Serial.println("ERROR: MPU6500 wake failed");
-    oled.clearBuffer();
-    oled.drawStr(0, 25, "MPU6500 ERROR");
-    oled.sendBuffer();
-    return;
-  }
+  // Show status on OLED
+  oled.clearBuffer();
+  oled.drawStr(0, 15, "Sensors (CH0/CH1):");
+  char statusLine[32];
+  snprintf(statusLine, sizeof(statusLine), "S1 Prox: %s", sensor1Available ? "OK" : "ERROR");
+  oled.drawStr(0, 32, statusLine);
+  snprintf(statusLine, sizeof(statusLine), "S2 Dist: %s", sensor2Available ? "OK" : "ERROR");
+  oled.drawStr(0, 48, statusLine);
+  oled.drawStr(0, 62, "Waiting for BLE...");
+  oled.sendBuffer();
 
-  delay(100);
-  Serial.println("System Ready!");
+  delay(1500);
+  Serial.println("AKIRA Dual IMU Platform Ready!");
 }
 
 // =====================================
-// LOOP
+// MAIN LOOP
 // =====================================
-
 void loop() {
   static unsigned long lastSampleTime = 0;
-  
+
   if (deviceConnected) {
-    // connecting state change
     if (!oldDeviceConnected) {
       oldDeviceConnected = true;
-      // Show static streaming screen so we don't block the loop updating the OLED
       displayStreamingScreen();
+      Serial.println("App connected! Starting synchronized 100Hz 12-channel stream...");
     }
 
     unsigned long now = millis();
-    // 10ms interval = 100Hz sampling rate
+    // 10ms interval = exactly 100Hz sampling rate
     if (now - lastSampleTime >= 10) {
       lastSampleTime = now;
 
-      if (!selectChannel(0)) {
-        Serial.println("CH0 selection failed");
-        return; // Skip this cycle
+      DualImuPacket packet;
+      memset(&packet, 0, sizeof(DualImuPacket));
+      packet.timestamp = now;
+
+      // 1. Synchronously sample Sensor 1 (PCA9548A CH0)
+      if (sensor1Available && selectChannel(CH_SENSOR_1)) {
+        if (readMPU6500(sensor1Data)) {
+          packet.s1_ax = sensor1Data.ax;
+          packet.s1_ay = sensor1Data.ay;
+          packet.s1_az = sensor1Data.az;
+          packet.s1_gx = sensor1Data.gx;
+          packet.s1_gy = sensor1Data.gy;
+          packet.s1_gz = sensor1Data.gz;
+        }
       }
 
-      if (readMPU6500()) {
-        // Create and send packet
-        ImuPacket packet;
-        packet.timestamp = now;
-        packet.ax = ax;
-        packet.ay = ay;
-        packet.az = az;
-        packet.gx = gx;
-        packet.gy = gy;
-        packet.gz = gz;
-
-        pDataCharacteristic->setValue((uint8_t*)&packet, sizeof(ImuPacket));
-        pDataCharacteristic->notify();
-        
-      } else {
-        Serial.println("ERROR: MPU6500 read failed");
+      // 2. Synchronously sample Sensor 2 (PCA9548A CH1)
+      if (sensor2Available && selectChannel(CH_SENSOR_2)) {
+        if (readMPU6500(sensor2Data)) {
+          packet.s2_ax = sensor2Data.ax;
+          packet.s2_ay = sensor2Data.ay;
+          packet.s2_az = sensor2Data.az;
+          packet.s2_gx = sensor2Data.gx;
+          packet.s2_gy = sensor2Data.gy;
+          packet.s2_gz = sensor2Data.gz;
+        }
       }
+
+      // Notify the Android data collector with 52-byte synchronized packet
+      pDataCharacteristic->setValue((uint8_t*)&packet, sizeof(DualImuPacket));
+      pDataCharacteristic->notify();
     }
-    
+
   } else {
-    // disconnecting state change
+    // Handle disconnection
     if (oldDeviceConnected) {
-      delay(500); // give the bluetooth stack the chance to get things ready
-      pServer->startAdvertising(); // restart advertising
-      Serial.println("start advertising");
+      delay(500);
+      pServer->startAdvertising();
+      Serial.println("Device disconnected. Restarting BLE advertising...");
       oldDeviceConnected = false;
     }
-    
-    // If not connected, update the display occasionally
+
     unsigned long now = millis();
     static unsigned long lastDisplayUpdate = 0;
-    
-    // Show live sensor data on OLED at 2Hz when disconnected
+
     if (now - lastDisplayUpdate > 500) {
-      if (selectChannel(0)) {
-        readMPU6500();
+      if (sensor1Available && selectChannel(CH_SENSOR_1)) {
+        readMPU6500(sensor1Data);
+      }
+      if (sensor2Available && selectChannel(CH_SENSOR_2)) {
+        readMPU6500(sensor2Data);
       }
       displaySensorData();
       lastDisplayUpdate = now;
