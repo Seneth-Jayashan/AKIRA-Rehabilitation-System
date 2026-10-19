@@ -169,15 +169,18 @@
               Option 1: ESP32 Dual-IMU Hardware Recorder (100 Hz • 12 Channels • Auto-Save CSV)
             </h3>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="loadESP32Status()" class="px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-slate-100 text-slate-800 rounded-lg border border-slate-300 shadow-2xs">
-              🔄 Scan USB/BT Ports
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="connectWebBluetoothESP32()" id="btn-webble" class="px-3 py-1 text-[11px] font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-2xs flex items-center gap-1">
+              <span>🔵</span> Connect ESP32 via BLE
             </button>
             <button onclick="connectWebSerialESP32()" id="btn-webserial" class="px-2.5 py-1 text-[11px] font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-2xs">
-              🔌 Connect Browser USB/BLE Serial
+              🔌 Connect USB Serial
+            </button>
+            <button onclick="loadESP32Status()" class="px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-slate-100 text-slate-800 rounded-lg border border-slate-300 shadow-2xs">
+              🔄 Scan COM Ports
             </button>
             <button onclick="openFirmwareModal()" class="px-2.5 py-1 text-[11px] font-bold bg-slate-800 hover:bg-slate-900 text-white rounded-lg shadow-2xs">
-              💻 View ESP32 Arduino Code (.ino)
+              💻 View ESP32 BLE Code (.ino)
             </button>
           </div>
         </div>

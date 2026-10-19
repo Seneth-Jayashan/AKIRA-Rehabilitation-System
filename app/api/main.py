@@ -807,6 +807,14 @@ ESP32_WIFI_BUFFER = {
     "last_received_ts": 0.0
 }
 
+# Native Windows BLE state (via Python bleak, bypassing browser Web Bluetooth restrictions)
+ESP32_BLE_STATE = {
+    "connected": False,
+    "address": "",
+    "name": "",
+    "last_seen": 0.0
+}
+
 
 class ESP32WifiPushPayload(BaseModel):
     rows: list  # List of 12-float arrays pushed directly by an ESP32 over Wi-Fi
@@ -816,10 +824,59 @@ class ESP32RecordRequest(BaseModel):
     subject_id: str = "P01"
     exercise_code: str = "01_Heel_Slides"
     quality_grade: int = 0
-    connection_mode: str = "serial_com"  # 'serial_com', 'web_serial_raw', or 'wifi_stream'
+    connection_mode: str = "serial_com"  # 'backend_ble', 'web_ble_raw', 'serial_com', 'web_serial_raw', or 'wifi_stream'
     com_port: str = ""
     model_key: str = "hybrid_2_bilstm"
     raw_rows: Optional[list] = None
+
+
+@app.post("/api/esp32/ble_connect")
+async def connect_esp32_native_ble():
+    """
+    Scans Windows Bluetooth Low Energy (BLE) directly from Python using 'bleak',
+    automatically discovers 'ESP32-REHAB' or 'AKIRA_Knee_BLE', and verifies GATT connection.
+    Works in ALL browsers (Brave, Chrome, Edge, Firefox) even when Web Bluetooth API is disabled.
+    """
+    import asyncio
+    try:
+        import bleak
+    except ImportError:
+        raise HTTPException(status_code=400, detail="Python 'bleak' library is not installed. Run: pip install bleak")
+
+    devices = await bleak.BleakScanner.discover(timeout=3.5)
+    target = None
+    for d in devices:
+        dname = (d.name or "").upper()
+        if any(k in dname for k in ["ESP32", "AKIRA", "REHAB", "KNEE"]):
+            target = d
+            break
+
+    if target is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No ESP32 BLE device found nearby. Ensure your ESP32 ('ESP32-REHAB' or 'AKIRA_Knee_BLE') is powered on and Windows Bluetooth is ON."
+        )
+
+    try:
+        async with bleak.BleakClient(target.address, timeout=7.0) as client:
+            if not client.is_connected:
+                raise RuntimeError("GATT handshake did not complete.")
+            ESP32_BLE_STATE["connected"] = True
+            ESP32_BLE_STATE["address"] = target.address
+            ESP32_BLE_STATE["name"] = target.name or "ESP32-REHAB"
+            ESP32_BLE_STATE["last_seen"] = time.time()
+    except Exception as e:
+        ESP32_BLE_STATE["connected"] = False
+        raise HTTPException(
+            status_code=400,
+            detail=f"Found '{target.name}' ({target.address}), but BLE GATT connection failed: {str(e)}"
+        )
+
+    return {
+        "status": "connected",
+        "name": ESP32_BLE_STATE["name"],
+        "address": ESP32_BLE_STATE["address"]
+    }
 
 
 @app.post("/api/esp32/wifi_push")
@@ -841,7 +898,7 @@ def esp32_wifi_push(payload: ESP32WifiPushPayload):
 
 @app.get("/api/esp32/status")
 def get_esp32_recorder_status():
-    """Returns real detected hardware COM ports, Wi-Fi stream state, and saved CSV files."""
+    """Returns real detected hardware COM ports, Native BLE state, Wi-Fi stream state, and saved CSV files."""
     ports = []
     port_details = []
     try:
@@ -853,6 +910,7 @@ def get_esp32_recorder_status():
         ports = []
 
     wifi_connected = (time.time() - ESP32_WIFI_BUFFER["last_received_ts"]) < 5.0 and len(ESP32_WIFI_BUFFER["rows"]) >= 50
+    ble_connected = bool(ESP32_BLE_STATE["connected"] and ESP32_BLE_STATE["address"])
 
     files = []
     if os.path.exists(RECORDED_TRIALS_DIR):
@@ -866,7 +924,10 @@ def get_esp32_recorder_status():
                 })
 
     return {
-        "hardware_connected": (len(ports) > 0) or wifi_connected,
+        "hardware_connected": ble_connected or (len(ports) > 0) or wifi_connected,
+        "ble_connected": ble_connected,
+        "ble_device_name": ESP32_BLE_STATE["name"],
+        "ble_device_address": ESP32_BLE_STATE["address"],
         "available_com_ports": ports,
         "port_details": port_details,
         "wifi_stream_active": wifi_connected,
@@ -886,12 +947,164 @@ def get_esp32_firmware_code():
     return {"filename": "akira_knee_esp32.ino", "code": "// Firmware file not found"}
 
 
+async def capture_native_ble_stream_200() -> tuple[np.ndarray, str]:
+    """
+    Connects to the physical ESP32 over Windows BLE ('ESP32-REHAB' or 'AKIRA_Knee_BLE'),
+    streams live notifications for 2.2 seconds, and decodes either:
+      - 28-byte binary '<I6f' IMU packets (ESP32-REHAB native format: ts_ms, ax, ay, az, gx, gy, gz)
+      - 48/52-byte binary 12-float packets ('<12f' or '<I12f')
+      - 12-channel ASCII CSV lines ('ax1,ay1,az1,gx1,gy1,gz1,ax2,ay2,az2,gx2,gy2,gz2')
+    Returns resampled (200, 12) float32 matrix and descriptive source string.
+    """
+    import asyncio
+    import struct
+    import bleak
+
+    ble_addr = ESP32_BLE_STATE.get("address", "")
+    ble_name = ESP32_BLE_STATE.get("name", "ESP32-REHAB")
+
+    if not ble_addr:
+        devices = await bleak.BleakScanner.discover(timeout=3.0)
+        for d in devices:
+            dname = (d.name or "").upper()
+            if any(k in dname for k in ["ESP32", "AKIRA", "REHAB", "KNEE"]):
+                ble_addr = d.address
+                ble_name = d.name or "ESP32-REHAB"
+                ESP32_BLE_STATE["connected"] = True
+                ESP32_BLE_STATE["address"] = ble_addr
+                ESP32_BLE_STATE["name"] = ble_name
+                break
+
+    if not ble_addr:
+        raise HTTPException(
+            status_code=400,
+            detail="No ESP32 BLE device found. Power on your ESP32 ('ESP32-REHAB') and click 'Connect ESP32 via BLE'."
+        )
+
+    rows_12ch = []
+    packets_6ch = []
+    text_buffer = ""
+
+    try:
+        async with bleak.BleakClient(ble_addr, timeout=7.5) as client:
+            notify_UUIDs = []
+            for s in client.services:
+                for c in s.characteristics:
+                    if "notify" in c.properties or "indicate" in c.properties:
+                        if c.uuid.startswith("6e40") or "0000ffe1" in c.uuid:
+                            notify_UUIDs.append(c.uuid)
+            if not notify_UUIDs:
+                notify_UUIDs = ["6e400002-b5a3-f393-e0a9-e50e24dcca9e"]
+
+            def on_ble_notify(sender, data: bytearray):
+                nonlocal text_buffer
+                raw = bytes(data)
+                if len(raw) == 28:
+                    # ESP32-REHAB binary packet: <I6f (uint32 millis + 6 floats: ax, ay, az, gx, gy, gz)
+                    ts_ms, ax, ay, az, gx, gy, gz = struct.unpack("<I6f", raw)
+                    packets_6ch.append([float(ts_ms), float(ax), float(ay), float(az), float(gx), float(gy), float(gz)])
+                elif len(raw) == 52:
+                    vals = struct.unpack("<I12f", raw)
+                    rows_12ch.append([float(x) for x in vals[1:13]])
+                elif len(raw) == 48:
+                    vals = struct.unpack("<12f", raw)
+                    rows_12ch.append([float(x) for x in vals[:12]])
+                else:
+                    chunk = raw.decode("utf-8", errors="ignore")
+                    text_buffer += chunk
+                    lines = text_buffer.split("\n")
+                    text_buffer = lines.pop()
+                    for line in lines:
+                        parts = line.strip().split(",")
+                        if len(parts) == 12:
+                            try:
+                                rows_12ch.append([float(x) for x in parts])
+                            except ValueError:
+                                pass
+
+            for u in notify_UUIDs:
+                try:
+                    await client.start_notify(u, on_ble_notify)
+                except Exception:
+                    pass
+
+            await asyncio.sleep(2.2)
+
+            for u in notify_UUIDs:
+                try:
+                    await client.stop_notify(u)
+                except Exception:
+                    pass
+    except Exception as e:
+        ESP32_BLE_STATE["connected"] = False
+        raise HTTPException(
+            status_code=400,
+            detail=f"Lost BLE connection to {ble_name} ({ble_addr}): {str(e)}"
+        )
+
+    ESP32_BLE_STATE["last_seen"] = time.time()
+
+    if len(rows_12ch) >= 20:
+        arr = np.array(rows_12ch, dtype=np.float32)[:, :12]
+        # Verify per-sensor activity: if a sensor's 3-axis accelerometer magnitude is < 0.02g (unplugged), force its 6 channels to strict 0.0
+        thigh_acc_mag = np.mean(np.sqrt(arr[:, 0]**2 + arr[:, 1]**2 + arr[:, 2]**2))
+        shin_acc_mag  = np.mean(np.sqrt(arr[:, 6]**2 + arr[:, 7]**2 + arr[:, 8]**2))
+        if thigh_acc_mag < 0.02:
+            arr[:, 0:6] = 0.0
+        if shin_acc_mag < 0.02:
+            arr[:, 6:12] = 0.0
+        active_sensors = (1 if thigh_acc_mag >= 0.02 else 0) + (1 if shin_acc_mag >= 0.02 else 0)
+        X_seq_raw = signal.resample(arr, 200, axis=0).astype(np.float32) if len(arr) != 200 else arr
+        return X_seq_raw, f"ESP32 BLE ({ble_name} [{ble_addr}] • {active_sensors}/2 Sensors Active • 12-Ch Stream)"
+
+    if len(packets_6ch) >= 15:
+        arr6 = np.array(packets_6ch, dtype=np.float32)
+        ax = arr6[:, 1]
+        ay = arr6[:, 2]
+        az = arr6[:, 3]
+        gx = arr6[:, 4]
+        gy = arr6[:, 5]
+        gz = arr6[:, 6]
+
+        # Clean single-sample I2C 0x7FFF (250.130 deg/s) or 0xFF (1.947 deg/s) bit glitches when gx==0
+        for g_arr in (gx, gy, gz):
+            bad_mask = (np.abs(g_arr) > 240.0) | ((np.abs(gx) < 1e-4) & (np.abs(gy - 1.9465) < 0.01))
+            if np.any(bad_mask):
+                good_idx = np.where(~bad_mask)[0]
+                if len(good_idx) >= 2:
+                    g_arr[bad_mask] = np.interp(np.where(bad_mask)[0], good_idx, g_arr[good_idx])
+                else:
+                    g_arr[bad_mask] = 0.0
+
+        # STRICT SINGLE-SENSOR MAPPING:
+        # 28-byte '<I6f' packet from ESP32-REHAB only contains 6 floats (1 IMU sensor).
+        # Never duplicate or fake data into Sensor 2! Put the 6 channels strictly into Sensor 1 (Ch 1-6)
+        # and keep Sensor 2 (Ch 7-12) at 0.000.
+        N_pkt = len(arr6)
+        mat12 = np.zeros((N_pkt, 12), dtype=np.float32)
+        mat12[:, 0] = ax
+        mat12[:, 1] = ay
+        mat12[:, 2] = az
+        mat12[:, 3] = gx
+        mat12[:, 4] = gy
+        mat12[:, 5] = gz
+        # Channels 6..11 (Shin Sensor 2) remain strictly 0.0 because ESP32-REHAB 28-byte packet only transmits 1 sensor (6 floats)!
+
+        X_seq_raw = signal.resample(mat12, 200, axis=0).astype(np.float32)
+        return X_seq_raw, f"ESP32 BLE ({ble_name} [{ble_addr}] • ⚠️ 1 Sensor Only [6-Ch 28B Packet] — Shin Ch 7–12 = 0.0)"
+
+    raise HTTPException(
+        status_code=400,
+        detail=f"Connected to {ble_name} ({ble_addr}), but received 0 sensor packets in 2.2s. Check sensor wiring on the ESP32."
+    )
+
+
 @app.post("/api/esp32/record_and_analyze")
-def record_from_esp32_and_analyze(req: ESP32RecordRequest):
+async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
     """
     STRICT PHYSICAL HARDWARE RECORDER:
-      1. Requires a real connected ESP32 Dual-IMU device (via Browser WebSerial, USB/BT COM Port, or Wi-Fi Push).
-      2. If NO physical ESP32 device is connected or streaming 12-channel data, returns HTTP 400 Error (NEVER fakes data).
+      1. Requires a real connected ESP32 Dual-IMU device (via Native Windows BLE, Browser WebBLE/WebSerial, USB/BT COM Port, or Wi-Fi Push).
+      2. If NO physical ESP32 device is connected or streaming data, returns HTTP 400 Error (NEVER fakes data).
       3. Saves the real 12-channel recording as a labeled .CSV file in datasets/recorded_trials/.
       4. Runs math_feature_extractor.py and the Deep Learning model on the captured hardware stream.
     """
@@ -899,7 +1112,10 @@ def record_from_esp32_and_analyze(req: ESP32RecordRequest):
     source_mode_used = req.connection_mode
 
     # 1. ACQUIRE (200, 12) RAW 12-CHANNEL SENSOR STREAM FROM PHYSICAL HARDWARE ONLY:
-    if req.raw_rows and len(req.raw_rows) >= 50:
+    if req.connection_mode == "backend_ble" or req.com_port == "BACKEND_BLE":
+        X_seq_raw, source_mode_used = await capture_native_ble_stream_200()
+
+    elif req.raw_rows and len(req.raw_rows) >= 50:
         arr = np.array(req.raw_rows, dtype=np.float32)
         if arr.ndim != 2 or arr.shape[1] < 12:
             raise HTTPException(
@@ -908,20 +1124,20 @@ def record_from_esp32_and_analyze(req: ESP32RecordRequest):
             )
         arr = arr[:, :12]
         X_seq_raw = signal.resample(arr, 200, axis=0).astype(np.float32) if len(arr) != 200 else arr
-        source_mode_used = "ESP32 Physical Hardware (Browser WebSerial @ 100Hz)"
+        source_mode_used = "ESP32 Physical Hardware (Browser BLE/Serial @ 100Hz)"
 
     elif req.connection_mode == "serial_com":
         if not req.com_port or req.com_port == "NONE":
             raise HTTPException(
                 status_code=400,
-                detail="No ESP32 COM port detected! Please plug in your ESP32 via USB cable or pair Bluetooth ('AKIRA_Knee_ESP32') first."
+                detail="No ESP32 COM port detected! Please click '🔵 Connect ESP32 via BLE' first."
             )
         try:
             import serial
         except ImportError:
             raise HTTPException(
                 status_code=400,
-                detail="Python 'pyserial' library is not installed. Run 'pip install pyserial' or click 'Connect Browser USB/BLE Serial' to use WebSerial."
+                detail="Python 'pyserial' library is not installed. Run 'pip install pyserial'."
             )
         try:
             ser = serial.Serial(req.com_port, 115200, timeout=3.0)
@@ -939,13 +1155,13 @@ def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         except Exception as e:
             raise HTTPException(
                 status_code=400,
-                detail=f"Could not open ESP32 on port '{req.com_port}': {str(e)}. Check that your ESP32 is plugged in and not open in Arduino Serial Monitor."
+                detail=f"Could not open ESP32 on port '{req.com_port}': {str(e)}. Click '🔵 Connect ESP32 via BLE' to use Bluetooth Low Energy instead."
             )
 
         if len(rows) < 50:
             raise HTTPException(
                 status_code=400,
-                detail=f"Connected to '{req.com_port}', but received {len(rows)} valid 12-channel IMU frames (need 200 @ 100Hz). Ensure akira_knee_esp32.ino is flashed and both MPU6050 sensors (0x68 & 0x69) are wired."
+                detail=f"Connected to '{req.com_port}', but received {len(rows)} valid 12-channel IMU frames. Click '🔵 Connect ESP32 via BLE' to stream over BLE instead."
             )
         arr = np.array(rows, dtype=np.float32)
         X_seq_raw = signal.resample(arr, 200, axis=0).astype(np.float32) if len(arr) != 200 else arr
@@ -956,7 +1172,7 @@ def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         if wifi_age > 5.0 or len(ESP32_WIFI_BUFFER["rows"]) < 50:
             raise HTTPException(
                 status_code=400,
-                detail="No live ESP32 Wi-Fi stream detected! Ensure your ESP32 is powered on and streaming 12-channel data to /api/esp32/wifi_push, or use USB/Bluetooth COM port."
+                detail="No live ESP32 Wi-Fi stream detected! Click '🔵 Connect ESP32 via BLE' to connect via Bluetooth."
             )
         arr = np.array(ESP32_WIFI_BUFFER["rows"][-200:], dtype=np.float32)
         X_seq_raw = signal.resample(arr, 200, axis=0).astype(np.float32) if len(arr) != 200 else arr
@@ -965,7 +1181,7 @@ def record_from_esp32_and_analyze(req: ESP32RecordRequest):
     else:
         raise HTTPException(
             status_code=400,
-            detail="No ESP32 device connected! Please connect your ESP32 via USB/Bluetooth COM port or Browser WebSerial before recording."
+            detail="No ESP32 device connected! Please click '🔵 Connect ESP32 via BLE' before recording."
         )
 
     # 2. SAVE CLEAN 12-CHANNEL CSV TO DATASET FOLDER:

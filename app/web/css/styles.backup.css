@@ -1,0 +1,6 @@
+body { font-family: 'Inter', sans-serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+.model-card.active { border-color: #2563eb; background-color: #eff6ff; box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.2); }
+.dark .model-card.active { border-color: #3b82f6; background-color: #1e293b; box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3); }
+.cm-cell { transition: all 0.2s ease; }
+.cm-cell:hover { transform: scale(1.05); }

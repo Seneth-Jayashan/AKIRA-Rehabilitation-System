@@ -1,6 +1,153 @@
+/* ==========================================================================
+   AKIRA Dashboard — Visual UX Polish (layout & content unchanged)
+   Original styles preserved in styles.backup.css
+   ========================================================================== */
+
 body { font-family: 'Inter', sans-serif; }
 .font-mono { font-family: 'JetBrains Mono', monospace; }
 .model-card.active { border-color: #2563eb; background-color: #eff6ff; box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.2); }
 .dark .model-card.active { border-color: #3b82f6; background-color: #1e293b; box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3); }
 .cm-cell { transition: all 0.2s ease; }
 .cm-cell:hover { transform: scale(1.05); }
+
+/* ---------- 1. Global feel ---------- */
+html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+body {
+  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 320px, #f8fafc 100%);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+::selection { background: #bfdbfe; color: #0f172a; }
+
+/* ---------- 2. Readability: lift the tiniest text sizes ---------- */
+.text-\[10px\] { font-size: 11.5px !important; line-height: 1.4; }
+.text-\[11px\] { font-size: 12.5px !important; line-height: 1.45; }
+.text-xs       { font-size: 13px !important; line-height: 1.5; }
+p.text-xs, p.text-\[11px\] { color: #64748b; max-width: 75ch; }
+
+/* ---------- 3. Header ---------- */
+header {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+}
+
+/* ---------- 4. Main sections: clearer separation ---------- */
+main > section {
+  border-radius: 20px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.10) !important;
+  transition: box-shadow 0.25s ease;
+}
+main > section:hover {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 14px 32px -14px rgba(15, 23, 42, 0.16) !important;
+}
+main { row-gap: 1.75rem; }
+main > section > div:first-child h2 { font-size: 1.05rem; letter-spacing: -0.01em; }
+
+/* Numbered step circles a bit bigger */
+h2 > span.rounded-full, h3 + span.rounded-full, .rounded-full.w-6.h-6 {
+  width: 1.75rem !important; height: 1.75rem !important; font-size: 0.8rem !important;
+}
+
+/* ---------- 5. Inner cards: hover lift & consistent radius ---------- */
+.rounded-xl { border-radius: 14px; }
+.grid > .rounded-xl,
+.grid > .rounded-lg,
+#features-grid > div,
+#raw-channels-grid > div,
+#model-cards-container > div {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.grid > .rounded-xl:hover,
+.grid > .rounded-lg:hover,
+#features-grid > div:hover,
+#raw-channels-grid > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px -10px rgba(15, 23, 42, 0.25);
+}
+#model-cards-container > div { cursor: pointer; }
+#model-cards-container > div:hover { transform: translateY(-2px); border-color: #93c5fd; }
+
+/* Big KPI numbers: tabular & crisp */
+.text-2xl.font-extrabold, .text-xl.font-extrabold, .text-base.font-extrabold {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- 6. Buttons: clear affordance & feedback ---------- */
+button {
+  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+button:active:not(:disabled) { transform: scale(0.97); }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+#btn-record-esp32 { padding-top: 0.6rem; padding-bottom: 0.6rem; font-size: 13.5px !important; }
+#btn-record-esp32:not(:disabled):hover { box-shadow: 0 6px 16px -6px rgba(225, 29, 72, 0.55); }
+
+/* ---------- 7. Form controls ---------- */
+select, input[type="text"] {
+  border-radius: 10px !important;
+  min-height: 38px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+select:hover, input[type="text"]:hover { border-color: #94a3b8 !important; }
+label { letter-spacing: 0.01em; }
+
+/* ---------- 8. Stage blocks (1 → 2 → 3): stronger visual pipeline ---------- */
+.bg-slate-50\/70.border.rounded-2xl { border-left: 4px solid #2563eb !important; }
+.bg-emerald-50\/40.border.rounded-2xl { border-left: 4px solid #059669 !important; }
+.bg-indigo-50\/40.border.rounded-2xl { border-left: 4px solid #4f46e5 !important; }
+
+/* Flow arrows between stages */
+.my-3 > span.rounded-full { font-size: 12.5px !important; padding: 0.4rem 0.9rem; }
+
+/* ---------- 9. Tables ---------- */
+table tbody tr { transition: background-color 0.12s ease; }
+table tbody tr:hover { background-color: #f1f5f9 !important; }
+table thead th { letter-spacing: 0.04em; }
+#longitudinal-table-body td, #benchmark-table-body td { padding-top: 0.55rem; padding-bottom: 0.55rem; }
+
+/* ---------- 10. Status / feedback boxes ---------- */
+#esp32-error-box:not(.hidden) { animation: akira-shake 0.35s ease; }
+#clinical-feedback-list li { padding: 2px 0; }
+#clinical-feedback-list li::marker { color: #d97706; }
+#long-status-banner { line-height: 1.55; }
+
+/* Box 07 quality score card emphasis */
+#box07-qscore { font-size: 1.25rem !important; }
+
+/* ---------- 11. Charts containers ---------- */
+canvas { border-radius: 8px; }
+
+/* ---------- 12. Scrollbars ---------- */
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar { height: 8px; width: 8px; }
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+.overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ---------- 13. Gentle entrance animation for sections ---------- */
+main > section { animation: akira-fade-up 0.45s ease both; }
+main > section:nth-of-type(2) { animation-delay: 0.05s; }
+main > section:nth-of-type(3) { animation-delay: 0.10s; }
+main > section:nth-of-type(4) { animation-delay: 0.15s; }
+main > section:nth-of-type(5) { animation-delay: 0.20s; }
+
+@keyframes akira-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes akira-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

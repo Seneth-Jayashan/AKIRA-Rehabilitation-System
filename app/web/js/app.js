@@ -651,6 +651,13 @@ function switchInputSourceMode(mode) {
   }
 }
 
+let bleDevice = null;
+let bleTxChar = null;
+let bleIncomingRows = [];
+let bleLineBuffer = '';
+let isCapturingBLE = false;
+let backendBleConnected = false;
+
 async function loadESP32Status() {
   try {
     const res = await fetch('/api/esp32/status');
@@ -662,12 +669,28 @@ async function loadESP32Status() {
     const hwBadge = document.getElementById('esp32-hw-badge');
     const statusEl = document.getElementById('esp32-record-status');
 
+    backendBleConnected = Boolean(data.ble_connected);
+    const webBleActive = Boolean(bleDevice && bleDevice.gatt && bleDevice.gatt.connected);
+    const anyBleActive = backendBleConnected || webBleActive;
+
     if (portSelect) {
       portSelect.innerHTML = '';
+      if (backendBleConnected) {
+        const opt = document.createElement('option');
+        opt.value = 'BACKEND_BLE';
+        opt.innerText = `🔵 BLE Connected: ${data.ble_device_name || 'ESP32-REHAB'} (${data.ble_device_address})`;
+        portSelect.appendChild(opt);
+      }
+      if (webBleActive) {
+        const opt = document.createElement('option');
+        opt.value = 'WEBBLE';
+        opt.innerText = `🔵 Browser BLE Connected (${bleDevice.name || 'AKIRA_Knee_BLE'})`;
+        portSelect.appendChild(opt);
+      }
       if (webSerialPort) {
         const opt = document.createElement('option');
         opt.value = 'WEBSERIAL';
-        opt.innerText = '🟢 Browser USB/BLE Serial Connected';
+        opt.innerText = '🟢 Browser USB Serial Connected';
         portSelect.appendChild(opt);
       }
       if (data.port_details && data.port_details.length > 0) {
@@ -687,14 +710,17 @@ async function loadESP32Status() {
       if (portSelect.options.length === 0) {
         const opt = document.createElement('option');
         opt.value = 'NONE';
-        opt.innerText = '❌ No ESP32 Detected (Plug in USB or Pair Bluetooth)';
+        opt.innerText = '❌ No ESP32 Detected (Click Connect BLE or Plug in USB)';
         portSelect.appendChild(opt);
       }
     }
 
-    const isConnected = Boolean(webSerialPort) || data.hardware_connected;
+    const isConnected = anyBleActive || Boolean(webSerialPort) || data.hardware_connected;
     if (hwBadge) {
-      if (isConnected) {
+      if (anyBleActive) {
+        hwBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-600 text-white shadow-sm';
+        hwBadge.innerText = `🔵 BLE Connected (${data.ble_device_name || 'ESP32-REHAB'})`;
+      } else if (isConnected) {
         hwBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600 text-white';
         hwBadge.innerText = '🟢 ESP32 Hardware Detected';
       } else {
@@ -704,13 +730,64 @@ async function loadESP32Status() {
     }
     if (statusEl) {
       statusEl.className = isConnected ? 'text-emerald-700 font-bold' : 'text-rose-600 font-bold';
-      statusEl.innerText = isConnected
-        ? '✅ ESP32 port ready — Click Start Recording'
-        : '❌ No ESP32 connected — Connect USB/Bluetooth first';
+      statusEl.innerText = anyBleActive
+        ? `✅ BLE Connected to ${data.ble_device_name || 'ESP32-REHAB'} (${data.ble_device_address}) — Click Start Recording (2.0s)`
+        : (isConnected
+          ? '✅ ESP32 ready — Click Start Recording (2.0s)'
+          : '❌ No ESP32 connected — Click "🔵 Connect ESP32 via BLE" first');
     }
   } catch (err) {
     console.error('Error loading ESP32 status:', err);
   }
+}
+
+async function connectWebBluetoothESP32() {
+  const statusEl = document.getElementById('esp32-record-status');
+  const errBox = document.getElementById('esp32-error-box');
+  if (errBox) errBox.classList.add('hidden');
+
+  if (statusEl) {
+    statusEl.className = 'text-indigo-700 font-bold';
+    statusEl.innerText = '🔵 Scanning Windows Bluetooth for ESP32 BLE device...';
+  }
+
+  // Primary Method: Native Windows BLE via Python Backend (Works in ALL browsers including Brave/Chrome/Edge without Web Bluetooth flags)
+  try {
+    const res = await fetch('/api/esp32/ble_connect', { method: 'POST' });
+    const out = await res.json();
+    if (res.ok && out.status === 'connected') {
+      await loadESP32Status();
+      if (statusEl) {
+        statusEl.className = 'text-emerald-700 font-bold';
+        statusEl.innerText = `🔵 Connected via BLE to ${out.name} (${out.address}) — Ready to Record!`;
+      }
+      return;
+    } else {
+      throw new Error(out.detail || 'Could not find ESP32 BLE device.');
+    }
+  } catch (backendErr) {
+    await loadESP32Status();
+    if (errBox) {
+      errBox.innerHTML = `⚠️ <b>BLE Connection Failed:</b> ${backendErr.message}`;
+      errBox.classList.remove('hidden');
+    }
+    if (statusEl) {
+      statusEl.className = 'text-rose-600 font-bold';
+      statusEl.innerText = '❌ BLE connection failed — Ensure ESP32 is powered on';
+    }
+  }
+}
+
+async function read200SamplesFromBLE() {
+  bleIncomingRows = [];
+  bleLineBuffer = '';
+  isCapturingBLE = true;
+  const tStart = Date.now();
+  while (bleIncomingRows.length < 200 && (Date.now() - tStart) < 4500) {
+    await new Promise(r => setTimeout(r, 25));
+  }
+  isCapturingBLE = false;
+  return bleIncomingRows.slice(0, 200);
 }
 
 async function connectWebSerialESP32() {
@@ -720,7 +797,7 @@ async function connectWebSerialESP32() {
 
   if (!('serial' in navigator)) {
     if (errBox) {
-      errBox.innerText = '❌ Browser WebSerial requires Chrome or Edge. Or plug in your ESP32 via USB/Bluetooth and click "🔄 Scan USB/BT Ports".';
+      errBox.innerText = '❌ Browser WebSerial requires Chrome or Edge. Or click "🔵 Connect ESP32 via BLE".';
       errBox.classList.remove('hidden');
     }
     return;
@@ -731,7 +808,7 @@ async function connectWebSerialESP32() {
     await loadESP32Status();
     if (statusEl) {
       statusEl.className = 'text-emerald-700 font-bold';
-      statusEl.innerText = '✅ Connected to ESP32 via Browser USB/BLE Serial (115200 baud)';
+      statusEl.innerText = '✅ Connected to ESP32 via Browser USB Serial (115200 baud)';
     }
   } catch (e) {
     webSerialPort = null;
@@ -782,13 +859,14 @@ async function startESP32Recording() {
   const exerciseCode = document.getElementById('esp32-exercise').value;
   const qualityGrade = parseInt(document.getElementById('esp32-quality').value);
   const selectedPort = document.getElementById('esp32-com-port')?.value || 'NONE';
+  const webBleActive = Boolean(bleDevice && bleDevice.gatt && bleDevice.gatt.connected);
 
   if (errBox) errBox.classList.add('hidden');
 
   // STRICT CHECK: Block recording immediately if no ESP32 hardware is connected!
-  if (!webSerialPort && (!selectedPort || selectedPort === 'NONE')) {
+  if (!backendBleConnected && !webBleActive && !webSerialPort && (!selectedPort || selectedPort === 'NONE')) {
     if (errBox) {
-      errBox.innerHTML = '❌ <b>Cannot Record — No ESP32 Device Connected!</b><br>Please plug in your ESP32 + 2 IMUs via USB cable or pair Bluetooth (<code>AKIRA_Knee_ESP32</code>), then click <b>"🔄 Scan USB/BT Ports"</b> or <b>"🔌 Connect Browser USB/BLE Serial"</b>.';
+      errBox.innerHTML = '❌ <b>Cannot Record — No ESP32 Device Connected!</b><br>Click <b>"🔵 Connect ESP32 via BLE"</b> first.';
       errBox.classList.remove('hidden');
     }
     if (statusEl) {
@@ -800,22 +878,30 @@ async function startESP32Recording() {
 
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = '<span>⏳</span> Reading 200 Samples @ 100 Hz...';
+    btn.innerHTML = '<span>⏳</span> Streaming BLE (2.0s)...';
   }
   if (statusEl) {
     statusEl.className = 'text-amber-700 font-bold';
-    statusEl.innerText = `🔴 Reading live 12-channel stream from ${selectedPort}...`;
+    statusEl.innerText = `🔴 Streaming live BLE sensor packets from ESP32... Move the sensor now!`;
   }
 
   try {
     let rawRows = null;
     let connMode = 'serial_com';
 
-    if (selectedPort === 'WEBSERIAL' && webSerialPort) {
+    if (selectedPort === 'BACKEND_BLE' || backendBleConnected) {
+      connMode = 'backend_ble';
+    } else if (selectedPort === 'WEBBLE' && webBleActive) {
+      connMode = 'web_ble_raw';
+      rawRows = await read200SamplesFromBLE();
+      if (!rawRows || rawRows.length < 50) {
+        throw new Error(`Received only ${rawRows ? rawRows.length : 0} valid 12-channel IMU lines over BLE.`);
+      }
+    } else if (selectedPort === 'WEBSERIAL' && webSerialPort) {
       connMode = 'web_serial_raw';
       rawRows = await read200SamplesFromWebSerial();
       if (!rawRows || rawRows.length < 50) {
-        throw new Error(`Received only ${rawRows ? rawRows.length : 0} valid 12-channel IMU lines from WebSerial (expected 200 @ 100Hz). Make sure akira_knee_esp32.ino is running on the ESP32.`);
+        throw new Error(`Received only ${rawRows ? rawRows.length : 0} valid 12-channel IMU lines from WebSerial.`);
       }
     } else if (selectedPort === 'WIFI_STREAM') {
       connMode = 'wifi_stream';
