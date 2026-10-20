@@ -1,0 +1,3116 @@
+{
+  "accepted_windows": 997,
+  "skipped_short_trials": [
+    "KneE-PAD:Subject_18_6_Trial_1",
+    "KneE-PAD:Subject_27_6_Trial_1"
+  ],
+  "skipped_rom_out_of_bounds": [
+    {
+      "source": "PHYTMO",
+      "file_id": "A04SQT0_2.csv",
+      "rom_deg": 246.59
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "A04SQT1_1.csv",
+      "rom_deg": 176.95
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "A09SQT0_1.csv",
+      "rom_deg": 305.82
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "A09SQT0_2.csv",
+      "rom_deg": 187.78
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "A09SQT1_2.csv",
+      "rom_deg": 421.49
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "A10SQT1_1.csv",
+      "rom_deg": 197.96
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "B01GAT1_1.csv",
+      "rom_deg": 287.58
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "B01SQT0_1.csv",
+      "rom_deg": 357.93
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "B01SQT1_1.csv",
+      "rom_deg": 169.0
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "B02SQT0_1.csv",
+      "rom_deg": 220.98
+    },
+    {
+      "source": "PHYTMO",
+      "file_id": "C01SQT0_1.csv",
+      "rom_deg": 355.37
+    },
+    {
+      "source": "StrengthSense",
+      "file_id": "s22_a1(w)_t1_l.csv",
+      "rom_deg": 300.1
+    },
+    {
+      "source": "StrengthSense",
+      "file_id": "s13_a13_t3_l.csv",
+      "rom_deg": 156.09
+    },
+    {
+      "source": "StrengthSense",
+      "file_id": "s27_a10_t5_l.csv",
+      "rom_deg": 168.34
+    },
+    {
+      "source": "StrengthSense",
+      "file_id": "s4_a10_t3_l.csv",
+      "rom_deg": 262.32
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_00.txt_seg2538",
+      "rom_deg": 896.18
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_01.txt_seg647",
+      "rom_deg": 741.06
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_01.txt_seg1919",
+      "rom_deg": 665.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_18.txt_seg204",
+      "rom_deg": 1663.26
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_19.txt_seg175",
+      "rom_deg": 796.14
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_20.txt_seg213",
+      "rom_deg": 863.64
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_21.txt_seg175",
+      "rom_deg": 696.26
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_04.txt_seg676",
+      "rom_deg": 618.15
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_04.txt_seg1100",
+      "rom_deg": 769.32
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_04.txt_seg2580",
+      "rom_deg": 974.75
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg491",
+      "rom_deg": 1179.95
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg898",
+      "rom_deg": 764.61
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg2412",
+      "rom_deg": 760.79
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_06.txt_seg528",
+      "rom_deg": 1269.54
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_06.txt_seg930",
+      "rom_deg": 500.59
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_06.txt_seg2159",
+      "rom_deg": 698.02
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_06.txt_seg2435",
+      "rom_deg": 532.61
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg493",
+      "rom_deg": 581.47
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg905",
+      "rom_deg": 816.26
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg2015",
+      "rom_deg": 1141.14
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg1468",
+      "rom_deg": 541.35
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg1920",
+      "rom_deg": 810.07
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg2357",
+      "rom_deg": 510.22
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg2781",
+      "rom_deg": 663.86
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg1849",
+      "rom_deg": 542.19
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg1052",
+      "rom_deg": 698.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg1552",
+      "rom_deg": 641.55
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg3783",
+      "rom_deg": 562.31
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg3527",
+      "rom_deg": 904.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg597",
+      "rom_deg": 363.98
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg1066",
+      "rom_deg": 429.44
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg2292",
+      "rom_deg": 332.57
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg2714",
+      "rom_deg": 343.11
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg543",
+      "rom_deg": 652.49
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg967",
+      "rom_deg": 360.63
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg2047",
+      "rom_deg": 827.96
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg693",
+      "rom_deg": 309.29
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg1076",
+      "rom_deg": 368.78
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg2061",
+      "rom_deg": 311.34
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg2485",
+      "rom_deg": 377.09
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_12.txt_seg184",
+      "rom_deg": 337.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_12.txt_seg608",
+      "rom_deg": 267.28
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_12.txt_seg927",
+      "rom_deg": 347.07
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_12.txt_seg1397",
+      "rom_deg": 323.46
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_13.txt_seg181",
+      "rom_deg": 323.74
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_13.txt_seg648",
+      "rom_deg": 343.61
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_13.txt_seg1072",
+      "rom_deg": 311.02
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_13.txt_seg1481",
+      "rom_deg": 306.71
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_14.txt_seg226",
+      "rom_deg": 338.41
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_14.txt_seg663",
+      "rom_deg": 328.53
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_14.txt_seg1068",
+      "rom_deg": 327.51
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_14.txt_seg1482",
+      "rom_deg": 377.87
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_04.txt_seg234",
+      "rom_deg": 709.67
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_04.txt_seg1185",
+      "rom_deg": 690.12
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_04.txt_seg1666",
+      "rom_deg": 834.48
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_06.txt_seg299",
+      "rom_deg": 1646.44
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_06.txt_seg1514",
+      "rom_deg": 646.12
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_06.txt_seg2022",
+      "rom_deg": 977.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_06.txt_seg2490",
+      "rom_deg": 493.95
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_08.txt_seg620",
+      "rom_deg": 953.53
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_08.txt_seg1030",
+      "rom_deg": 484.86
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_08.txt_seg1904",
+      "rom_deg": 1164.62
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_07.txt_seg122",
+      "rom_deg": 778.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_07.txt_seg572",
+      "rom_deg": 423.42
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_07.txt_seg1029",
+      "rom_deg": 484.48
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_07.txt_seg1497",
+      "rom_deg": 453.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_07.txt_seg1991",
+      "rom_deg": 416.57
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_07.txt_seg2445",
+      "rom_deg": 488.71
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_09.txt_seg164",
+      "rom_deg": 448.08
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_09.txt_seg605",
+      "rom_deg": 480.71
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_09.txt_seg1057",
+      "rom_deg": 437.91
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_09.txt_seg1536",
+      "rom_deg": 431.61
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_09.txt_seg1995",
+      "rom_deg": 413.53
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_09.txt_seg2485",
+      "rom_deg": 791.39
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_10.txt_seg195",
+      "rom_deg": 775.62
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_10.txt_seg657",
+      "rom_deg": 590.52
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_10.txt_seg1129",
+      "rom_deg": 683.38
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_10.txt_seg1648",
+      "rom_deg": 429.77
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_10.txt_seg2186",
+      "rom_deg": 397.42
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_10.txt_seg2694",
+      "rom_deg": 800.47
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_13.txt_seg225",
+      "rom_deg": 503.61
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_13.txt_seg688",
+      "rom_deg": 660.28
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_13.txt_seg1177",
+      "rom_deg": 447.11
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_13.txt_seg1717",
+      "rom_deg": 437.14
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_13.txt_seg2227",
+      "rom_deg": 486.17
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_12_13.txt_seg2681",
+      "rom_deg": 584.81
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_14.txt_seg159",
+      "rom_deg": 684.56
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_14.txt_seg752",
+      "rom_deg": 651.47
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_14.txt_seg1310",
+      "rom_deg": 577.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_14.txt_seg1898",
+      "rom_deg": 613.13
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_14.txt_seg2514",
+      "rom_deg": 537.28
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_14.txt_seg3097",
+      "rom_deg": 552.28
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_16.txt_seg203",
+      "rom_deg": 857.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_16.txt_seg813",
+      "rom_deg": 502.32
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_16.txt_seg1398",
+      "rom_deg": 1066.13
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_16.txt_seg1995",
+      "rom_deg": 541.71
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_16.txt_seg2597",
+      "rom_deg": 523.95
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_16.txt_seg3183",
+      "rom_deg": 515.97
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_18.txt_seg215",
+      "rom_deg": 610.16
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_18.txt_seg806",
+      "rom_deg": 864.52
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_18.txt_seg1361",
+      "rom_deg": 495.51
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_18.txt_seg1906",
+      "rom_deg": 583.92
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_18.txt_seg2462",
+      "rom_deg": 954.52
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_18.txt_seg3006",
+      "rom_deg": 674.09
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_20.txt_seg156",
+      "rom_deg": 1159.14
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_20.txt_seg829",
+      "rom_deg": 1206.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_20.txt_seg1453",
+      "rom_deg": 651.54
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_20.txt_seg2129",
+      "rom_deg": 563.29
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_20.txt_seg2803",
+      "rom_deg": 496.55
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_13_20.txt_seg3408",
+      "rom_deg": 1410.72
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_00.txt_seg154",
+      "rom_deg": 434.77
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_00.txt_seg581",
+      "rom_deg": 458.19
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_00.txt_seg1055",
+      "rom_deg": 817.15
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_00.txt_seg1463",
+      "rom_deg": 1098.12
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_10.txt_seg201",
+      "rom_deg": 505.05
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_10.txt_seg657",
+      "rom_deg": 860.29
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_10.txt_seg1521",
+      "rom_deg": 665.95
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_10.txt_seg2385",
+      "rom_deg": 541.66
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_12.txt_seg243",
+      "rom_deg": 555.41
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_12.txt_seg1149",
+      "rom_deg": 489.67
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_12.txt_seg1621",
+      "rom_deg": 465.01
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_12.txt_seg2107",
+      "rom_deg": 575.65
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_12.txt_seg2584",
+      "rom_deg": 616.77
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_15.txt_seg689",
+      "rom_deg": 643.79
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_15.txt_seg1107",
+      "rom_deg": 1168.35
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_15.txt_seg1569",
+      "rom_deg": 798.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_15.txt_seg1990",
+      "rom_deg": 502.24
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_15.txt_seg2427",
+      "rom_deg": 626.99
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_17.txt_seg701",
+      "rom_deg": 735.09
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_17.txt_seg1133",
+      "rom_deg": 512.42
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_17.txt_seg1594",
+      "rom_deg": 1089.13
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_17.txt_seg2085",
+      "rom_deg": 536.06
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_17.txt_seg2546",
+      "rom_deg": 1014.72
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_01.txt_seg191",
+      "rom_deg": 578.27
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_01.txt_seg731",
+      "rom_deg": 959.63
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_01.txt_seg1242",
+      "rom_deg": 1037.56
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_01.txt_seg1783",
+      "rom_deg": 628.82
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_01.txt_seg2336",
+      "rom_deg": 867.85
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_01.txt_seg2899",
+      "rom_deg": 618.08
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_03.txt_seg148",
+      "rom_deg": 587.24
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_03.txt_seg752",
+      "rom_deg": 662.32
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_03.txt_seg1315",
+      "rom_deg": 547.06
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_03.txt_seg1943",
+      "rom_deg": 662.84
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_03.txt_seg2525",
+      "rom_deg": 548.98
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_03.txt_seg3120",
+      "rom_deg": 690.66
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_05.txt_seg185",
+      "rom_deg": 635.01
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_05.txt_seg744",
+      "rom_deg": 800.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_05.txt_seg1308",
+      "rom_deg": 571.72
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_05.txt_seg1886",
+      "rom_deg": 464.72
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_05.txt_seg2484",
+      "rom_deg": 562.97
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_05.txt_seg3081",
+      "rom_deg": 515.79
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_07.txt_seg539",
+      "rom_deg": 627.72
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_07.txt_seg1189",
+      "rom_deg": 581.66
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_07.txt_seg1763",
+      "rom_deg": 638.41
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_07.txt_seg2326",
+      "rom_deg": 776.33
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_07.txt_seg2924",
+      "rom_deg": 799.53
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_15_07.txt_seg3476",
+      "rom_deg": 749.17
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_08.txt_seg0",
+      "rom_deg": 812.35
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_08.txt_seg1128",
+      "rom_deg": 821.76
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_08.txt_seg1752",
+      "rom_deg": 736.54
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_08.txt_seg2384",
+      "rom_deg": 618.03
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_08.txt_seg3714",
+      "rom_deg": 654.92
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_08.txt_seg4426",
+      "rom_deg": 630.74
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_08.txt_seg5004",
+      "rom_deg": 644.66
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_11.txt_seg304",
+      "rom_deg": 810.75
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_11.txt_seg968",
+      "rom_deg": 1104.88
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_11.txt_seg1616",
+      "rom_deg": 703.95
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_11.txt_seg3440",
+      "rom_deg": 761.08
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_13.txt_seg143",
+      "rom_deg": 682.86
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_13.txt_seg749",
+      "rom_deg": 616.18
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_13.txt_seg1344",
+      "rom_deg": 687.46
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_13.txt_seg1977",
+      "rom_deg": 740.84
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_13.txt_seg2580",
+      "rom_deg": 636.44
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_15.txt_seg153",
+      "rom_deg": 1737.09
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_15.txt_seg767",
+      "rom_deg": 441.63
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_15.txt_seg1342",
+      "rom_deg": 716.88
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_15.txt_seg1928",
+      "rom_deg": 647.19
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_15.txt_seg2555",
+      "rom_deg": 1075.97
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_15.txt_seg3064",
+      "rom_deg": 629.83
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_05.txt_seg804",
+      "rom_deg": 1214.42
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_05.txt_seg1370",
+      "rom_deg": 721.73
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_05.txt_seg3253",
+      "rom_deg": 617.16
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_09.txt_seg630",
+      "rom_deg": 1155.79
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_14.txt_seg153",
+      "rom_deg": 711.99
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_14.txt_seg1135",
+      "rom_deg": 757.07
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_14.txt_seg1678",
+      "rom_deg": 715.03
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_14.txt_seg2156",
+      "rom_deg": 849.85
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_00.txt_seg158",
+      "rom_deg": 587.79
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_00.txt_seg561",
+      "rom_deg": 609.24
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_00.txt_seg1075",
+      "rom_deg": 364.05
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_00.txt_seg1602",
+      "rom_deg": 440.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_06.txt_seg222",
+      "rom_deg": 557.09
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_06.txt_seg800",
+      "rom_deg": 940.36
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_06.txt_seg1360",
+      "rom_deg": 738.35
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_06.txt_seg1973",
+      "rom_deg": 511.59
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_06.txt_seg2539",
+      "rom_deg": 541.64
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_08.txt_seg222",
+      "rom_deg": 704.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_08.txt_seg1265",
+      "rom_deg": 497.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_08.txt_seg1794",
+      "rom_deg": 833.16
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_08.txt_seg2340",
+      "rom_deg": 841.33
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_10.txt_seg613",
+      "rom_deg": 547.84
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_10.txt_seg1690",
+      "rom_deg": 716.63
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_10.txt_seg2251",
+      "rom_deg": 396.94
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_10.txt_seg2883",
+      "rom_deg": 716.35
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_10.txt_seg3457",
+      "rom_deg": 654.76
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_12.txt_seg234",
+      "rom_deg": 752.16
+    }
+  ],
+  "skipped_gyro_saturated": [
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_00.txt_seg1394",
+      "gyro_peak_deg_s": 1957.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_00.txt_seg1983",
+      "gyro_peak_deg_s": 2025.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_00.txt_seg435",
+      "gyro_peak_deg_s": 2273.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_00.txt_seg1751",
+      "gyro_peak_deg_s": 2201.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_00.txt_seg2368",
+      "gyro_peak_deg_s": 2206.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_01.txt_seg1242",
+      "gyro_peak_deg_s": 2239.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_01.txt_seg295",
+      "gyro_peak_deg_s": 2185.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_01.txt_seg1013",
+      "gyro_peak_deg_s": 2193.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_01.txt_seg1656",
+      "gyro_peak_deg_s": 2182.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_02.txt_seg451",
+      "gyro_peak_deg_s": 2189.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_02.txt_seg1108",
+      "gyro_peak_deg_s": 2211.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_02.txt_seg1607",
+      "gyro_peak_deg_s": 2238.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_03.txt_seg408",
+      "gyro_peak_deg_s": 2219.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_03.txt_seg1024",
+      "gyro_peak_deg_s": 2194.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_03.txt_seg1579",
+      "gyro_peak_deg_s": 2192.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_04.txt_seg133",
+      "gyro_peak_deg_s": 2205.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_04.txt_seg2029",
+      "gyro_peak_deg_s": 2178.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_04.txt_seg2355",
+      "gyro_peak_deg_s": 2223.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_04.txt_seg2738",
+      "gyro_peak_deg_s": 2208.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_05.txt_seg122",
+      "gyro_peak_deg_s": 2184.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_05.txt_seg570",
+      "gyro_peak_deg_s": 2184.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_05.txt_seg1048",
+      "gyro_peak_deg_s": 2129.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_05.txt_seg1501",
+      "gyro_peak_deg_s": 2158.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_06.txt_seg119",
+      "gyro_peak_deg_s": 2118.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_06.txt_seg596",
+      "gyro_peak_deg_s": 2176.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_06.txt_seg1046",
+      "gyro_peak_deg_s": 2152.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_06.txt_seg1552",
+      "gyro_peak_deg_s": 2133.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_11.txt_seg205",
+      "gyro_peak_deg_s": 2299.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_11.txt_seg1340",
+      "gyro_peak_deg_s": 2209.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_12.txt_seg515",
+      "gyro_peak_deg_s": 2248.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_12.txt_seg1681",
+      "gyro_peak_deg_s": 2222.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_13.txt_seg656",
+      "gyro_peak_deg_s": 2249.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_13.txt_seg1588",
+      "gyro_peak_deg_s": 2330.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_22.txt_seg191",
+      "gyro_peak_deg_s": 2186.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_23.txt_seg80",
+      "gyro_peak_deg_s": 2128.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_24.txt_seg1144",
+      "gyro_peak_deg_s": 2212.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_24.txt_seg1702",
+      "gyro_peak_deg_s": 2192.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_03_24.txt_seg2327",
+      "gyro_peak_deg_s": 2188.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_04.txt_seg2164",
+      "gyro_peak_deg_s": 2157.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_04.txt_seg306",
+      "gyro_peak_deg_s": 2207.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_04.txt_seg921",
+      "gyro_peak_deg_s": 2027.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_04.txt_seg1344",
+      "gyro_peak_deg_s": 2172.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_04.txt_seg2828",
+      "gyro_peak_deg_s": 2181.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg2001",
+      "gyro_peak_deg_s": 1987.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg149",
+      "gyro_peak_deg_s": 2206.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg722",
+      "gyro_peak_deg_s": 2135.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg1161",
+      "gyro_peak_deg_s": 2106.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg2234",
+      "gyro_peak_deg_s": 2120.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_05.txt_seg2663",
+      "gyro_peak_deg_s": 2198.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_06.txt_seg144",
+      "gyro_peak_deg_s": 2216.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_06.txt_seg769",
+      "gyro_peak_deg_s": 2085.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_06.txt_seg1163",
+      "gyro_peak_deg_s": 2251.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_06.txt_seg2677",
+      "gyro_peak_deg_s": 2209.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg2398",
+      "gyro_peak_deg_s": 2203.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg134",
+      "gyro_peak_deg_s": 2221.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg745",
+      "gyro_peak_deg_s": 2141.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg1151",
+      "gyro_peak_deg_s": 2193.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg2259",
+      "gyro_peak_deg_s": 2111.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_07.txt_seg2672",
+      "gyro_peak_deg_s": 2206.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_08.txt_seg125",
+      "gyro_peak_deg_s": 2205.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_08.txt_seg737",
+      "gyro_peak_deg_s": 2168.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_08.txt_seg1067",
+      "gyro_peak_deg_s": 2222.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_08.txt_seg2063",
+      "gyro_peak_deg_s": 2146.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_08.txt_seg2375",
+      "gyro_peak_deg_s": 2196.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_09.txt_seg184",
+      "gyro_peak_deg_s": 2233.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_09.txt_seg793",
+      "gyro_peak_deg_s": 2181.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_09.txt_seg1123",
+      "gyro_peak_deg_s": 2204.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_09.txt_seg2088",
+      "gyro_peak_deg_s": 2199.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_09.txt_seg2387",
+      "gyro_peak_deg_s": 2210.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_10.txt_seg190",
+      "gyro_peak_deg_s": 2215.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_10.txt_seg786",
+      "gyro_peak_deg_s": 2174.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_10.txt_seg1258",
+      "gyro_peak_deg_s": 2178.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_10.txt_seg2161",
+      "gyro_peak_deg_s": 2173.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_10.txt_seg2491",
+      "gyro_peak_deg_s": 2212.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_11.txt_seg129",
+      "gyro_peak_deg_s": 2211.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_11.txt_seg755",
+      "gyro_peak_deg_s": 2186.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_11.txt_seg1087",
+      "gyro_peak_deg_s": 2212.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_11.txt_seg2115",
+      "gyro_peak_deg_s": 2177.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_11.txt_seg2461",
+      "gyro_peak_deg_s": 2228.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_13.txt_seg343",
+      "gyro_peak_deg_s": 2048.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_14.txt_seg2297",
+      "gyro_peak_deg_s": 2120.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_15.txt_seg1160",
+      "gyro_peak_deg_s": 2125.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_16.txt_seg0",
+      "gyro_peak_deg_s": 2266.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_16.txt_seg1244",
+      "gyro_peak_deg_s": 2360.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_17.txt_seg0",
+      "gyro_peak_deg_s": 2284.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_17.txt_seg1085",
+      "gyro_peak_deg_s": 2439.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_18.txt_seg0",
+      "gyro_peak_deg_s": 2259.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_18.txt_seg896",
+      "gyro_peak_deg_s": 2341.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_19.txt_seg0",
+      "gyro_peak_deg_s": 2270.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_04_19.txt_seg3217",
+      "gyro_peak_deg_s": 2378.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_00.txt_seg386",
+      "gyro_peak_deg_s": 2216.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_05.txt_seg284",
+      "gyro_peak_deg_s": 2202.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_05.txt_seg1526",
+      "gyro_peak_deg_s": 2156.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_05.txt_seg2411",
+      "gyro_peak_deg_s": 2190.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_05.txt_seg2862",
+      "gyro_peak_deg_s": 2202.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_06.txt_seg199",
+      "gyro_peak_deg_s": 2212.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_06.txt_seg586",
+      "gyro_peak_deg_s": 2199.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_06.txt_seg1046",
+      "gyro_peak_deg_s": 2182.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_06.txt_seg1489",
+      "gyro_peak_deg_s": 2184.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_06.txt_seg1958",
+      "gyro_peak_deg_s": 2213.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg1032",
+      "gyro_peak_deg_s": 2009.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg3229",
+      "gyro_peak_deg_s": 2044.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg3599",
+      "gyro_peak_deg_s": 2170.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg3980",
+      "gyro_peak_deg_s": 2132.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg4329",
+      "gyro_peak_deg_s": 2190.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg4740",
+      "gyro_peak_deg_s": 2031.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg582",
+      "gyro_peak_deg_s": 2241.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg1305",
+      "gyro_peak_deg_s": 2198.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg1755",
+      "gyro_peak_deg_s": 2231.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg2186",
+      "gyro_peak_deg_s": 2191.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg2623",
+      "gyro_peak_deg_s": 2209.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg3051",
+      "gyro_peak_deg_s": 2183.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg3437",
+      "gyro_peak_deg_s": 2191.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg3807",
+      "gyro_peak_deg_s": 2223.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_07.txt_seg4963",
+      "gyro_peak_deg_s": 2231.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_08.txt_seg113",
+      "gyro_peak_deg_s": 2209.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_08.txt_seg699",
+      "gyro_peak_deg_s": 2191.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_08.txt_seg1354",
+      "gyro_peak_deg_s": 2188.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_08.txt_seg2001",
+      "gyro_peak_deg_s": 2217.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_08.txt_seg2449",
+      "gyro_peak_deg_s": 2170.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_08.txt_seg2872",
+      "gyro_peak_deg_s": 2202.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_08.txt_seg3272",
+      "gyro_peak_deg_s": 2192.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_08.txt_seg3907",
+      "gyro_peak_deg_s": 2226.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg557",
+      "gyro_peak_deg_s": 2041.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg1050",
+      "gyro_peak_deg_s": 2134.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg1412",
+      "gyro_peak_deg_s": 2082.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg2301",
+      "gyro_peak_deg_s": 2145.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg2761",
+      "gyro_peak_deg_s": 2140.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg3139",
+      "gyro_peak_deg_s": 2092.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg3641",
+      "gyro_peak_deg_s": 2049.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg4091",
+      "gyro_peak_deg_s": 2117.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg4456",
+      "gyro_peak_deg_s": 2126.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg149",
+      "gyro_peak_deg_s": 2225.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg853",
+      "gyro_peak_deg_s": 2201.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg1247",
+      "gyro_peak_deg_s": 2197.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg1617",
+      "gyro_peak_deg_s": 2212.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg2110",
+      "gyro_peak_deg_s": 2210.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg2598",
+      "gyro_peak_deg_s": 2227.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg2981",
+      "gyro_peak_deg_s": 2211.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg3446",
+      "gyro_peak_deg_s": 2218.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg3953",
+      "gyro_peak_deg_s": 2204.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg4287",
+      "gyro_peak_deg_s": 2205.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_09.txt_seg4672",
+      "gyro_peak_deg_s": 2228.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg180",
+      "gyro_peak_deg_s": 2218.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg768",
+      "gyro_peak_deg_s": 2195.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg1480",
+      "gyro_peak_deg_s": 2183.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg1830",
+      "gyro_peak_deg_s": 2179.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg2174",
+      "gyro_peak_deg_s": 2179.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg2540",
+      "gyro_peak_deg_s": 2185.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg2880",
+      "gyro_peak_deg_s": 2197.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg3209",
+      "gyro_peak_deg_s": 2192.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg3586",
+      "gyro_peak_deg_s": 2257.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_10.txt_seg3999",
+      "gyro_peak_deg_s": 2217.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg693",
+      "gyro_peak_deg_s": 2155.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg2021",
+      "gyro_peak_deg_s": 2006.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg2360",
+      "gyro_peak_deg_s": 2165.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg2699",
+      "gyro_peak_deg_s": 2067.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg3049",
+      "gyro_peak_deg_s": 2212.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg3414",
+      "gyro_peak_deg_s": 2098.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg4262",
+      "gyro_peak_deg_s": 2132.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg146",
+      "gyro_peak_deg_s": 2230.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg894",
+      "gyro_peak_deg_s": 2214.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg1359",
+      "gyro_peak_deg_s": 2223.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg1842",
+      "gyro_peak_deg_s": 2221.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg2203",
+      "gyro_peak_deg_s": 2218.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg2541",
+      "gyro_peak_deg_s": 2214.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg2887",
+      "gyro_peak_deg_s": 2227.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg3644",
+      "gyro_peak_deg_s": 2194.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg4078",
+      "gyro_peak_deg_s": 2228.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_11.txt_seg4460",
+      "gyro_peak_deg_s": 2247.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg142",
+      "gyro_peak_deg_s": 2217.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg655",
+      "gyro_peak_deg_s": 2224.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg973",
+      "gyro_peak_deg_s": 2196.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg1343",
+      "gyro_peak_deg_s": 2189.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg1722",
+      "gyro_peak_deg_s": 2199.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg2099",
+      "gyro_peak_deg_s": 2175.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg2468",
+      "gyro_peak_deg_s": 2191.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg2810",
+      "gyro_peak_deg_s": 2219.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg3248",
+      "gyro_peak_deg_s": 2188.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg3728",
+      "gyro_peak_deg_s": 2218.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_12.txt_seg4110",
+      "gyro_peak_deg_s": 2229.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg711",
+      "gyro_peak_deg_s": 2147.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg1185",
+      "gyro_peak_deg_s": 2077.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg1553",
+      "gyro_peak_deg_s": 2034.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg1915",
+      "gyro_peak_deg_s": 2041.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg2267",
+      "gyro_peak_deg_s": 2160.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg2656",
+      "gyro_peak_deg_s": 2160.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg3026",
+      "gyro_peak_deg_s": 2099.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg3993",
+      "gyro_peak_deg_s": 2170.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg4372",
+      "gyro_peak_deg_s": 2115.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg173",
+      "gyro_peak_deg_s": 2216.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg997",
+      "gyro_peak_deg_s": 2223.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg1380",
+      "gyro_peak_deg_s": 2229.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg1741",
+      "gyro_peak_deg_s": 2228.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg2112",
+      "gyro_peak_deg_s": 2214.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg2485",
+      "gyro_peak_deg_s": 2217.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg2881",
+      "gyro_peak_deg_s": 2209.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg3337",
+      "gyro_peak_deg_s": 2207.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg3838",
+      "gyro_peak_deg_s": 2201.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg4195",
+      "gyro_peak_deg_s": 2207.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_13.txt_seg4627",
+      "gyro_peak_deg_s": 2224.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg132",
+      "gyro_peak_deg_s": 2203.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg637",
+      "gyro_peak_deg_s": 2191.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg1235",
+      "gyro_peak_deg_s": 2196.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg1649",
+      "gyro_peak_deg_s": 2222.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg1939",
+      "gyro_peak_deg_s": 2198.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg2245",
+      "gyro_peak_deg_s": 2208.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg2577",
+      "gyro_peak_deg_s": 2193.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg3004",
+      "gyro_peak_deg_s": 2191.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg3429",
+      "gyro_peak_deg_s": 2192.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_14.txt_seg3864",
+      "gyro_peak_deg_s": 2292.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_19.txt_seg81",
+      "gyro_peak_deg_s": 2239.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_20.txt_seg193",
+      "gyro_peak_deg_s": 2236.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_05_20.txt_seg1639",
+      "gyro_peak_deg_s": 2221.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg132",
+      "gyro_peak_deg_s": 2139.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg845",
+      "gyro_peak_deg_s": 2084.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg1316",
+      "gyro_peak_deg_s": 2087.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg2499",
+      "gyro_peak_deg_s": 2028.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_04.txt_seg2945",
+      "gyro_peak_deg_s": 2138.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg2467",
+      "gyro_peak_deg_s": 2003.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg138",
+      "gyro_peak_deg_s": 2186.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg760",
+      "gyro_peak_deg_s": 2147.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg1198",
+      "gyro_peak_deg_s": 2195.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg2273",
+      "gyro_peak_deg_s": 2089.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_05.txt_seg2692",
+      "gyro_peak_deg_s": 2192.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg344",
+      "gyro_peak_deg_s": 2200.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg902",
+      "gyro_peak_deg_s": 2138.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg1291",
+      "gyro_peak_deg_s": 2219.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg2306",
+      "gyro_peak_deg_s": 2147.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_06.txt_seg2720",
+      "gyro_peak_deg_s": 2176.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_07.txt_seg110",
+      "gyro_peak_deg_s": 2210.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_07.txt_seg695",
+      "gyro_peak_deg_s": 2191.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_07.txt_seg1039",
+      "gyro_peak_deg_s": 2185.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_07.txt_seg2052",
+      "gyro_peak_deg_s": 2208.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_07.txt_seg2413",
+      "gyro_peak_deg_s": 2158.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_08.txt_seg0",
+      "gyro_peak_deg_s": 2225.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_08.txt_seg1920",
+      "gyro_peak_deg_s": 2306.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_09.txt_seg162",
+      "gyro_peak_deg_s": 2198.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_09.txt_seg1110",
+      "gyro_peak_deg_s": 2163.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_09.txt_seg2114",
+      "gyro_peak_deg_s": 2238.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_09.txt_seg2483",
+      "gyro_peak_deg_s": 2175.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_10.txt_seg258",
+      "gyro_peak_deg_s": 2203.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_10.txt_seg1261",
+      "gyro_peak_deg_s": 2157.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_10.txt_seg2315",
+      "gyro_peak_deg_s": 2190.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_10.txt_seg2675",
+      "gyro_peak_deg_s": 2128.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_11.txt_seg301",
+      "gyro_peak_deg_s": 2181.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_11.txt_seg949",
+      "gyro_peak_deg_s": 2263.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_11.txt_seg1306",
+      "gyro_peak_deg_s": 2151.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_11.txt_seg2346",
+      "gyro_peak_deg_s": 2175.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_11.txt_seg2701",
+      "gyro_peak_deg_s": 2163.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_12.txt_seg434",
+      "gyro_peak_deg_s": 2136.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_12.txt_seg1164",
+      "gyro_peak_deg_s": 2114.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_13.txt_seg437",
+      "gyro_peak_deg_s": 2190.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_13.txt_seg889",
+      "gyro_peak_deg_s": 2209.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_13.txt_seg1298",
+      "gyro_peak_deg_s": 2102.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_14.txt_seg454",
+      "gyro_peak_deg_s": 2132.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_14.txt_seg875",
+      "gyro_peak_deg_s": 2064.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_14.txt_seg1303",
+      "gyro_peak_deg_s": 2154.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_15.txt_seg459",
+      "gyro_peak_deg_s": 2268.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_15.txt_seg819",
+      "gyro_peak_deg_s": 2224.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_15.txt_seg1222",
+      "gyro_peak_deg_s": 2156.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_16.txt_seg460",
+      "gyro_peak_deg_s": 2126.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_16.txt_seg858",
+      "gyro_peak_deg_s": 2157.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_16.txt_seg1260",
+      "gyro_peak_deg_s": 2207.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_17.txt_seg414",
+      "gyro_peak_deg_s": 2180.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_17.txt_seg802",
+      "gyro_peak_deg_s": 2222.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_17.txt_seg1186",
+      "gyro_peak_deg_s": 2199.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_17.txt_seg1934",
+      "gyro_peak_deg_s": 2182.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_22.txt_seg0",
+      "gyro_peak_deg_s": 2342.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_22.txt_seg2180",
+      "gyro_peak_deg_s": 2262.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_23.txt_seg0",
+      "gyro_peak_deg_s": 2239.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_23.txt_seg2261",
+      "gyro_peak_deg_s": 2274.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_24.txt_seg0",
+      "gyro_peak_deg_s": 2182.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_07_24.txt_seg1899",
+      "gyro_peak_deg_s": 2316.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_04.txt_seg728",
+      "gyro_peak_deg_s": 1959.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_04.txt_seg2145",
+      "gyro_peak_deg_s": 2215.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_04.txt_seg2544",
+      "gyro_peak_deg_s": 2206.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_06.txt_seg766",
+      "gyro_peak_deg_s": 2121.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_06.txt_seg1125",
+      "gyro_peak_deg_s": 2080.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_08.txt_seg191",
+      "gyro_peak_deg_s": 2181.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_08.txt_seg1474",
+      "gyro_peak_deg_s": 2180.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_09_08.txt_seg2332",
+      "gyro_peak_deg_s": 2185.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_10.txt_seg1091",
+      "gyro_peak_deg_s": 2055.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_10.txt_seg1974",
+      "gyro_peak_deg_s": 2096.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_12.txt_seg710",
+      "gyro_peak_deg_s": 1977.1
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_15.txt_seg222",
+      "gyro_peak_deg_s": 2067.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_14_17.txt_seg227",
+      "gyro_peak_deg_s": 2051.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_08.txt_seg511",
+      "gyro_peak_deg_s": 1999.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_11.txt_seg2249",
+      "gyro_peak_deg_s": 1992.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_16_11.txt_seg2842",
+      "gyro_peak_deg_s": 2038.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_05.txt_seg240",
+      "gyro_peak_deg_s": 2114.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_05.txt_seg1986",
+      "gyro_peak_deg_s": 2005.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_05.txt_seg2642",
+      "gyro_peak_deg_s": 1961.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_07.txt_seg215",
+      "gyro_peak_deg_s": 2145.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_07.txt_seg679",
+      "gyro_peak_deg_s": 2159.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_07.txt_seg1141",
+      "gyro_peak_deg_s": 2128.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_07.txt_seg1620",
+      "gyro_peak_deg_s": 2149.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_07.txt_seg2070",
+      "gyro_peak_deg_s": 2120.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_07.txt_seg2542",
+      "gyro_peak_deg_s": 2040.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_09.txt_seg207",
+      "gyro_peak_deg_s": 2115.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_09.txt_seg1116",
+      "gyro_peak_deg_s": 2207.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_09.txt_seg1521",
+      "gyro_peak_deg_s": 2106.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_09.txt_seg2044",
+      "gyro_peak_deg_s": 2111.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_09.txt_seg2446",
+      "gyro_peak_deg_s": 2127.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_12.txt_seg440",
+      "gyro_peak_deg_s": 2144.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_12.txt_seg880",
+      "gyro_peak_deg_s": 2185.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_12.txt_seg1280",
+      "gyro_peak_deg_s": 2162.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_12.txt_seg1656",
+      "gyro_peak_deg_s": 2134.9
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_12.txt_seg2106",
+      "gyro_peak_deg_s": 2086.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_12.txt_seg2526",
+      "gyro_peak_deg_s": 1969.4
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_17_14.txt_seg622",
+      "gyro_peak_deg_s": 2074.3
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_06.txt_seg3110",
+      "gyro_peak_deg_s": 1970.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_08.txt_seg774",
+      "gyro_peak_deg_s": 2092.7
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_08.txt_seg2875",
+      "gyro_peak_deg_s": 2184.5
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_10.txt_seg1169",
+      "gyro_peak_deg_s": 2026.8
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_12.txt_seg748",
+      "gyro_peak_deg_s": 2190.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_12.txt_seg1131",
+      "gyro_peak_deg_s": 2185.0
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_12.txt_seg1558",
+      "gyro_peak_deg_s": 2181.6
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_12.txt_seg2003",
+      "gyro_peak_deg_s": 2117.2
+    },
+    {
+      "source": "HuGaDB",
+      "file_id": "HuGaDB_v1_various_18_12.txt_seg2453",
+      "gyro_peak_deg_s": 2152.3
+    }
+  ],
+  "skipped_stair_descent_10b": [
+    {
+      "file": "s10_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s10_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s10_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s11_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s11_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s11_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s12_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s12_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s12_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s13_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s13_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s13_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s15_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s15_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s15_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s16_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s16_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s16_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s17_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s17_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s17_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s18_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s18_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s18_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s19_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s19_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s19_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s1_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s1_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s1_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s20_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s20_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s20_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s21_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s21_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s21_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s22_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s22_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s22_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s23_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s23_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s23_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s24_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s24_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s24_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s25_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s25_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s25_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s26_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s26_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s26_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s27_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s27_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s27_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s29_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s29_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s29_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s2_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s2_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s2_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s30_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s30_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s30_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s31_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s31_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s31_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s3_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s3_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s3_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s4_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s4_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s4_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s4_a10_t7_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s4_a10_t8_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s5_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s5_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s5_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s6_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s6_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s6_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s7_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s7_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s7_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s8_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s8_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s8_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s9_a10_t2_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s9_a10_t4_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    },
+    {
+      "file": "s9_a10_t6_l.csv",
+      "reason": "even take (assumed 10b descent)"
+    }
+  ],
+  "skipped_parse_errors": [
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a1(w)_t1_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a1(w)_t2_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a1(w)_t3_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a13_t1_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a13_t2_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a13_t3_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a10_t1_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a10_t3_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\StrengthSense\\subject16\\laptop2\\IMU9\\s16_a10_t5_l.csv",
+      "error": "\"None of [Index(['RC_IMU9_Acc_X', 'RC_IMU9_Acc_Y', 'RC_IMU9_Acc_Z'], dtype='str')] are in the [columns]\""
+    },
+    {
+      "file": "D:\\AKIRA-Rehabilitation-System\\datasets\\HuGaDB (2017)\\Data\\ReadMe.txt",
+      "error": "Error tokenizing data. C error: Expected 1 fields in line 9, saw 7\n"
+    }
+  ]
+}

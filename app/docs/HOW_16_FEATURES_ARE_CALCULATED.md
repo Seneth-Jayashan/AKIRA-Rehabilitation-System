@@ -23,22 +23,22 @@ Before the 16 clinical features are extracted, raw 12-channel dual-IMU streams (
             (Suppresses high-frequency soft-tissue artifact & vibration noise)
                 │
                 ▼
-  Step 2.3: Static Sensor-to-Segment Tare & Gyro Bias Calibration (`calibrate_sensors`)
-            (Aligns gravitational reference & preserves anatomical extension offset)
+  Step 2.3: Gyro Bias Calibration & Quiet Reference Sample (`calibrate_sensors`)
                 │
                 ▼
-  Step 2.4 & 2.5: 3D Madgwick / Complementary Sensor Fusion & SVD Hinge Axis Projection
-                  (`madgwick_fusion` + `compute_relative_orientation`)
-            (Fuses 3D accelerometer tilt with 3D gyroscope rate along the principal knee hinge axis;
-             drift-free on slow isometric holds without 0.05 Hz high-pass distortion)
+  Step 2.4 & 2.5: 6-DoF Madgwick Fusion per Sensor, Relative Quaternion in the Thigh Frame,
+                  Projection on the SVD Hinge Axis (`madgwick_fusion` + `compute_relative_orientation`)
                 │
                 ▼
-  Continuous Anatomical Knee Flexion Angle: θ(t) [degrees] & Velocity: ω(t) = dθ/dt [deg/s]
+  Step 2.6: Unwrap, Polarity Convention & Zero at the Most-Extended Sample (`_orient_and_zero`)
+                │
+                ▼
+  Continuous Knee Angle θ(t) ≥ 0 [degrees] & Velocity ω(t) = dθ/dt [deg/s]
                 │
         ┌───────┴───────────────────────────────────────┐
         ▼                                               ▼
 Biomechanical Parameters                      SPARC Smoothness & Adaptive Repetitions
-(ROM, Peak Depth, Extensor Lag, IQR, RMS)     (Spectral Arc Length, Adaptive Prominence Peaks)
+(ROM, Peak Depth, Return Deficit, IQR, RMS)  (Spectral Arc Length, Adaptive Prominence Peaks)
         │                                               │
         └───────┬───────────────────────────────────────┘
                 ▼
@@ -50,59 +50,88 @@ Biomechanical Parameters                      SPARC Smoothness & Adaptive Repeti
 ## 2. Preliminary Signal & Sensor Fusion Calculations (Steps 2.1–2.5)
 
 ### Step 2.1: Cubic-Spline Temporal Resampling (`resample_to_100hz`)
-Heterogeneous sensor sampling rates ($50\text{ Hz}$ in KneE-PAD, $100\text{ Hz}$ in PHYTMO, $56.3\text{ Hz}$ in HuGaDB, or live BLE notifications) are interpolated onto a uniform $100.0\text{ Hz}$ time grid using `scipy.interpolate.CubicSpline`.
+Heterogeneous sensor sampling rates ($148.15\text{ Hz}$ in KneE-PAD, $100\text{ Hz}$ in PHYTMO, $52\text{ Hz}$ in StrengthSense, $56.35\text{ Hz}$ in HuGaDB, or live BLE notifications) are interpolated onto a uniform $100.0\text{ Hz}$ time grid using `scipy.interpolate.CubicSpline`.
 
 ### Step 2.2: Zero-Phase 4th-Order Butterworth Low-Pass Filter (`butter_lowpass_filter`)
 A 4th-order zero-phase Butterworth low-pass filter ($f_c = 5.0\text{ Hz}$) removes high-frequency soft-tissue wobble while preserving human knee kinematics ($0.2\text{--}3.5\text{ Hz}$).
 
-### Step 2.3: Sensor-to-Segment Static Tare & Gyro Bias Calibration (`calibrate_sensors`)
-Quiet low-velocity frames within the window are identified to remove residual gyroscope bias while computing the true anatomical resting extension angle $\theta_{\text{lag,ref}} \ge 0^\circ$ from the relative 3D gravity vectors of the thigh and shin accelerometers.
+### Step 2.3: Gyro Bias Calibration (`calibrate_sensors`)
+The quietest low-velocity frames of the window are used to remove residual gyroscope bias (only when the
+segment is genuinely near rest, < 15 deg/s) and to choose the reference sample `quiet_idx`. The function
+also reports a gravity "tare" angle, but it is **not** added to the knee angle: on real data the quiet sample
+is often not full extension, and adding it produced impossible negative angles (down to −122°).
 
-### Steps 2.4 & 2.5: 3D Sensor Fusion & Principal Hinge Orientation (`madgwick_fusion`, `compute_relative_orientation`)
-Instead of relying on single-axis gyroscope integration with a $0.05\text{ Hz}$ high-pass filter (which drifts and distorts slow isometric holds), AKIRA fuses:
-1. **3D Relative Gyroscope Projection ($\omega_{\text{hinge}}(t)$):** Using Singular Value Decomposition (SVD) on the differential angular velocity $\boldsymbol{\omega}_{\text{rel}}(t) = \boldsymbol{\omega}_{\text{shin}}(t) - \boldsymbol{\omega}_{\text{thigh}}(t)$, the principal anatomical knee flexion-extension hinge axis $\mathbf{u}_{\text{hinge}} \in \mathbb{R}^3$ is identified, making the angle invariant to strap mounting rotation.
-2. **3D Accelerometer Gravity Reference ($\theta_{\text{acc}}(t)$) & Madgwick Quaternion Orientation:** Combines low-frequency 3D accelerometer tilt with high-frequency gyroscope integration via complementary/Madgwick fusion ($\alpha = 0.96$), anchored to the calibrated anatomical extension baseline so **Feature 1 (ROM)**, **Feature 2 (Peak Depth)**, and **Feature 3 (Extensor Lag)** remain distinct and physically accurate.
+### Steps 2.4 & 2.5: 3D Madgwick Fusion & Relative Orientation (`madgwick_fusion`, `compute_relative_orientation`)
+1. **Madgwick filter:** 6-DoF unit quaternions $\mathbf{q}_{\text{thigh}}(t)$ and $\mathbf{q}_{\text{shin}}(t)$, each
+   initialised from its first gravity reading.
+2. **Relative orientation:** $\mathbf{q}_{\text{rel}}(t) = \mathbf{q}_{\text{thigh}}^{-1}(t) \otimes \mathbf{q}_{\text{shin}}(t)$; the change since the
+   reference sample is taken **in the thigh frame**, $\mathbf{q}_{\text{rel}}(t) \otimes \mathbf{q}_{\text{rel}}^{-1}(t_{\text{ref}})$ (taking it in the
+   shin frame shrinks or flips the angle whenever the shin sensor is mounted at an angle).
+3. **Hinge projection:** the knee hinge axis $\mathbf{u}$ is the first SVD direction of the relative angular velocity
+   (shin gyro rotated into the thigh frame minus thigh gyro). The signed angle is
+   $\theta_s(t) = 2\,\operatorname{atan2}(\mathbf{q}_{v}(t)\cdot\mathbf{u},\; q_w(t))$.
+
+### Step 2.6: Unwrap, Polarity and Zero (`_orient_and_zero`)
+$\theta_s$ is unwrapped (removes ±180° jumps), its sign is chosen so the larger excursion from the median is
+positive, and it is shifted so its minimum is $0°$: $\theta(t) = \pm\theta_s(t) - \min(\pm\theta_s)$.
+* **Zero = most-extended posture of the recording**, not anatomical full extension. Public datasets have no
+  straight-leg calibration pose and unknown sensor mounting, so absolute extension (and true extensor lag)
+  cannot be recovered from them.
+* **Polarity is a convention.** IMU data alone cannot tell flexion from extension without a known sensor
+  orientation. For seated knee extension (resting posture flexed) the positive direction is usually
+  extension, and for near-symmetric windows it can flip. ROM, angular-speed magnitude, SPARC and repetition
+  timing do not depend on polarity.
 
 ### Optical Motion Capture Validation (`run_optitrack_mocap_validation`)
-Validated against synchronized **OptiTrack 3D Optical Motion Capture** ground truth on PHYTMO trial `A01KFER0_1` (`app/api/models/optitrack_validation_metrics.json`):
-* **Mean Absolute Error (MAE):** $0.91^\circ$
-* **Root Mean Square Error (RMSE):** $1.12^\circ$
-* **Pearson Correlation ($r$):** $0.9988$
+Compared with synchronised OptiTrack rigid bodies on PHYTMO (thigh-frame relative rotation projected on its own
+hinge axis, same polarity rule applied independently, no rescaling, no high-pass filter, no trial excluded for
+disagreeing with the IMU). Results (`app/api/models/optitrack_validation_metrics.json`: 97 trials evaluated,
+93 of which the system itself accepts, ROM 4–155°):
+* **Angle-trace error ignoring polarity:** mean MAE **5.84°**, median **3.43°**
+* **As output (including polarity):** mean MAE **12.45°**, median **4.17°**
+* **Polarity agreement with OptiTrack:** **79.4%** of trials
+* Exclusions are reported, not hidden: 34 optical marker drop-outs, 7 failed synchronisations, 5 files without
+  thigh/shin rigid bodies.
 
 ---
 
 ## 3. Step-by-Step Breakdown of the 16 Clinical Features
 
-Since $\theta(t) = 0^\circ$ represents full anatomical knee extension and $\theta(t) > 0^\circ$ represents knee flexion:
-* **Flexion (bending the knee)** produces a positive angular velocity: $\omega(t) = \frac{d\theta}{dt} > 0$.
-* **Extension (straightening the knee)** produces a negative angular velocity: $\omega(t) = \frac{d\theta}{dt} < 0$.
+$\theta(t) = 0^\circ$ is the most-extended posture of the recording and $\theta(t) > 0^\circ$ is excursion away from it
+(flexion for walking, squats and stairs; usually extension excursion for seated knee extension, see Step 2.6):
+* Movement away from the zero posture gives $\omega(t) = \frac{d\theta}{dt} > 0$.
+* Movement back toward it gives $\omega(t) = \frac{d\theta}{dt} < 0$.
 
 ---
 
 ### Feature 1: Range of Motion (`rom_deg`)
 * **Mathematical Formula:**
-  $$\text{ROM} = \max_{t} \theta(t) - \min_{t} \theta(t)$$
+  $$\text{ROM} = \max_{t} \theta(t) - \min_{t} \theta(t) = \max_t \theta(t)$$
 * **Unit:** Degrees ($^\circ$)
-* **How It Is Calculated:** Difference between maximum flexion angle and minimum extension angle achieved during the window.
-* **Clinical Meaning:** Total active functional excursion of the knee joint, distinct from peak flexion depth whenever an extension deficit ($\theta_{\min} > 0^\circ$) is present.
+* **How It Is Calculated:** Total excursion of the knee angle in the window (independent of the polarity convention).
+* **Clinical Meaning:** Active functional excursion of the knee joint.
 
 ---
 
-### Feature 2: Peak Flexion Depth (`peak_depth_deg`)
+### Feature 2: Peak Depth (`peak_depth_deg`)
 * **Mathematical Formula:**
-  $$\text{Depth} = \max_{t} \theta(t)$$
-* **Unit:** Degrees ($^\circ$)
-* **How It Is Calculated:** Maximum knee flexion angle relative to anatomical zero ($0^\circ$), satisfying $\text{Depth} = \text{ROM} + \theta_{\min}$.
-* **Clinical Meaning:** Verifies weight-bearing flexion safety boundaries (e.g., maintaining Mini Squat depth within the $30^\circ\text{--}45^\circ$ safe zone for early/mid-stage Tibial Plateau ORIF).
+  $$\text{Depth} = \begin{cases} \frac{1}{K}\sum_k \theta(t_{\text{peak},k}) & K \ge 2 \\ \max_t \theta(t) & \text{otherwise} \end{cases}$$
+* **Unit:** Degrees ($^\circ$), measured from the most-extended posture of the recording
+* **How It Is Calculated:** Mean repetition peak when at least two repetitions are segmented, otherwise the maximum.
+* **Clinical Meaning:** Typical excursion depth per repetition (compared with the clinician's safe-flexion limit).
 
 ---
 
-### Feature 3: Terminal Extension Deficit / Quadriceps Lag (`extensor_lag_deg` / `min_angle_deg`)
+### Feature 3: Extension Return Deficit (`extension_return_deficit_deg`)
 * **Mathematical Formula:**
-  $$\theta_{\text{lag}} = \max\left(0^\circ, \min_{t} \theta(t)\right)$$
+  $$\text{Deficit} = \frac{1}{2K}\sum_{k=1}^{K}\big(\theta(t_{\text{start},k}) + \theta(t_{\text{end},k})\big) - \min_t \theta(t) \quad (0 \text{ if } K = 0)$$
 * **Unit:** Degrees ($^\circ$)
-* **How It Is Calculated:** Minimum angle reached during terminal extension relative to the $0^\circ$ full-extension reference.
-* **Clinical Meaning:** Directly quantifies **Quadriceps Extensor Lag** (inability to reach $0^\circ$ full anatomical extension due to arthrogenic muscle inhibition or capsular stiffness). Across the 1,036-trial clinical dataset, $\theta_{\text{lag}}$ has a mean of $5.42^\circ \pm 5.55^\circ$.
+* **How It Is Calculated:** Mean trough angle at the start and end of each segmented repetition above the
+  most-extended posture of the recording.
+* **Clinical Meaning:** How completely the patient returns to extension between repetitions. It is **not** an
+  absolute extensor lag (that needs a straight-leg calibration pose); the clinician's lag threshold is applied
+  to this measure and labelled accordingly in the app. (Older code stored this slot as `min_angle_deg`; the
+  feature dictionary keeps `extensor_lag_deg` as a backward-compatible alias.)
 
 ---
 
@@ -211,8 +240,8 @@ Since $\theta(t) = 0^\circ$ represents full anatomical knee extension and $\thet
 | # | Feature Name | Variable | Mathematical Formula | Unit | Typical Clinical Range |
 | :---: | :--- | :--- | :--- | :---: | :---: |
 | **1** | Range of Motion | `rom_deg` | $\max(\theta) - \min(\theta)$ | $^\circ$ | $30^\circ \text{--} 125^\circ$ |
-| **2** | Peak Flexion Depth | `peak_depth_deg` | $\max(\theta)$ | $^\circ$ | $35^\circ \text{--} 130^\circ$ |
-| **3** | Terminal Extension Lag | `min_angle_deg` | $\max(0, \min(\theta))$ | $^\circ$ | $0^\circ \text{--} 18^\circ$ ($0^\circ$ = full lock) |
+| **2** | Peak Depth | `peak_depth_deg` | mean rep peak, or $\max(\theta)$ | $^\circ$ | $30^\circ \text{--} 125^\circ$ |
+| **3** | Extension Return Deficit | `extension_return_deficit_deg` | mean rep trough $- \min(\theta)$ | $^\circ$ | $0^\circ \text{--} 20^\circ$ |
 | **4** | Peak Angular Velocity | `peak_angular_velocity` | $\max \|\omega\|$ | $\text{deg/s}$ | $60 \text{--} 250\text{ deg/s}$ |
 | **5** | Mean Angular Velocity | `mean_angular_velocity` | $\text{mean} \|\omega\|$ | $\text{deg/s}$ | $15 \text{--} 75\text{ deg/s}$ |
 | **6** | SPARC Smoothness | `sparc_smoothness` | $-\int \sqrt{(1/\omega_c)^2 + (d\hat{V}/d\omega)^2} d\omega$ | - | $-1.8 \text{ to } -3.0$ (smooth) / $< -4.5$ (jerky) |

@@ -5,52 +5,18 @@ AKIRA KNEE REHABILITATION: 16 CLINICAL FEATURE EXTRACTION ENGINE (math_feature_e
 WHAT THIS FILE IS:
   This module is the core Mathematical Kinematic Engine of the AKIRA system.
   It converts raw dual-IMU signals (thigh and shin 6-axis sensors @ 100 Hz) into
-  anatomical knee flexion angles and 16 domain-specific orthopedic kinematic features.
+  3D quaternion-fused anatomical knee flexion angles and 16 domain-specific
+  orthopedic kinematic features.
 
 WHAT THIS FILE DOES (Proposal Figure 3, Boxes 02 & 03):
   1. Step 2.1: Cubic-spline uniform resampling to 100 Hz (`resample_to_100hz`).
   2. Step 2.2: Zero-phase 4th-order Butterworth low-pass noise filtering at 5 Hz (`butter_lowpass_filter`).
-  3. Step 2.3: Sensor-to-segment static tare calibration & gyroscope bias removal (`calibrate_sensors`).
-  4. Step 2.4: 3D Complementary & Madgwick quaternion sensor fusion (`madgwick_fusion` / `compute_knee_angle`).
-  5. Step 2.5: 3D relative orientation (q_rel = q_thigh* (x) q_shin & SVD principal hinge-axis projection).
-  6. Step 2.6: Continuous sagittal knee angle theta(t) referenced to anatomical extension (preserving extensor lag).
-  7. Box 03  : Extracts 16 non-redundant, clinically validated biomechanical features (Input B).
-
-MATHEMATICAL EQUATIONS INDEX:
-  1. 3D Sensor Fusion & Knee Angle Kinematic Equations (Steps 2.1 - 2.6):
-     - Principal Hinge Axis: u_hinge = SVD_1(omega_shin_3D(t) - omega_thigh_3D(t))
-     - Differential Rate   : omega_knee(t) = (omega_shin_3D(t) - omega_thigh_3D(t)) . u_hinge
-     - Accelerometer Tilt  : theta_acc(t) = arccos( clip(a_thigh_hat(t) . a_shin_hat(t), -1, 1) )
-     - Complementary Fusion: theta(t) = alpha * (theta(t-dt) + omega_knee(t)*dt) + (1 - alpha) * theta_acc(t)
-     - Extension Deficit   : theta_lag = min_t(theta(t)) >= 0 deg (measured from anatomical extension reference)
-
-  2. Instantaneous Joint Angular Velocity:
-     omega(t) = d(theta)/dt ~= [theta(t + dt) - theta(t - dt)] / (2 * dt)
-     H_LP(s)  = omega_c^2 / (s^2 + sqrt(2)*omega_c*s + omega_c^2),  omega_c = 2 * pi * 5.0 Hz
-
-  3. Spectral Arc Length (SPARC) Smoothness Metric:
-     V(f)      = Fourier_Transform{omega(t)}
-     V_norm(f) = |V(f)| / max_f |V(f)|
-     f_c       = min(10.0 Hz, max{f | V_norm(f) >= 0.05})
-     SPARC     = - Sum_{i=1}^K sqrt( (Delta_f_tilde_i)^2 + (Delta_V_norm_i)^2 )
-
-  4. All 16 Clinical Features Equations (Box 03):
-     - F1  (ROM)               : ROM = max_t(theta(t)) - min_t(theta(t))
-     - F2  (Peak Flexion Depth): theta_depth = Mean_{k=1..K}(theta(t_peak,k)) or P_95(theta(t))
-     - F3  (Extensor Lag)      : theta_lag = min_t(theta(t))  [Terminal extension deficit in deg]
-     - F4  (Peak Speed)        : omega_peak = max_t(|omega(t)|)
-     - F5  (Mean Speed)        : omega_mean = (1 / N) * Sum_{t=1}^N |omega(t)|
-     - F6  (SPARC)             : eta_SPARC = - Sum_{i=1}^K sqrt( (Delta_f_i)^2 + (Delta_V_i)^2 )
-     - F7  (Rep Count)         : N_reps = Sum_j Indicator(Valid Repetition j)
-     - F8  (Rep Duration)      : T_rep = (1 / N_reps) * Sum_{j=1}^{N_reps} [(t_end_j - t_start_j) * dt]
-     - F9  (Angle Std Dev)     : sigma_theta = std(theta(t))
-     - F10 (Vel Std Dev)       : sigma_omega = std(omega(t))
-     - F11 (Angle IQR)         : IQR_theta = P_75(theta) - P_25(theta)
-     - F12 (Max Flexion Vel)   : omega_flex_max = max_t(omega(t))  [Positive knee bending velocity]
-     - F13 (Max Extension Vel) : omega_ext_min  = min_t(omega(t))  [Negative knee straightening velocity]
-     - F14 (Mean Angle)        : theta_bar = mean(theta(t))
-     - F15 (Angle RMS)         : RMS_theta = sqrt(mean(theta(t)^2))
-     - F16 (Smoothness Rate)   : rho_SPARC = eta_SPARC / (T_active + 1e-6)
+  3. Step 2.3: 3D SVD sagittal-plane sensor-to-segment static tare calibration & gyro bias removal (`calibrate_sensors`).
+  4. Step 2.4: 6-DoF Madgwick quaternion sensor fusion (`madgwick_fusion`).
+  5. Step 2.5: 3D relative joint orientation quaternion (`compute_relative_orientation`: q_rel = q_thigh* (x) q_shin).
+  6. Step 2.6: Continuous sagittal knee angle theta(t), projected on the hinge axis and referenced to the
+     most-extended posture of the recording, so theta >= 0 (`compute_knee_angle`).
+  7. Box 03  : Extracts 16 non-redundant, clinically validated biomechanical features (`extract_16_features`).
 ========================================================================================
 """
 
@@ -60,11 +26,11 @@ from scipy import signal, interpolate
 
 class Clinical16FeatureExtractor:
     """
-    Self-contained biomechanical preprocessing, 3D sensor fusion, and 16-feature
-    extraction engine for post-ORIF knee rehabilitation.
+    Self-contained biomechanical preprocessing, 6-DoF Madgwick quaternion sensor fusion,
+    3D relative orientation, and 16-feature extraction engine for knee rehabilitation.
     """
 
-    def __init__(self, fs: float = 100.0, filter_cutoff: float = 5.0, filter_order: int = 4, beta: float = 0.03):
+    def __init__(self, fs: float = 100.0, filter_cutoff: float = 5.0, filter_order: int = 4, beta: float = 0.04):
         self.fs = float(fs)
         self.dt = 1.0 / self.fs
         self.filter_cutoff = float(filter_cutoff)
@@ -87,7 +53,9 @@ class Clinical16FeatureExtractor:
         uniform 100 Hz grid using Cubic-Spline interpolation.
         Supports two calling conventions:
           1. resample_to_100hz(time_s, data, target_fs=100.0) -> (uniform_time, resampled_data)
-          2. resample_to_100hz(data, source_fs=50.0, target_samples=200) -> resampled_data
+          2. resample_to_100hz(data, source_fs=50.0, target_samples=None) -> resampled_data
+             (When target_samples is omitted, preserves exact physical duration at 100.0 Hz:
+              n_out = round(N * (100.0 / source_fs))).
         """
         if data is None:
             raw_arr = np.asarray(time_s_or_data, dtype=np.float64)
@@ -112,7 +80,6 @@ class Clinical16FeatureExtractor:
         time_s = np.asarray(time_s_or_data, dtype=np.float64)
         data = np.asarray(data, dtype=np.float64)
 
-        # Ensure strictly increasing timestamps for cubic spline
         unique_mask = np.concatenate([[True], np.diff(time_s) > 1e-7])
         time_s = time_s[unique_mask]
         data = data[unique_mask] if data.ndim == 1 else data[unique_mask, :]
@@ -161,7 +128,7 @@ class Clinical16FeatureExtractor:
         return filtered.astype(np.float32)
 
     # ----------------------------------------------------------------------------------
-    # STEP 2.3: SENSOR-TO-SEGMENT STATIC CALIBRATION & GYRO BIAS REMOVAL
+    # STEP 2.3: 3D SVD SENSOR-TO-SEGMENT CALIBRATION & GYRO BIAS REMOVAL
     # ----------------------------------------------------------------------------------
     def calibrate_sensors(
         self,
@@ -169,14 +136,17 @@ class Clinical16FeatureExtractor:
         thigh_gyr: np.ndarray = None,
         shin_acc: np.ndarray = None,
         shin_gyr: np.ndarray = None,
-        static_samples: int = 25
+        static_samples: int = 20
     ):
         """
         Step 2.3:
-          1. Identifies the lowest-velocity baseline window (or initial resting samples)
-             to remove gyroscope zero-rate bias.
-          2. Computes the sensor-to-segment static gravity reference angle between
-             thigh and shin so mounting tilt is tared relative to anatomical alignment.
+          1. Identifies the lowest-angular-velocity extension reference window (`quiet_idx`)
+             and removes static gyroscope zero-rate bias when near rest (< 15 deg/s).
+          2. Identifies the principal 3D knee hinge axis in each sensor's local coordinate
+             frame via SVD of the angular velocity vectors and projects the static gravity
+             vectors into the sagittal plane orthogonal to that hinge axis.
+          3. Computes the true sagittal static baseline extension angle (`tare_angle_deg`)
+             and returns `(thigh_acc, thigh_gyr_cal, shin_acc, shin_gyr_cal, tare_angle_deg, quiet_idx)`.
         """
         single_matrix_mode = False
         if thigh_gyr is None and thigh_acc.ndim == 2 and thigh_acc.shape[1] >= 12:
@@ -186,65 +156,111 @@ class Clinical16FeatureExtractor:
             thigh_gyr = mat12[:, 3:6]
             shin_acc = mat12[:, 6:9]
             shin_gyr = mat12[:, 9:12]
+        else:
+            thigh_acc = np.asarray(thigh_acc, dtype=np.float64)
+            thigh_gyr = np.asarray(thigh_gyr, dtype=np.float64)
+            shin_acc = np.asarray(shin_acc, dtype=np.float64)
+            shin_gyr = np.asarray(shin_gyr, dtype=np.float64)
 
         N = len(thigh_gyr)
-        k_win = max(5, min(static_samples, N // 4))
+        k_win = max(5, min(static_samples, N // 5))
 
-        # Find quietest window of length k_win for gyro bias & static tare
-        gyr_mag = np.linalg.norm(thigh_gyr, axis=1) + np.linalg.norm(shin_gyr, axis=1)
+        rel_gyr_norm = np.linalg.norm(shin_gyr - thigh_gyr, axis=1)
+        tot_gyr_norm = np.linalg.norm(thigh_gyr, axis=1) + np.linalg.norm(shin_gyr, axis=1)
+
         if N > k_win * 2:
             kernel = np.ones(k_win) / k_win
-            smooth_mag = np.convolve(gyr_mag, kernel, mode="valid")
+            smooth_mag = np.convolve(tot_gyr_norm, kernel, mode="valid")
             best_start = int(np.argmin(smooth_mag))
         else:
             best_start = 0
 
-        # Only subtract full static gyro bias if the quiet window is genuinely near rest (< 15 deg/s)
         quiet_slice = slice(best_start, best_start + k_win)
-        if np.mean(gyr_mag[quiet_slice]) < 15.0:
+        if np.mean(tot_gyr_norm[quiet_slice]) < 15.0:
             t_bias = np.mean(thigh_gyr[quiet_slice], axis=0)
             s_bias = np.mean(shin_gyr[quiet_slice], axis=0)
         else:
-            # Dynamic continuous trial (e.g., walking): remove long-term mean drift component only
             t_bias = np.zeros(3, dtype=np.float64)
             s_bias = np.zeros(3, dtype=np.float64)
 
         thigh_gyr_cal = thigh_gyr - t_bias
         shin_gyr_cal = shin_gyr - s_bias
 
-        # Static gravity vector alignment tare angle (in degrees)
-        t_acc_mean = np.mean(thigh_acc[quiet_slice], axis=0)
-        s_acc_mean = np.mean(shin_acc[quiet_slice], axis=0)
-        t_norm = np.linalg.norm(t_acc_mean)
-        s_norm = np.linalg.norm(s_acc_mean)
-        if t_norm > 0.15 and s_norm > 0.15:
-            cos_val = np.clip(np.dot(t_acc_mean / t_norm, s_acc_mean / s_norm), -1.0, 1.0)
-            tare_angle_deg = float(np.rad2deg(np.arccos(cos_val)))
+        # Identify principal 3D knee hinge axis via SVD of differential angular velocity
+        rel_gyr = shin_gyr_cal - thigh_gyr_cal
+        centered_gyr = rel_gyr - np.mean(rel_gyr, axis=0)
+        if np.max(np.std(centered_gyr, axis=0)) > 1e-3:
+            _, _, vh = np.linalg.svd(centered_gyr, full_matrices=False)
+            u_hinge = vh[0]
         else:
+            u_hinge = np.array([0.0, 1.0, 0.0], dtype=np.float64)
+
+        # Project gravity vectors orthogonal to u_hinge to find the extension baseline posture (not flexion peak!)
+        t_sag_all = thigh_acc - np.outer(thigh_acc @ u_hinge, u_hinge)
+        s_sag_all = shin_acc - np.outer(shin_acc @ u_hinge, u_hinge)
+        tn_all = np.linalg.norm(t_sag_all, axis=1)
+        sn_all = np.linalg.norm(s_sag_all, axis=1)
+        valid_g = (tn_all > 0.15) & (sn_all > 0.15)
+
+        if np.any(valid_g):
+            cos_all = np.zeros(N, dtype=np.float64)
+            cos_all[valid_g] = np.clip(
+                np.sum((t_sag_all[valid_g] / tn_all[valid_g, None]) * (s_sag_all[valid_g] / sn_all[valid_g, None]), axis=1),
+                -1.0, 1.0
+            )
+            sag_angles_all = np.rad2deg(np.arccos(cos_all))
+            # Extension baseline samples are those in the lowest 25% of sagittal tilt angle
+            ext_candidates = np.where(sag_angles_all <= np.percentile(sag_angles_all[valid_g], 25))[0]
+            if len(ext_candidates) > 0:
+                quiet_idx = int(ext_candidates[np.argmin(rel_gyr_norm[ext_candidates])])
+            else:
+                quiet_idx = int(np.argmin(rel_gyr_norm))
+            # Direct clinical measurement of sagittal extension deficit/lag at quiet extension posture quiet_idx (Fixes #8)
+            measured_lag = float(sag_angles_all[quiet_idx]) if quiet_idx < len(sag_angles_all) else 0.0
+            tare_angle_deg = float(np.clip(measured_lag, 0.0, 25.0))
+        else:
+            quiet_idx = int(np.argmin(rel_gyr_norm))
             tare_angle_deg = 0.0
 
         if single_matrix_mode:
             cal_mat = np.copy(mat12).astype(np.float32)
             cal_mat[:, 3:6] = thigh_gyr_cal.astype(np.float32)
             cal_mat[:, 9:12] = shin_gyr_cal.astype(np.float32)
-            return cal_mat, {"baseline_extension_offset_deg": tare_angle_deg, "thigh_gyro_bias": t_bias.tolist(), "shin_gyro_bias": s_bias.tolist()}
+            return cal_mat, {
+                "baseline_extension_offset_deg": tare_angle_deg,
+                "quiet_idx": quiet_idx,
+                "thigh_gyro_bias": t_bias.tolist(),
+                "shin_gyro_bias": s_bias.tolist()
+            }
 
-        return thigh_acc, thigh_gyr_cal, shin_acc, shin_gyr_cal, tare_angle_deg
+        return thigh_acc, thigh_gyr_cal, shin_acc, shin_gyr_cal, tare_angle_deg, quiet_idx
 
     # ----------------------------------------------------------------------------------
-    # STEP 2.4 & 2.5: 3D MADGWICK QUATERNION FUSION & RELATIVE ORIENTATION
+    # STEP 2.4 & 2.5: 6-DOF MADGWICK QUATERNION FUSION & 3D RELATIVE ORIENTATION
     # ----------------------------------------------------------------------------------
     def madgwick_fusion(self, accel: np.ndarray, gyro_deg_s: np.ndarray, dt: float = None) -> np.ndarray:
         """
-        Step 2.4: Madgwick Gradient-Descent 6-DOF IMU Orientation Filter.
-        Returns unit quaternions q = [qw, qx, qy, qz] of shape (N, 4).
+        Step 2.4: Madgwick Gradient-Descent 6-DoF IMU Orientation Filter.
+        Initializes q[0] from the initial gravity vector to avoid convergence lag
+        and returns unit quaternions q = [qw, qx, qy, qz] of shape (N, 4).
         """
         dt_use = float(dt) if dt is not None else self.dt
         N = len(accel)
         gyro_rad = np.deg2rad(gyro_deg_s)
 
         q = np.zeros((N, 4), dtype=np.float64)
-        q[0] = np.array([1.0, 0.0, 0.0, 0.0])
+        norm_a0 = np.linalg.norm(accel[0])
+        if norm_a0 > 0.1:
+            ax0, ay0, az0 = accel[0] / norm_a0
+            # Quaternion rotating world gravity [0, 0, 1] to measured sensor gravity [ax0, ay0, az0]
+            q0_vec = np.array([1.0 + az0, -ay0, ax0, 0.0], dtype=np.float64)
+            norm_q0 = np.linalg.norm(q0_vec)
+            if norm_q0 > 1e-6:
+                q[0] = q0_vec / norm_q0
+            else:
+                q[0] = np.array([0.0, 1.0, 0.0, 0.0], dtype=np.float64)
+        else:
+            q[0] = np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float64)
 
         for i in range(1, N):
             q1, q2, q3, q4 = q[i - 1]
@@ -286,7 +302,7 @@ class Clinical16FeatureExtractor:
     @staticmethod
     def compute_relative_orientation(q_thigh: np.ndarray, q_shin: np.ndarray) -> np.ndarray:
         """
-        Step 2.5: Computes relative orientation quaternion q_rel = q_thigh* (x) q_shin.
+        Step 2.5: Computes 3D relative orientation quaternion q_rel = q_thigh* (x) q_shin.
         """
         w1, x1, y1, z1 = q_thigh[:, 0], -q_thigh[:, 1], -q_thigh[:, 2], -q_thigh[:, 3]
         w2, x2, y2, z2 = q_shin[:, 0], q_shin[:, 1], q_shin[:, 2], q_shin[:, 3]
@@ -297,26 +313,27 @@ class Clinical16FeatureExtractor:
         return np.column_stack([w, x, y, z])
 
     # ----------------------------------------------------------------------------------
-    # STEP 2.6: COMPUTE ANATOMICAL KNEE ANGLE TRAJECTORY (WITH SENSOR FUSION & LAG)
+    # STEP 2.6: COMPUTE ANATOMICAL KNEE ANGLE TRAJECTORY VIA MADGWICK + RELATIVE QUATERNION
     # ----------------------------------------------------------------------------------
     def compute_knee_angle(
         self,
         thigh_gyro_y: np.ndarray,
         shin_gyro_y: np.ndarray = None,
         X_seq_12ch: np.ndarray = None,
-        duration_sec: float = None
+        duration_sec: float = None,
+        already_calibrated: bool = False
     ) -> np.ndarray:
         """
-        Computes the continuous anatomical sagittal knee flexion angle in degrees:
-          - Supports passing full 12-channel matrix `X_seq_12ch` (either as 1st arg or keyword arg)
-            to execute full 3D Principal Hinge-Axis projection + Accelerometer-Gyroscope Complementary Fusion.
-          - Supports passing 1D `thigh_gyro_y` and `shin_gyro_y` for backward compatibility.
-          - Preserves true terminal extension deficit (Extensor Lag >= 0 deg) rather than forcing
-            the minimum sample to 0.0 deg.
-          - Avoids 0.05 Hz high-pass distortion on slow/isometric holds by using gravity-anchored
-            complementary fusion and bounded linear drift removal.
+        Step 2.6: Computes the continuous sagittal knee angle in degrees (>= 0):
+          1. Calls `calibrate_sensors` (unless `already_calibrated=True`) to obtain gyro-bias
+             calibrated 3D streams and the quiet reference sample `quiet_idx`.
+          2. Calls `madgwick_fusion` on both the Thigh and Shin 6-DoF sensors to obtain
+             unit quaternion trajectories `q_thigh` and `q_shin`.
+          3. Calls `compute_relative_orientation(q_thigh, q_shin)` to obtain `q_rel`,
+             tares `q_rel` against `q_rel[quiet_idx]`, projects it on the hinge axis
+             (expressed in the thigh frame) and returns the signed angle re-zeroed at the
+             most-extended sample (`_orient_and_zero`), so the result is never negative.
         """
-        # Allow calling compute_knee_angle(X_seq_12ch) directly with a 2D (N, 12) array
         if shin_gyro_y is None and thigh_gyro_y is not None and np.asarray(thigh_gyro_y).ndim == 2:
             X_seq_12ch = np.asarray(thigh_gyro_y, dtype=np.float64)
             thigh_gyro_y = X_seq_12ch[:, 4]
@@ -327,147 +344,180 @@ class Clinical16FeatureExtractor:
         N = len(thigh_gyro_y)
         dt = (float(duration_sec) / max(1, N)) if (duration_sec is not None and duration_sec > 0.1) else self.dt
 
-        extensor_lag_offset = 0.0
-
         if X_seq_12ch is not None and np.asarray(X_seq_12ch).ndim == 2 and X_seq_12ch.shape[1] >= 12:
-            arr = np.asarray(X_seq_12ch, dtype=np.float64)
-            t_acc, t_gyr = arr[:, 0:3], arr[:, 3:6]
-            s_acc, s_gyr = arr[:, 6:9], arr[:, 9:12]
+            signed_angle_deg, _ = self._signed_hinge_angle(X_seq_12ch, dt, already_calibrated)
 
-            # Step 2.3: Calibrate sensors
-            t_acc, t_gyr, s_acc, s_gyr, _ = self.calibrate_sensors(t_acc, t_gyr, s_acc, s_gyr)
+            # Step 2.6: reference the angle to the most-extended posture in the recording.
+            # Public datasets carry no straight-leg calibration pose and unknown sensor
+            # mounting, so an absolute anatomical zero (and hence true extensor lag) cannot
+            # be recovered; the gravity tare is NOT added because it produced impossible
+            # negative angles (down to -122 deg) when the quiet sample was not full extension.
+            knee_angle = self._orient_and_zero(signed_angle_deg)
+            return knee_angle.astype(np.float32)
 
-            # Step 2.5: 3D Relative Angular Velocity projected onto Principal Sagittal Hinge Axis
-            rel_gyr_3d = s_gyr - t_gyr
-            centered_gyr = rel_gyr_3d - np.mean(rel_gyr_3d, axis=0)
-            if np.max(np.std(centered_gyr, axis=0)) > 1e-3:
-                _, _, vh = np.linalg.svd(centered_gyr, full_matrices=False)
-                hinge_axis = vh[0]
-                # Align sign with primary sagittal Y-axis (or dominant axis)
-                dom_idx = int(np.argmax(np.abs(hinge_axis)))
-                if hinge_axis[dom_idx] < 0:
-                    hinge_axis = -hinge_axis
-                omega_knee = rel_gyr_3d @ hinge_axis
-            else:
-                omega_knee = shin_gyro_y - thigh_gyro_y
-
-            # Step 2.4: Accelerometer Tilt Angle & Complementary Sensor Fusion
-            t_norm = np.linalg.norm(t_acc, axis=1, keepdims=True)
-            s_norm = np.linalg.norm(s_acc, axis=1, keepdims=True)
-            both_active = (np.mean(t_norm) > 0.15) and (np.mean(s_norm) > 0.15)
-
-            if both_active:
-                t_unit = t_acc / np.maximum(t_norm, 1e-6)
-                s_unit = s_acc / np.maximum(s_norm, 1e-6)
-                dot_prod = np.clip(np.sum(t_unit * s_unit, axis=1), -1.0, 1.0)
-                theta_acc = np.rad2deg(np.arccos(dot_prod))
-                # Subtract baseline sensor-mounting offset so neutral straight leg is near 0 deg
-                acc_p5 = float(np.percentile(theta_acc, 5))
-                acc_p95 = float(np.percentile(theta_acc, 95))
-                # Estimate physiological terminal extension deficit from low-flexion posture & valley return
-                theta_acc_rel = np.maximum(0.0, theta_acc - acc_p5 * 0.85)
-            else:
-                theta_acc_rel = None
-
-            # Integrate gyroscope angular velocity with linear drift removal (no 0.05Hz phase distortion!)
-            raw_int = np.cumsum(omega_knee) * dt
-            # Remove linear endpoint drift while preserving slow isometric plateaus
-            drift_line = np.linspace(raw_int[0], raw_int[-1], N)
-            gyr_angle = raw_int - 0.65 * drift_line
-
-            # Ensure flexion peaks point upward (positive degrees)
-            if np.abs(np.min(gyr_angle - np.median(gyr_angle))) > 1.25 * np.abs(np.max(gyr_angle - np.median(gyr_angle))):
-                gyr_angle = -gyr_angle
-
-            # Fuse Gyroscope trajectory with Accelerometer tilt envelope via Complementary Filter
-            if theta_acc_rel is not None and np.std(theta_acc_rel) > 1.0:
-                fused = np.zeros(N, dtype=np.float64)
-                fused[0] = theta_acc_rel[0]
-                alpha = 0.985
-                d_gyr = np.gradient(gyr_angle)
-                for i in range(1, N):
-                    fused[i] = alpha * (fused[i - 1] + d_gyr[i]) + (1.0 - alpha) * theta_acc_rel[i]
-                base_curve = fused
-            else:
-                base_curve = gyr_angle
-        else:
-            # 1D fallback when only thigh_gyro_y and shin_gyro_y are supplied
-            omega_knee = shin_gyro_y - thigh_gyro_y
-            raw_int = np.cumsum(omega_knee) * dt
-            drift_line = np.linspace(raw_int[0], raw_int[-1], N)
-            base_curve = raw_int - 0.65 * drift_line
-            if np.abs(np.min(base_curve - np.median(base_curve))) > 1.25 * np.abs(np.max(base_curve - np.median(base_curve))):
-                base_curve = -base_curve
-
-        # Shift curve so minimum is 0 before adding true terminal extension deficit (Extensor Lag)
-        curve_zeroed = base_curve - np.min(base_curve)
-        excursion = float(np.max(curve_zeroed))
-
-        # Compute non-zero biomechanical Terminal Extension Deficit (Extensor Lag, Feature 3):
-        # Measures incomplete return to baseline across extension troughs + postural baseline deficit
-        p15_val = float(np.percentile(curve_zeroed, 15))
-        p5_val = float(np.percentile(curve_zeroed, 5))
-        valley_spread = max(0.0, p15_val - p5_val)
-
-        # Check valley-to-baseline incomplete return
-        inv_peaks, _ = signal.find_peaks(-curve_zeroed, distance=max(10, int(0.4 * (1.0 / dt))))
-        if len(inv_peaks) >= 2:
-            trough_deficit = float(np.mean(curve_zeroed[inv_peaks]) - np.min(curve_zeroed[inv_peaks]))
-        else:
-            trough_deficit = valley_spread * 0.75
-
-        # Combine trough return deficit with baseline postural flexion residual (bounded 0.1 to 25.0 deg)
-        extensor_lag_offset = float(np.clip(0.65 * trough_deficit + 0.35 * valley_spread, 0.1, min(25.0, max(0.5, excursion * 0.35))))
-
-        knee_angle = curve_zeroed + extensor_lag_offset
+        # Fallback only when 1D gyro vectors (without 12-channel matrix) are passed directly
+        omega_knee = shin_gyro_y - thigh_gyro_y
+        q_thigh_1d = self.madgwick_fusion(np.zeros((N, 3)), np.column_stack([np.zeros(N), thigh_gyro_y, np.zeros(N)]), dt=dt)
+        q_shin_1d = self.madgwick_fusion(np.zeros((N, 3)), np.column_stack([np.zeros(N), shin_gyro_y, np.zeros(N)]), dt=dt)
+        q_rel_1d = self.compute_relative_orientation(q_thigh_1d, q_shin_1d)
+        quiet_idx = int(np.argmin(np.abs(omega_knee)))
+        q_ref_1d = np.repeat(q_rel_1d[quiet_idx : quiet_idx + 1], N, axis=0)
+        q_tared_1d = self.compute_relative_orientation(q_ref_1d, q_rel_1d)
+        signed_1d = 2.0 * np.rad2deg(np.arctan2(q_tared_1d[:, 2], q_tared_1d[:, 0]))
+        knee_angle = self._orient_and_zero(signed_1d)
         return knee_angle.astype(np.float32)
 
+    def _signed_hinge_angle(self, X_seq_12ch: np.ndarray, dt: float, already_calibrated: bool = False):
+        """
+        Steps 2.3-2.5 for a 12-channel window. Returns `(signed_angle_deg, u_hinge)`: the relative
+        thigh->shin rotation projected on the hinge axis `u_hinge` (thigh frame, arbitrary SVD sign).
+        """
+        arr = np.asarray(X_seq_12ch, dtype=np.float64)
+        N = len(arr)
+        t_acc, t_gyr = arr[:, 0:3], arr[:, 3:6]
+        s_acc, s_gyr = arr[:, 6:9], arr[:, 9:12]
+
+        # Step 2.3: Single-pass sensor calibration (gyro bias + quiet reference sample)
+        if already_calibrated:
+            quiet_idx = int(np.argmin(np.linalg.norm(s_gyr - t_gyr, axis=1)))
+        else:
+            t_acc, t_gyr, s_acc, s_gyr, _, quiet_idx = self.calibrate_sensors(t_acc, t_gyr, s_acc, s_gyr)
+
+        # Step 2.4: 6-DoF Madgwick Quaternion Sensor Fusion for Thigh and Shin
+        q_thigh = self.madgwick_fusion(t_acc, t_gyr, dt=dt)
+        q_shin = self.madgwick_fusion(s_acc, s_gyr, dt=dt)
+
+        # Step 2.5: 3D Relative Orientation Quaternion q_rel = q_thigh* (x) q_shin, tared at quiet_idx.
+        # The change since the reference sample is taken in the THIGH frame (q_rel (x) q_ref*), the
+        # frame of the hinge axis below. (q_ref* (x) q_rel would be expressed in the shin frame and,
+        # with any sensor-mounting offset, shrink or even flip the projected angle.)
+        q_rel = self.compute_relative_orientation(q_thigh, q_shin)
+        q_ref = np.repeat(q_rel[quiet_idx : quiet_idx + 1], N, axis=0)
+        q_tared = self._quat_multiply(q_rel, self._quat_conjugate(q_ref))
+
+        # Rotate the shin gyroscope into the thigh frame with q_rel so the differential angular
+        # velocity, and therefore the SVD hinge axis, are expressed in one consistent frame
+        qv = q_rel[:, 1:4]
+        qw = q_rel[:, 0:1]
+        t = 2.0 * np.cross(qv, s_gyr)
+        s_gyr_thigh = s_gyr + qw * t + np.cross(qv, t)
+        rel_gyr_thigh = s_gyr_thigh - t_gyr
+        centered_gyr = rel_gyr_thigh - np.mean(rel_gyr_thigh, axis=0)
+
+        if np.max(np.std(centered_gyr, axis=0)) > 1e-3:
+            _, _, vh = np.linalg.svd(centered_gyr, full_matrices=False)
+            u_hinge = vh[0]
+        else:
+            u_hinge = np.array([0.0, 1.0, 0.0], dtype=np.float64)
+
+        # Canonical hemisphere (qw >= 0) for a consistent rotation-angle extraction
+        neg_mask = q_tared[:, 0] < 0
+        if np.any(neg_mask):
+            q_tared = np.copy(q_tared)
+            q_tared[neg_mask] = -q_tared[neg_mask]
+
+        q_hinge_proj = np.sum(q_tared[:, 1:4] * u_hinge, axis=1)
+        signed_angle_deg = 2.0 * np.rad2deg(np.arctan2(q_hinge_proj, q_tared[:, 0]))
+        return signed_angle_deg, u_hinge
+
+    @staticmethod
+    def _quat_conjugate(q: np.ndarray) -> np.ndarray:
+        return np.column_stack([q[:, 0], -q[:, 1], -q[:, 2], -q[:, 3]])
+
+    @staticmethod
+    def _quat_multiply(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+        """Hamilton product a (x) b for arrays of [w, x, y, z] quaternions."""
+        w1, x1, y1, z1 = a[:, 0], a[:, 1], a[:, 2], a[:, 3]
+        w2, x2, y2, z2 = b[:, 0], b[:, 1], b[:, 2], b[:, 3]
+        return np.column_stack([
+            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
+            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
+        ])
+
+    @staticmethod
+    def _unwrap_deg(angle_deg: np.ndarray) -> np.ndarray:
+        """Removes +/-180 deg wrap-around jumps from an angle trace in degrees."""
+        return np.rad2deg(np.unwrap(np.deg2rad(np.asarray(angle_deg, dtype=np.float64))))
+
+    @staticmethod
+    def _asymmetry(theta: np.ndarray) -> float:
+        """
+        Signed excursion asymmetry in [-1, 1]: positive when the trace moves further above its
+        median than below it. Near zero for symmetric oscillations (e.g. seated extension).
+        """
+        med = float(np.median(theta))
+        up = float(np.percentile(theta, 90)) - med
+        down = med - float(np.percentile(theta, 10))
+        return (up - down) / (float(np.ptp(theta)) + 1e-6)
+
+    @staticmethod
+    def _orient_and_zero(signed_angle_deg: np.ndarray) -> np.ndarray:
+        """
+        Fixes the arbitrary polarity of the SVD hinge axis and zeroes the angle at the
+        most-extended sample, so the result is a non-negative excursion in degrees.
+
+        Polarity rule (shape-based, applied identically in training, live recording and
+        OptiTrack validation): the side on which the signal moves further away from its
+        median is taken as the positive direction. IMU data alone cannot tell anatomical
+        flexion from extension without a known sensor orientation, so this is a convention:
+        for open-chain seated knee extension (resting posture flexed) the positive direction
+        is usually extension, and for near-symmetric windows it can flip between windows
+        (OptiTrack polarity agreement is reported in `optitrack_validation_metrics.json`).
+        ROM, angular-velocity magnitude, SPARC and repetition timing do not depend on it.
+        """
+        # Remove +/-180 deg wrap-around jumps so a wrap can never masquerade as a ~360 deg ROM
+        theta = Clinical16FeatureExtractor._unwrap_deg(signed_angle_deg)
+        if Clinical16FeatureExtractor._asymmetry(theta) < 0:
+            theta = -theta
+        return theta - float(np.min(theta))
+
     # ----------------------------------------------------------------------------------
-    # METHOD 1B: AUTO-DETECT & CORRECT SENSOR SWAP (THIGH <-> SHIN MISPLACEMENT)
+    # METHOD 1B: SAFE SENSOR PLACEMENT DIAGNOSTIC & OPTIONAL OPEN-CHAIN SWAP
     # ----------------------------------------------------------------------------------
     def auto_detect_and_correct_sensor_swap(
         self,
         X_seq_12ch: np.ndarray,
-        exercise_code: str = ""
+        exercise_code: str = "",
+        auto_swap: bool = False
     ) -> tuple[np.ndarray, bool, str]:
         """
-        Detects if the patient placed the Thigh sensor strap on the Shin and vice versa,
-        or if a sensor was strapped upside-down, and automatically corrects the matrix
-        in memory so downstream kinematics and AI models receive anatomically aligned channels.
+        Checks whether the Thigh (0x68) and Shin (0x69) sensors appear swapped during
+        open-chain seated knee extension (where the thigh rests stationary on the chair
+        while the shin swings through a wide arc).
+        Never flips single-axis signs and never modifies closed-chain exercises
+        (Squats, Walking, Step-Up) where both segments rotate simultaneously.
         """
         arr = np.copy(X_seq_12ch)
         if arr.ndim != 2 or arr.shape[1] < 12:
             return arr, False, "Valid 12-channel stream"
 
-        thigh_gyro_y = arr[:, 4]
-        shin_gyro_y = arr[:, 10]
-
-        power_thigh = float(np.var(thigh_gyro_y) + np.mean(thigh_gyro_y**2))
-        power_shin = float(np.var(shin_gyro_y) + np.mean(shin_gyro_y**2))
-
-        thigh_acc_mag = float(np.mean(np.sqrt(arr[:, 0]**2 + arr[:, 1]**2 + arr[:, 2]**2)))
-        shin_acc_mag = float(np.mean(np.sqrt(arr[:, 6]**2 + arr[:, 7]**2 + arr[:, 8]**2)))
+        thigh_gyr_rms = float(np.sqrt(np.mean(arr[:, 3:6] ** 2)))
+        shin_gyr_rms = float(np.sqrt(np.mean(arr[:, 9:12] ** 2)))
+        is_open_chain_ext = ("extension" in exercise_code.lower()) or ("04_" in exercise_code.lower())
 
         was_swapped = False
         msg = "✅ Sensor placement verified (Thigh: 0x68, Shin: 0x69)."
 
-        if thigh_acc_mag > 0.15 and shin_acc_mag > 0.15:
-            if power_thigh > 2.2 * (power_shin + 1e-4):
+        # Only flag a swap in open-chain seated extension when Shin is nearly stationary (<8 deg/s)
+        # while Thigh swings vigorously (>35 deg/s, >5x RMS ratio)
+        if is_open_chain_ext and shin_gyr_rms < 8.0 and thigh_gyr_rms > max(35.0, 5.0 * shin_gyr_rms):
+            if auto_swap:
                 was_swapped = True
                 thigh_block = np.copy(arr[:, 0:6])
                 shin_block = np.copy(arr[:, 6:12])
                 arr[:, 0:6] = shin_block
                 arr[:, 6:12] = thigh_block
                 msg = (
-                    f"🔄 Auto-Corrected: Detected reversed leg straps "
-                    f"(Thigh power {power_thigh:.1f} > Shin {power_shin:.1f}). Aligned automatically in software."
+                    f"🔄 Auto-Corrected open-chain strap swap "
+                    f"(Thigh gyro RMS {thigh_gyr_rms:.1f} deg/s vs stationary Shin {shin_gyr_rms:.1f} deg/s)."
                 )
-
-        baseline_shin_ay = float(np.mean(arr[:min(25, len(arr)), 7]))
-        if baseline_shin_ay < -0.75:
-            arr[:, 7] = -arr[:, 7]
-            arr[:, 10] = -arr[:, 10]
-            msg += " 🔄 Inverted Y-axis compensated (sensor worn upside-down)."
+            else:
+                msg = (
+                    f"⚠️ Possible open-chain strap swap detected: Thigh gyro RMS ({thigh_gyr_rms:.1f} deg/s) "
+                    f"is much higher than Shin ({shin_gyr_rms:.1f} deg/s). Verify strap placement."
+                )
 
         return arr, was_swapped, msg
 
@@ -542,7 +592,7 @@ class Clinical16FeatureExtractor:
     ):
         """
         Segments exercise repetitions using adaptive prominence peak detection.
-        Supports both large-excursion exercises (Squats, Extensions, Walking) and
+        Supports both large-excursion exercises (Squats, Extensions, Walking, Step-Ups) and
         small-excursion isometric/early-ORIF exercises (Quad Sets 5-10 deg, SLR 10-15 deg).
         """
         dt_use = float(dt) if dt is not None else self.dt
@@ -553,7 +603,6 @@ class Clinical16FeatureExtractor:
         if total_rom < 3.5:
             return [], 0
 
-        # Adaptive prominence threshold: scales down for small-movement exercises (Quad Sets / SLR)
         if min_rom_threshold is None:
             prom_th = max(3.5, min(18.0, 0.30 * total_rom))
         else:
@@ -585,13 +634,15 @@ class Clinical16FeatureExtractor:
     # ----------------------------------------------------------------------------------
     def extract_16_features(self, knee_angle: np.ndarray, duration_sec: float = None):
         """
-        Computes the standardized 16-dimensional clinical kinematic feature vector (Input B).
-        Guarantees:
-          - Feature 1 (ROM = max - min) != Feature 2 (Mean Rep Peak Flexion Depth / P95 Depth).
-          - Feature 3 (Extensor Lag = min_angle) carries true non-zero terminal extension deficit.
-          - Feature 8 (Rep Duration) uses active velocity envelope when discrete reps == 0.
-          - Feature 12 (Max Flexion Velocity, >0) and Feature 13 (Max Extension Velocity, <0)
-            have consistent anatomical direction labels across code and documentation.
+        Computes the standardized 16-dimensional clinical kinematic feature vector (Input B):
+          - Feature 1 (`rom_deg`): Total active Range of Motion = max(theta) - min(theta).
+          - Feature 2 (`peak_depth_deg`): Maximum Knee Flexion Angle = max(theta) (or mean
+            peak flexion angle across segmented repetitions when rep_count >= 2, with NO arbitrary blend).
+          - Feature 3 (`extension_return_deficit_deg`): mean repetition trough angle above the
+            most-extended posture (0.0 when no repetition is segmented).
+          - Feature 8 (`mean_repetition_duration`): Mean cycle duration, or active velocity envelope
+            duration when discrete reps == 0 (0.0s if stationary).
+          - Feature 12 (`max_ang_vel`, >0 flexion) & Feature 13 (`min_ang_vel`, <0 extension).
         """
         ang = np.asarray(knee_angle, dtype=np.float64)
         N = len(ang)
@@ -603,16 +654,22 @@ class Clinical16FeatureExtractor:
         # FEATURE 1: Range of Motion (ROM = max - min, in degrees)
         rom = float(np.max(ang) - np.min(ang))
 
-        # FEATURE 2: Peak Flexion Depth (Mean peak flexion across segmented reps or P95 sustained depth, in degrees)
-        # Distinct from Feature 1 (ROM) because it includes baseline extension offset and averages across rep peaks
-        if rep_count >= 1:
-            rep_peaks = [float(ang[p]) for _, p, _ in rep_bounds]
-            peak_depth = float(0.7 * np.mean(rep_peaks) + 0.3 * np.percentile(ang, 95))
+        # FEATURE 2: Peak Flexion Angle / Mean Repetition Peak Depth (in degrees, NO 0.7/0.3 blend)
+        if rep_count >= 2:
+            peak_depth = float(np.mean([ang[p] for _, p, _ in rep_bounds]))
         else:
-            peak_depth = float(np.percentile(ang, 95))
+            peak_depth = float(np.max(ang))
 
-        # FEATURE 3: Terminal Extension Deficit / Quadriceps Extensor Lag (in degrees)
+        # FEATURE 3: Extension Return Deficit (deg) = mean trough angle at the start/end of each
+        # segmented repetition above the most-extended posture of the recording. It measures how
+        # completely the patient returns to extension between repetitions. An absolute extensor
+        # lag needs a straight-leg calibration pose, which the training datasets do not provide.
         min_angle = float(np.min(ang))
+        if rep_count >= 1:
+            troughs = [float(ang[s]) for s, _, _ in rep_bounds] + [float(ang[e]) for _, _, e in rep_bounds]
+            extension_return_deficit = float(np.mean(troughs) - min_angle)
+        else:
+            extension_return_deficit = 0.0
 
         # FEATURE 4: Peak Angular Velocity (deg/s)
         peak_velocity = float(np.max(np.abs(ang_vel)))
@@ -627,7 +684,6 @@ class Clinical16FeatureExtractor:
         repetition_count = float(rep_count)
 
         # FEATURE 8: Mean Repetition Duration (seconds)
-        # When rep_count == 0, measures active movement envelope duration (or 0.0s if stationary)
         if rep_count > 0:
             durations = [(end - start) * dt_use for start, _, end in rep_bounds]
             mean_duration = float(np.mean(durations))
@@ -667,8 +723,10 @@ class Clinical16FeatureExtractor:
         features_dict = {
             "rom_deg": rom,
             "peak_depth_deg": peak_depth,
+            "extension_return_deficit_deg": extension_return_deficit,
+            # Backward-compatible aliases (older callers read these keys)
+            "extensor_lag_deg": extension_return_deficit,
             "min_angle_deg": min_angle,
-            "extensor_lag_deg": min_angle,
             "peak_angular_velocity": peak_velocity,
             "mean_angular_velocity": mean_velocity,
             "sparc_smoothness": sparc_smoothness,
@@ -685,7 +743,7 @@ class Clinical16FeatureExtractor:
         }
 
         feature_vector = np.array([
-            rom, peak_depth, min_angle, peak_velocity, mean_velocity,
+            rom, peak_depth, extension_return_deficit, peak_velocity, mean_velocity,
             sparc_smoothness, repetition_count, mean_duration, angle_std, velocity_std,
             angle_iqr, max_ang_vel, min_ang_vel, mean_angle, angle_rms, sparc_per_duration
         ], dtype=np.float32)
@@ -696,7 +754,7 @@ class Clinical16FeatureExtractor:
 if __name__ == "__main__":
     import os
     print("=" * 75)
-    print("TESTING UPGRADED 16 CLINICAL FEATURE EXTRACTION ENGINE")
+    print("TESTING 3D MADGWICK + RELATIVE ORIENTATION 16-FEATURE ENGINE")
     print("=" * 75)
 
     d1_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "datasets", "dataset_1_input_A_12channels.npz")
@@ -708,5 +766,3 @@ if __name__ == "__main__":
         feats, feat_vec = extractor.extract_16_features(knee_angle)
         for idx, (k, v) in enumerate(feats.items(), 1):
             print(f"  {idx:2d}. {k:<26}: {v:8.2f}")
-        print(f"F1 (ROM) != F2 (Peak Depth): {feats['rom_deg']:.2f} != {feats['peak_depth_deg']:.2f}")
-        print(f"F3 (Extensor Lag) > 0      : {feats['min_angle_deg']:.2f} deg")

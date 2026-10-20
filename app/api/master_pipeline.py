@@ -34,13 +34,13 @@ from tensorflow import keras
 from sklearn.model_selection import GroupKFold, StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, f1_score
-from sklearn.utils.class_weight import compute_sample_weight
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASETS_DIR = os.path.join(BASE_DIR, "datasets")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 from math_feature_extractor import Clinical16FeatureExtractor
+from train_models import per_output_sample_weights, quality_eval_mask
 from hybrid_models import (
     build_hybrid_1_cnn, build_hybrid_2_bilstm, build_hybrid_3_cnn_bilstm,
     build_hybrid_4_resnet, build_hybrid_5_self_attention, build_hybrid_6_gated_attention
@@ -55,7 +55,7 @@ EXERCISE_NAMES = [
 
 QUALITY_NAMES = [
     "Good (Correct Form)",                  # Grade 0
-    "Needs Improvement (Lag/Deficit)",     # Grade 1
+    "Needs Improvement (Incomplete ROM / Unloading)",  # Grade 1
     "Bad / Compensatory Fault"             # Grade 2
 ]
 
@@ -114,50 +114,65 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
     print(f"  [OK] Generated 16 Clinical Features Matrix: {X_computed_feat.shape}")
     print(f"    - ROM (F1) range:          [{np.min(X_computed_feat[:,0]):.1f} deg, {np.max(X_computed_feat[:,0]):.1f} deg]")
     print(f"    - Peak Depth (F2) range:   [{np.min(X_computed_feat[:,1]):.1f} deg, {np.max(X_computed_feat[:,1]):.1f} deg]")
-    print(f"    - Extensor Lag (F3) range: [{np.min(X_computed_feat[:,2]):.1f} deg, {np.max(X_computed_feat[:,2]):.1f} deg]")
+    print(f"    - Return Deficit (F3):     [{np.min(X_computed_feat[:,2]):.1f} deg, {np.max(X_computed_feat[:,2]):.1f} deg]")
     print(f"    - SPARC (F6) range:        [{np.min(X_computed_feat[:,5]):.2f}, {np.max(X_computed_feat[:,5]):.2f}]")
 
     # ----------------------------------------------------------------------------------
-    # STEP 3: SUBJECT-INDEPENDENT SPLIT & LEAK-FREE TRAIN-ONLY NORMALIZATION
+    # STEP 3: STRICT 3-WAY SUBJECT-INDEPENDENT SPLIT (INNER TRAIN / VAL / TEST)
     # ----------------------------------------------------------------------------------
-    print(f"\n[STEP 3] Partitioning Subject-Independent Split & Fitting Scalers on Train Only...")
+    print(f"\n[STEP 3] Partitioning Strict 3-Way Split (Inner Train / Validation / Held-Out Test)...")
 
     strata = y_class * 10 + y_qual
     if split_mode == "subject":
-        gkf = GroupKFold(n_splits=5)
-        train_idx, test_idx = next(gkf.split(X_raw_seq, strata, groups=subjects))
-        overlap = set(subjects[train_idx]).intersection(set(subjects[test_idx]))
-        assert len(overlap) == 0, f"Subject leakage detected: {overlap}"
-        print(f"  [OK] Strict Subject-Independent Split: {len(train_idx)} train / {len(test_idx)} test trials (0 overlapping subjects).")
+        gkf_outer = GroupKFold(n_splits=5)
+        train_val_idx, test_idx = next(gkf_outer.split(X_raw_seq, strata, groups=subjects))
+        gkf_inner = GroupKFold(n_splits=6)
+        inner_rel, val_rel = next(gkf_inner.split(
+            X_raw_seq[train_val_idx], strata[train_val_idx], groups=subjects[train_val_idx]
+        ))
+        inner_train_idx = train_val_idx[inner_rel]
+        val_idx = train_val_idx[val_rel]
+        assert len(set(subjects[inner_train_idx]).intersection(set(subjects[val_idx]))) == 0
+        assert len(set(subjects[inner_train_idx]).intersection(set(subjects[test_idx]))) == 0
+        assert len(set(subjects[val_idx]).intersection(set(subjects[test_idx]))) == 0
+        print(
+            f"  [OK] Strict 3-Way Subject Split: {len(inner_train_idx)} inner-train / "
+            f"{len(val_idx)} val / {len(test_idx)} held-out test trials (0 overlapping subjects)."
+        )
     else:
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-        train_idx, test_idx = next(skf.split(X_raw_seq, strata))
+        skf_outer = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        train_val_idx, test_idx = next(skf_outer.split(X_raw_seq, strata))
+        skf_inner = StratifiedKFold(n_splits=6, shuffle=True, random_state=42)
+        inner_rel, val_rel = next(skf_inner.split(X_raw_seq[train_val_idx], strata[train_val_idx]))
+        inner_train_idx = train_val_idx[inner_rel]
+        val_idx = train_val_idx[val_rel]
 
-    # Fit StandardScaler strictly on train_idx
+    # Fit StandardScaler strictly on inner_train_idx
     scaler = StandardScaler()
     X_feat_norm = np.zeros_like(X_computed_feat, dtype=np.float32)
-    X_feat_norm[train_idx] = scaler.fit_transform(X_computed_feat[train_idx])
-    X_feat_norm[test_idx]  = scaler.transform(X_computed_feat[test_idx])
+    X_feat_norm[inner_train_idx] = scaler.fit_transform(X_computed_feat[inner_train_idx])
+    X_feat_norm[val_idx]         = scaler.transform(X_computed_feat[val_idx])
+    X_feat_norm[test_idx]        = scaler.transform(X_computed_feat[test_idx])
 
-    # Fit per-channel means & stds strictly on train_idx
+    # Fit per-channel means & stds strictly on inner_train_idx
     X_seq_norm = np.zeros_like(X_raw_seq, dtype=np.float32)
     c_means = np.zeros(12, dtype=np.float32)
     c_stds  = np.zeros(12, dtype=np.float32)
     for c in range(12):
-        c_means[c] = np.mean(X_raw_seq[train_idx, :, c])
-        c_stds[c]  = np.std(X_raw_seq[train_idx, :, c]) + 1e-6
+        c_means[c] = np.mean(X_raw_seq[inner_train_idx, :, c])
+        c_stds[c]  = np.std(X_raw_seq[inner_train_idx, :, c]) + 1e-6
         X_seq_norm[:, :, c] = (X_raw_seq[:, :, c] - c_means[c]) / c_stds[c]
 
     Y_class_cat = keras.utils.to_categorical(y_class, num_classes=4)
-    Y_qual_cat  = keras.utils.to_categorical(y_qual, num_classes=3)
+    # Quality -1 = no ground truth: placeholder target with zero quality weight
+    Y_qual_cat  = keras.utils.to_categorical(np.where(y_qual >= 0, y_qual, 0), num_classes=3)
 
-    # Balanced sample weights for class imbalance
-    sw_c = np.clip(compute_sample_weight("balanced", y_class[train_idx]), 0.35, 3.5)
-    sw_q = np.clip(compute_sample_weight("balanced", y_qual[train_idx]), 0.35, 3.5)
-    sw_list = [sw_c, sw_q]
+    # Per-output balanced sample weights strictly on inner_train_idx (unlabelled quality -> weight 0)
+    sw_train = per_output_sample_weights(y_class, y_qual, inner_train_idx)
+    sw_val = per_output_sample_weights(y_class, y_qual, val_idx, balance=False)
 
     # ----------------------------------------------------------------------------------
-    # STEP 4: TRAIN & EVALUATE HYBRID MODEL ON PAIRED INPUTS
+    # STEP 4: TRAIN & EVALUATE HYBRID MODEL ON PAIRED INPUTS (VAL FOR EARLY STOPPING, TEST UNTOUCHED)
     # ----------------------------------------------------------------------------------
     models_map = {
         "1": ("Hybrid 1: 1D-CNN + Kinematics (Edge Model)", build_hybrid_1_cnn),
@@ -175,20 +190,26 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=1e-3),
         loss=["categorical_crossentropy", "categorical_crossentropy"],
-        loss_weights=[0.5, 0.5],
+        loss_weights=[0.45, 0.55],
         metrics=["accuracy", "accuracy"]
     )
 
+    early_stop = keras.callbacks.EarlyStopping(
+        monitor="val_loss", patience=6, restore_best_weights=True
+    )
+
     model.fit(
-        {"input_a_raw_seq": X_seq_norm[train_idx], "input_b_clinical_feat": X_feat_norm[train_idx]},
-        [Y_class_cat[train_idx], Y_qual_cat[train_idx]],
-        sample_weight=sw_list,
+        {"input_a_raw_seq": X_seq_norm[inner_train_idx], "input_b_clinical_feat": X_feat_norm[inner_train_idx]},
+        [Y_class_cat[inner_train_idx], Y_qual_cat[inner_train_idx]],
+        sample_weight=sw_train,
         validation_data=(
-            {"input_a_raw_seq": X_seq_norm[test_idx], "input_b_clinical_feat": X_feat_norm[test_idx]},
-            [Y_class_cat[test_idx], Y_qual_cat[test_idx]]
+            {"input_a_raw_seq": X_seq_norm[val_idx], "input_b_clinical_feat": X_feat_norm[val_idx]},
+            [Y_class_cat[val_idx], Y_qual_cat[val_idx]],
+            sw_val
         ),
         epochs=num_epochs,
-        batch_size=32,
+        batch_size=24,
+        callbacks=[early_stop],
         verbose=1
     )
 
@@ -201,8 +222,9 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
 
     acc_c = accuracy_score(y_class[test_idx], pred_c) * 100.0
     f1_c  = f1_score(y_class[test_idx], pred_c, average="macro", zero_division=0) * 100.0
-    acc_q = accuracy_score(y_qual[test_idx], pred_q) * 100.0
-    f1_q  = f1_score(y_qual[test_idx], pred_q, average="macro", zero_division=0) * 100.0
+    q_lab = quality_eval_mask(y_qual[test_idx])
+    acc_q = accuracy_score(y_qual[test_idx][q_lab], pred_q[q_lab]) * 100.0
+    f1_q  = f1_score(y_qual[test_idx][q_lab], pred_q[q_lab], average="macro", zero_division=0) * 100.0
 
     print("\n" + "=" * 60)
     print("UNSEEN-SUBJECT TEST EVALUATION RESULTS (20% HELD-OUT):")
@@ -251,9 +273,10 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
     print(f"  * Predicted Quality:   {QUALITY_NAMES[out_qual_idx]} ({conf_qual:.1f}% confidence)")
     print(f"  * Measured ROM:        {demo_dict['rom_deg']:.1f} deg")
     print(f"  * Peak Flexion Depth:  {demo_dict['peak_depth_deg']:.1f} deg")
-    print(f"  * Extensor Lag:        {demo_dict['extensor_lag_deg']:.1f} deg")
+    print(f"  * Ext. Return Deficit: {demo_dict['extension_return_deficit_deg']:.1f} deg")
     print(f"  * SPARC Smoothness:    {demo_dict['sparc_smoothness']:.2f}")
-    print(f"  * Ground Truth:        {EXERCISE_NAMES[y_class[demo_idx]]} | {QUALITY_NAMES[y_qual[demo_idx]]}")
+    gt_q = QUALITY_NAMES[y_qual[demo_idx]] if y_qual[demo_idx] >= 0 else "no quality ground truth"
+    print(f"  * Ground Truth:        {EXERCISE_NAMES[y_class[demo_idx]]} | {gt_q}")
     print("=" * 80)
 
 

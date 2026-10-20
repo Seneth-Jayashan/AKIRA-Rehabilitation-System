@@ -1,34 +1,45 @@
 {
   "nfr_01_latency": {
     "target_max_ms": 200.0,
-    "math_extraction_mean_ms": 4.33,
-    "math_extraction_p95_ms": 6.18,
-    "edge_tflite_inference_mean_ms": 0.208,
-    "total_pipeline_mean_ms": 4.54,
-    "status": "PASS"
+    "platform": "host PC (on-device ESP32 latency not measured: firmware has no TFLite Micro runtime yet)",
+    "math_extraction_mean_ms": 26.06,
+    "math_extraction_p95_ms": 31.01,
+    "host_pc_tflite_inference_mean_ms": 0.162,
+    "total_pipeline_mean_ms": 26.22,
+    "status": "PASS_ON_HOST_PC"
   },
   "nfr_02_dual_imu_sync": {
+    "measurement_source": "none (no raw per-sample ESP32 timestamps are logged yet)",
     "target_max_skew_ms": 10.0,
-    "sampling_rate_hz": 100.0,
-    "nominal_step_ms": 10.0,
-    "measured_i2c_inter_sensor_skew_ms": 1.26,
-    "status": "PASS"
+    "design_estimate_i2c_burst_ms": 1.26,
+    "status": "NOT_MEASURED_ON_AKIRA_HARDWARE",
+    "how_to_measure": "Log the firmware's per-packet timestamp_ms for each IMU read before resampling and report the step jitter and thigh-to-shin read offset."
   },
   "nfr_03_edge_memory": {
     "target_max_flash_kb": 256.0,
-    "tflite_model_size_kb": 73.29,
-    "status": "PASS"
+    "tflite_model_size_kb": 76.91,
+    "c_array_full_bytes": 78760,
+    "ops_set": "TFLITE_BUILTINS_INT8",
+    "full_int8_verified": true,
+    "note": "Flash size only; tensor-arena RAM on the ESP32 is not measured yet.",
+    "status": "PASS_FLASH_SIZE"
   },
   "nfr_04_kinematic_accuracy": {
     "target_max_mae_deg": 3.0,
-    "optitrack_mae_deg": 0.91,
-    "optitrack_rmse_deg": 1.12,
-    "optitrack_pearson_r": 0.9988,
-    "status": "PASS"
+    "trials_evaluated_count": 97,
+    "polarity_agreement_pct": 79.4,
+    "system_accepted_mae_deg": 12.45,
+    "system_accepted_median_mae_deg": 4.17,
+    "polarity_independent_mae_deg": 5.84,
+    "polarity_independent_median_mae_deg": 3.43,
+    "note": "Polarity (flexion vs extension direction) cannot be determined from IMU data without a known sensor orientation; the polarity-independent error measures the angle trace itself.",
+    "status": "FAIL"
   },
   "nfr_05_privacy_security": {
     "sha256_pseudonymization_active": true,
-    "example_pseudonym": "PT-FF2663CBED5F",
-    "status": "PASS"
+    "raw_patient_id_omitted_from_disk": true,
+    "example_pseudonym": "PT-09492B6B9FC8",
+    "api_key_configured": false,
+    "status": "PASS_PSEUDONYMIZATION_ONLY (set AKIRA_API_KEY to enable auth)"
   }
 }

@@ -15,6 +15,7 @@ import sys
 import json
 import time
 import hashlib
+import hmac
 from datetime import datetime, date
 from typing import Dict, Any, Optional, List
 
@@ -86,10 +87,21 @@ EXERCISE_NAMES = [
 ]
 
 QUALITY_NAMES = [
-    "Good (Correct Form)",                  # Grade 0: Smooth trajectory, full target ROM, minimal lag
-    "Needs Improvement (Lag/Deficit)",     # Grade 1: Mild extensor lag or minor hesitation
-    "Bad / Compensatory Fault"             # Grade 2: Jerky movement, compensation, or severe lag
+    "Good (Correct Form)",                              # Grade 0: dataset label "correct execution"
+    "Needs Improvement (Incomplete ROM / Unloading)",   # Grade 1: KneE-PAD 1/4/7, PHYTMO gait foot-drag
+    "Bad / Compensatory Fault"                          # Grade 2: KneE-PAD 2/5/8, PHYTMO KFE compensation
 ]
+UNLABELLED_QUALITY_NAME = "Not labelled (source dataset has no quality ground truth)"
+
+# Exercises whose quality head was trained on ground-truth quality labels. Step-Up sources
+# (StrengthSense, HuGaDB) carry no correctness annotation, so Step-Up quality is untrained.
+QUALITY_TRAINED_EXERCISES = {"Walking", "Seated Knee Extension", "Mini Squat"}
+
+
+def quality_name(grade: int) -> str:
+    """Name for a quality grade; -1 (no ground truth) never maps to a real grade."""
+    g = int(grade)
+    return QUALITY_NAMES[g] if 0 <= g < len(QUALITY_NAMES) else UNLABELLED_QUALITY_NAME
 
 # Unified Clinician-Configurable Protocol Defaults per Exercise (Fixes G56, G57, H60)
 DEFAULT_CLINICIAN_PROTOCOLS: Dict[str, Dict[str, float]] = {
@@ -120,18 +132,51 @@ DEFAULT_CLINICIAN_PROTOCOLS: Dict[str, Dict[str, float]] = {
 }
 
 
+SECRET_SALT_PATH = os.path.join(DATASETS_DIR, ".akira_secret_salt")
+
+
+def _get_or_create_secret_salt() -> str:
+    """Loads salt from AKIRA_PSEUDONYM_SALT env var or persistent local secret file (never hardcoded)."""
+    env_salt = os.environ.get("AKIRA_PSEUDONYM_SALT", "").strip()
+    if env_salt:
+        return env_salt
+    os.makedirs(DATASETS_DIR, exist_ok=True)
+    if os.path.exists(SECRET_SALT_PATH):
+        with open(SECRET_SALT_PATH, "r", encoding="utf-8") as f:
+            s = f.read().strip()
+            if s:
+                return s
+    new_salt = hashlib.sha256(os.urandom(32)).hexdigest()
+    with open(SECRET_SALT_PATH, "w", encoding="utf-8") as f:
+        f.write(new_salt)
+    return new_salt
+
+
 def pseudonymize_patient_id(patient_id: str) -> str:
-    """Returns a privacy-preserving SHA-256 pseudonym token for patient identifiers (Fixes H63)."""
-    clean_id = (patient_id or "P01").strip()
-    digest = hashlib.sha256(f"AKIRA_SALT::{clean_id}".encode("utf-8")).hexdigest()[:12]
+    """Returns a privacy-preserving SHA-256 pseudonym token using external secret salt (Fixes Still open #11)."""
+    clean_id = (patient_id or "P01").strip().upper()
+    if clean_id.startswith("PT-") and len(clean_id) == 15:
+        return clean_id
+    salt = _get_or_create_secret_salt()
+    digest = hashlib.sha256(f"{salt}::{clean_id}".encode("utf-8")).hexdigest()[:12]
     return f"PT-{digest.upper()}"
 
 
-def verify_optional_api_key(x_akira_api_key: Optional[str] = None):
-    """Checks optional API key when AKIRA_API_KEY environment variable is configured (Fixes H63)."""
-    required_key = os.environ.get("AKIRA_API_KEY", "").strip()
-    if required_key and x_akira_api_key != required_key:
-        raise HTTPException(status_code=401, detail="Invalid or missing X-AKIRA-API-Key header.")
+def verify_optional_api_key(x_akira_api_key: Optional[str] = None, require_auth: bool = False):
+    """
+    API key check for patient-data endpoints. No key is stored in the source code:
+      - If the AKIRA_API_KEY environment variable is set, every protected request must send a
+        matching `X-AKIRA-API-Key` header (constant-time comparison).
+      - If it is not set, the server runs in local-development mode (it binds to 127.0.0.1 only)
+        and protected endpoints are open; a warning is printed at startup.
+    """
+    expected_key = os.environ.get("AKIRA_API_KEY", "").strip()
+    key_str = x_akira_api_key if isinstance(x_akira_api_key, str) else ""
+    if expected_key:
+        if not hmac.compare_digest(key_str.encode("utf-8"), expected_key.encode("utf-8")):
+            raise HTTPException(status_code=401, detail="Invalid or missing X-AKIRA-API-Key header.")
+    elif require_auth:
+        raise HTTPException(status_code=503, detail="Server has no AKIRA_API_KEY configured for this protected endpoint.")
 
 
 def load_clinician_protocols() -> Dict[str, Dict[str, float]]:
@@ -217,6 +262,9 @@ def get_or_load_model(model_key: str) -> keras.Model:
 
 @app.on_event("startup")
 def startup_event():
+    if not os.environ.get("AKIRA_API_KEY", "").strip():
+        print("[SECURITY] AKIRA_API_KEY is not set: patient-data endpoints are open (local development "
+              "mode, server bound to 127.0.0.1). Set AKIRA_API_KEY before any shared or clinical use.")
     load_data_and_models()
 
 
@@ -410,7 +458,7 @@ def get_test_samples(exercise: Optional[str] = None, quality: Optional[int] = No
             "exercise_name": str(row["exercise_name"]),
             "class_id": int(row["class_id"]),
             "quality_grade": int(row["quality_grade"]),
-            "quality_name": QUALITY_NAMES[int(row["quality_grade"])],
+            "quality_name": quality_name(row["quality_grade"]),
             "rom_deg": round(float(row["rom_deg"]), 1),
             "duration_sec": round(float(row["duration_sec"]), 2)
         })
@@ -422,7 +470,7 @@ def build_16_feature_cards(feat_vec: np.ndarray) -> List[Dict[str, Any]]:
     feat_names = [
         ("Knee Flexion ROM", round(float(feat_vec[0]), 1), "deg", "Total active excursion (Max angle minus Min angle)"),
         ("Peak Flexion Depth", round(float(feat_vec[1]), 1), "deg", "Maximum flexion angle relative to anatomical zero"),
-        ("Extension Deficit (Quad Lag)", round(float(feat_vec[2]), 1), "deg", "Terminal extension deficit above 0° baseline"),
+        ("Extension Return Deficit", round(float(feat_vec[2]), 1), "deg", "Mean repetition trough above the most-extended posture (incomplete return to extension)"),
         ("Peak Angular Velocity", round(float(feat_vec[3]), 1), "deg/s", "Maximum absolute joint rotational speed"),
         ("Mean Angular Velocity", round(float(feat_vec[4]), 1), "deg/s", "Average movement speed across active cycle"),
         ("SPARC Smoothness Metric", round(float(feat_vec[5]), 2), "index", "Spectral arc length motor coordination index"),
@@ -503,7 +551,7 @@ def get_sample_detail(sample_idx: int):
         "exercise_name": str(row["exercise_name"]),
         "class_id": int(row["class_id"]),
         "quality_grade": int(row["quality_grade"]),
-        "quality_name": QUALITY_NAMES[int(row["quality_grade"])],
+        "quality_name": quality_name(row["quality_grade"]),
         "duration_sec": round(trial_dur, 2),
         "math_latency_ms": math_latency_ms,
         "features": build_16_feature_cards(feat_vec),
@@ -560,38 +608,49 @@ def generate_personalized_clinical_recommendations(
             f"Progressively increase controlled flexion within the {max_safe_flex:.0f}° safe limit."
         )
 
-    # 2. Terminal Extension Lag (Quadriceps Deficit) Evaluation
-    if lag_val > max_lag:
+    # 2. Extension return deficit (incomplete return to extension between repetitions).
+    #    This is relative to the most-extended posture of the recording; an absolute extensor
+    #    lag would need a straight-leg calibration pose, so the clinician threshold is applied
+    #    to the return deficit and labelled as such.
+    if rep_count == 0:
+        feedback.append("ℹ️ Extension return deficit not assessed: no complete repetition was segmented.")
+    elif lag_val > max_lag:
         feedback.append(
-            f"⚠️ Terminal extension lag of {lag_val:.1f}° detected (clinician threshold: ≤{max_lag:.1f}°). "
-            f"Focus on isometric terminal quadriceps activation at full extension."
+            f"⚠️ Incomplete return to extension between repetitions: {lag_val:.1f}° above the most-extended "
+            f"posture (clinician threshold: ≤{max_lag:.1f}°). Focus on terminal quadriceps activation at full extension."
         )
     else:
         feedback.append(
-            f"✅ Terminal extension lag ({lag_val:.1f}°) is within clinician protocol threshold (≤{max_lag:.1f}°)."
+            f"✅ Return to extension between repetitions is consistent ({lag_val:.1f}°, threshold ≤{max_lag:.1f}°)."
         )
 
     # 3. Movement Quality & Neuromuscular Smoothness
-    if pred_qual_idx == 0:
+    if exercise_name not in QUALITY_TRAINED_EXERCISES:
+        feedback.append(
+            f"ℹ️ Movement-quality grade not shown for {exercise_name}: no quality ground truth exists for it in "
+            f"the training data (SPARC smoothness: {sparc_val:.2f})."
+        )
+    elif pred_qual_idx == 0:
         feedback.append(f"✅ Smooth neuromuscular control verified (SPARC: {sparc_val:.2f}, Reps: {rep_count}).")
     elif pred_qual_idx == 1:
         feedback.append(f"⚠️ Moderate quality grade (SPARC: {sparc_val:.2f}): focus on steady eccentric control during lowering phase.")
     else:
         feedback.append(f"❌ Compensatory fault / jerky trajectory detected (SPARC: {sparc_val:.2f}). Pause and re-align limb posture.")
 
-    # 4. Longitudinal Trend Integration (if patient has prior recorded sessions for this exercise)
+    # 4. Longitudinal Trend Integration (matched strictly by patient_pseudonym and exercise)
     all_sessions = load_longitudinal_sessions()
+    target_pseudo = pseudonymize_patient_id(patient_id or "P01")
     pt_ex_sessions = [
         s for s in all_sessions
         if s.get("exercise", "").lower() == exercise_name.lower()
-        and s.get("patient_id", "P01") == (patient_id or "P01")
+        and s.get("patient_pseudonym", "") == target_pseudo
     ]
     if len(pt_ex_sessions) >= 2:
         last_rom = float(pt_ex_sessions[-1]["rom_deg"])
         delta = rom_val - last_rom
         sign_str = f"+{delta:.1f}°" if delta >= 0 else f"{delta:.1f}°"
         feedback.append(
-            f"📈 Longitudinal Comparison ({patient_id}, {exercise_name}): {sign_str} vs. previous session ({last_rom:.1f}°)."
+            f"📈 Longitudinal Comparison ({target_pseudo}, {exercise_name}): {sign_str} vs. previous session ({last_rom:.1f}°)."
         )
 
     return feedback
@@ -611,14 +670,31 @@ def run_model_inference(req: PredictRequest):
         raise HTTPException(status_code=400, detail=f"Index must be between 0 and {N-1}")
 
     model = get_or_load_model(model_key)
-    row = CACHE["test_catalog"].iloc[sample_idx]
+    df_cat = CACHE["test_catalog"]
+    row = df_cat.iloc[sample_idx]
     X_seq_raw = CACHE["test_data"]["X_seq_raw"][sample_idx]
     trial_dur = float(row.get("duration_sec", 2.0)) if float(row.get("duration_sec", 2.0)) > 0 else 2.0
 
-    # 1. Run full 12-channel sensor fusion + 16-feature extractor on-the-fly
+    # 1. Run full 12-channel sensor fusion + 16-feature extractor on the selected 2.0s window
     t0_math = time.time()
     knee_angle = extractor_engine.compute_knee_angle(X_seq_raw, duration_sec=trial_dur)
     feat_dict, feat_vec = extractor_engine.extract_16_features(knee_angle, duration_sec=trial_dur)
+
+    # Aggregate all windows belonging to this subject's exercise session for full-session Box 07 output (Fixes Still open #6)
+    subj_val = str(row["subject"])
+    ex_val = str(row["exercise_name"])
+    session_idxs = np.where((df_cat["subject"].values == subj_val) & (df_cat["exercise_name"].values == ex_val))[0]
+    if len(session_idxs) == 0:
+        session_idxs = np.array([sample_idx])
+
+    session_angles = []
+    for s_i in session_idxs:
+        w_raw = CACHE["test_data"]["X_seq_raw"][int(s_i)]
+        session_angles.append(extractor_engine.compute_knee_angle(w_raw, duration_sec=2.0))
+    full_session_angle = np.concatenate(session_angles, axis=0)
+    full_session_dur = float(len(session_idxs) * 2.0)
+    _, full_session_feat_vec = extractor_engine.extract_16_features(full_session_angle, duration_sec=full_session_dur)
+
     math_latency_ms = round((time.time() - t0_math) * 1000, 2)
 
     # 2. Normalize both streams using leak-free training scaler parameters
@@ -649,24 +725,27 @@ def run_model_inference(req: PredictRequest):
     true_qual_idx = int(row["quality_grade"])
 
     class_match = (pred_class_idx == true_class_idx)
-    qual_match = (pred_qual_idx == true_qual_idx)
+    # None when the trial's source dataset has no quality ground truth (grade -1)
+    qual_match = (pred_qual_idx == true_qual_idx) if true_qual_idx >= 0 else None
 
-    # 4. Generate Clinician-Protocol-Driven Rehabilitation Guidance (Fixes H60)
+    # 4. Generate Clinician-Protocol-Driven Rehabilitation Guidance
     feedback = generate_personalized_clinical_recommendations(
         exercise_name=EXERCISE_NAMES[pred_class_idx],
         pred_qual_idx=pred_qual_idx,
-        feat_vec=feat_vec,
-        patient_id=req.patient_id or str(row["subject"])
+        feat_vec=full_session_feat_vec,
+        patient_id=req.patient_id or subj_val
     )
 
-    # 5. Compute Box 07 Session-Level Outputs (Fixes F47-F51)
+    # 5. Compute Box 07 Full-Session Outputs across all windows of the session
     session_outputs = build_box07_session_outputs(
         exercise_name=EXERCISE_NAMES[pred_class_idx],
         exercise_conf=round(prob_class[pred_class_idx] * 100, 1),
         quality_grade_id=pred_qual_idx,
         quality_name=QUALITY_NAMES[pred_qual_idx],
         prob_qual=prob_qual,
-        feat_vec=feat_vec
+        feat_vec=full_session_feat_vec,
+        knee_angle=full_session_angle,
+        session_windows_count=len(session_idxs)
     )
 
     return {
@@ -696,7 +775,8 @@ def run_model_inference(req: PredictRequest):
             "grade_names": QUALITY_NAMES,
             "matches_ground_truth": qual_match,
             "true_grade_id": true_qual_idx,
-            "true_name": QUALITY_NAMES[true_qual_idx]
+            "true_name": quality_name(true_qual_idx),
+            "quality_head_trained_for_exercise": EXERCISE_NAMES[pred_class_idx] in QUALITY_TRAINED_EXERCISES
         },
         "session_outputs": session_outputs,
         "clinical_feedback": feedback
@@ -728,20 +808,22 @@ def build_box07_session_outputs(
     quality_grade_id: int,
     quality_name: str,
     prob_qual: list,
-    feat_vec: np.ndarray
+    feat_vec: np.ndarray,
+    knee_angle: Optional[np.ndarray] = None,
+    session_windows_count: int = 1
 ) -> Dict[str, Any]:
     """
-    Computes the 7 Official Session-Level Outputs specified in Proposal Figure 3 (Box 07)
-    and Functional Requirement FR-10 (Fixes F47, F48, F49, F50, F51).
-      - F47 Fixed: out_03_movement_depth_deg reports true Peak Flexion Depth (depth_deg),
-        never multiplied by 0.22.
-      - F48 & F49 Fixed: Un-clipped [0.0, 1.0] SPARC smoothness normalization and
-        un-clipped [0, 100] clinical quality score evaluated against clinician protocol target_rom.
-      - F50 Fixed: out_04_repetition_count reports true segmented rep count (0 when stationary),
-        never forced to >= 1.
+    Computes the 7 Official Session-Level Outputs specified in Proposal Figure 3 (Box 07):
+      - `out_02_rom_deg`            : Total Range of Motion = max(theta) - min(theta) (`feat_vec[0]`).
+      - `out_02_max_knee_angle_deg` : Absolute Maximum Knee Angle = max(theta).
+      - `out_03_movement_depth_deg` : Mean Repetition Excursion Depth across segmented cycles (`feat_vec[1] - feat_vec[2]`).
+      - `out_03_peak_flexion_deg`   : 95th-Percentile Sustained Peak Flexion Angle `P95(theta)`.
+      - `out_07_quality_score_100`  : Calibrated AI Expected Quality Score `100*P(Good) + 50*P(NeedsImp)`
+                                      validated against ground-truth quality grades on the unseen test set.
     """
     rom_deg = round(float(feat_vec[0]), 1)
-    depth_deg = round(float(feat_vec[1]), 1)
+    rep_peak_angle_deg = round(float(feat_vec[1]), 1)
+    # Feature 3: extension return deficit (mean repetition trough above the most-extended posture)
     lag_deg = round(float(feat_vec[2]), 1)
     peak_vel = round(float(feat_vec[3]), 1)
     mean_vel = round(float(feat_vec[4]), 1)
@@ -749,45 +831,63 @@ def build_box07_session_outputs(
     rep_count = int(round(float(feat_vec[6])))
     duration_sec = round(float(feat_vec[7]), 2)
 
+    if knee_angle is not None and len(knee_angle) > 0:
+        max_knee_angle_deg = round(float(np.max(knee_angle)), 1)
+        p95_peak_flexion_deg = round(float(np.percentile(knee_angle, 95)), 1)
+    else:
+        # The angle is referenced to the most-extended posture (min = 0), so max angle == ROM
+        max_knee_angle_deg = rom_deg
+        p95_peak_flexion_deg = round(float(0.92 * rom_deg), 1)
+
+    # Mean repetition excursion = mean repetition peak - mean repetition trough
+    # (mean trough = minimum (0) + extension return deficit)
+    movement_depth_deg = round(max(0.0, float(rep_peak_angle_deg - lag_deg)), 1)
+
     # Un-clipped [0.0, 1.0] smoothness normalization from physiological SPARC range [-6.0, -1.4]
-    smoothness_norm = float(np.clip((sparc_raw - (-6.0)) / ((-1.4) - (-6.0)), 0.0, 1.0))
-    smoothness_norm = round(smoothness_norm, 2)
+    smoothness_norm = round(float(np.clip((sparc_raw - (-6.0)) / ((-1.4) - (-6.0)), 0.0, 1.0)), 2)
 
-    # Evaluate ROM achievement against exercise-specific clinician target
-    protocol = get_protocol_for_exercise(exercise_name)
-    target_rom = max(5.0, float(protocol.get("target_rom_deg", 65.0)))
-    rom_ratio = float(np.clip(rom_deg / target_rom, 0.0, 1.0))
-    lag_penalty = float(np.clip(lag_deg / 25.0, 0.0, 0.25))
-
-    ai_prob_score = (1.0 * float(prob_qual[0]) + 0.50 * float(prob_qual[1]) + 0.0 * float(prob_qual[2])) * 100.0
-    raw_score = 0.50 * ai_prob_score + 25.0 * smoothness_norm + 25.0 * rom_ratio - (100.0 * lag_penalty * 0.15)
-    quality_score_100 = int(round(np.clip(raw_score, 0.0, 100.0)))
+    # Model-calibrated expected quality score E[Q] = 100 * P(Grade 0) + 50 * P(Grade 1) + 0 * P(Grade 2)
+    expected_ai_quality = 100.0 * float(prob_qual[0]) + 50.0 * float(prob_qual[1]) + 0.0 * float(prob_qual[2])
+    quality_score_100 = int(round(np.clip(expected_ai_quality, 0.0, 100.0)))
 
     return {
         "out_01_recognized_exercise": exercise_name,
         "out_01_confidence_pct": exercise_conf,
         "out_02_rom_deg": rom_deg,
-        "out_02_max_knee_angle_deg": depth_deg,
-        "out_03_movement_depth_deg": depth_deg,
-        "out_03_peak_flexion_deg": depth_deg,
+        "out_02_max_knee_angle_deg": max_knee_angle_deg,
+        "out_03_movement_depth_deg": movement_depth_deg,
+        "out_03_peak_flexion_deg": p95_peak_flexion_deg,
+        "out_03_extension_return_deficit_deg": lag_deg,
+        # Kept for UI compatibility; holds the extension return deficit, NOT an absolute extensor
+        # lag (that needs a straight-leg calibration pose)
         "out_03_extension_lag_deg": lag_deg,
         "out_04_repetition_count": rep_count,
         "out_05_smoothness_norm": smoothness_norm,
         "out_05_sparc_raw": sparc_raw,
         "out_06_duration_sec": duration_sec,
+        "out_06_session_windows_aggregated": int(session_windows_count),
+        "out_06_total_session_duration_sec": round(float(session_windows_count * 2.0), 1),
         "out_06_peak_velocity_deg_s": peak_vel,
         "out_06_mean_velocity_deg_s": mean_vel,
         "out_07_quality_score_100": quality_score_100,
         "out_07_quality_grade_id": quality_grade_id,
-        "out_07_quality_grade_name": quality_name
+        "out_07_quality_grade_name": quality_name,
+        "out_07_quality_trained_for_exercise": exercise_name in QUALITY_TRAINED_EXERCISES,
+        "out_07_quality_note": (
+            "Quality score from the AI quality head (100*P(Good) + 50*P(Needs Improvement)); it is only "
+            "coarsely calibrated (see calibrated_quality_score_mae_0_100 in test_metrics_summary.json), "
+            "so treat it as indicative only."
+            if exercise_name in QUALITY_TRAINED_EXERCISES else
+            f"No quality ground truth exists for {exercise_name} in the training data: the quality "
+            "grade and score are not validated for this exercise."
+        )
     }
 
 
 def clean_i2c_glitches_mad(arr: np.ndarray, window: int = 5, n_sigmas: float = 4.5) -> np.ndarray:
     """
-    General Median Absolute Deviation (Hampel) spike filter for live IMU channels (Fixes E46).
-    Replaces single-sample I2C bus bit flips or out-of-range spikes via linear interpolation
-    without hard-coding specific magic numbers.
+    General Median Absolute Deviation (Hampel) spike filter for live IMU channels.
+    Replaces single-sample I2C bus bit flips or out-of-range spikes via linear interpolation.
     """
     cleaned = np.array(arr, dtype=np.float32, copy=True)
     if cleaned.ndim == 1:
@@ -805,7 +905,6 @@ def clean_i2c_glitches_mad(arr: np.ndarray, window: int = 5, n_sigmas: float = 4
         med = signal.medfilt(col, kernel_size=min(window, N if N % 2 == 1 else N - 1))
         abs_dev = np.abs(col - med)
         mad = np.median(abs_dev) + 1e-5
-        # Physical saturation limits (16g for acc, 2000 deg/s for gyro) + Hampel MAD threshold
         phys_limit = 16.0 if c in (0, 1, 2, 6, 7, 8) else 2000.0
         bad_mask = (abs_dev > (n_sigmas * 1.4826 * mad)) | (np.abs(col) > phys_limit) | (~np.isfinite(col))
         if np.any(bad_mask):
@@ -821,26 +920,24 @@ def clean_i2c_glitches_mad(arr: np.ndarray, window: int = 5, n_sigmas: float = 4
     return cleaned[:, 0] if squeeze else cleaned
 
 
+# Deterministic Hardware Coordinate Frame Mapping for AKIRA ESP32 + Dual MPU6050 Firmware
+# (`akira_knee_esp32.ino` outputs calibrated `g` [+-4g] and `deg/s` [+-500 dps] with:
+#  +X = Anterior, +Y = Mediolateral Sagittal Hinge Axis, +Z = Longitudinal Vertical)
+ESP32_HARDWARE_AXIS_PERMUTATION = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+ESP32_HARDWARE_AXIS_SIGNS = np.ones(12, dtype=np.float32)
+
+
 def check_and_align_esp32_axes(X_raw: np.ndarray) -> np.ndarray:
     """
-    Verifies and harmonizes ESP32 MPU6050 sensor units and axis conventions with the
-    training coordinate frame (Fixes E43, E44):
-      1. If accelerometers are in raw 16-bit LSB (~16384 = 1g) or m/s^2 (~9.81 = 1g), converts to g.
-      2. If gyroscopes are in rad/s (max < 6.5 rad/s during active movement with high acc variance),
-         or raw LSB (>2000), converts to deg/s.
+    Applies the deterministic hardware coordinate mapping (`ESP32_HARDWARE_AXIS_PERMUTATION`
+    and `ESP32_HARDWARE_AXIS_SIGNS`) specified by `akira_knee_esp32.ino` (MPU6050 configured
+    at +-4g in `g` and +-500 dps in `deg/s`, aligned with the training dataset coordinate
+    convention `[Acc_X, Acc_Y, Acc_Z (g), Gyro_X, Gyro_Y, Gyro_Z (deg/s)]`), without guessing
+    units via arbitrary magnitude thresholds (Fixes Still open #8).
     """
     arr = np.array(X_raw, dtype=np.float32, copy=True)
-    for acc_slice in (slice(0, 3), slice(6, 9)):
-        acc_mag = float(np.median(np.linalg.norm(arr[:, acc_slice], axis=1)))
-        if acc_mag > 4000.0:
-            arr[:, acc_slice] /= 16384.0
-        elif 6.0 < acc_mag < 15.0:
-            arr[:, acc_slice] /= 9.80665
-
-    for gyr_slice in (slice(3, 6), slice(9, 12)):
-        gyr_max = float(np.max(np.abs(arr[:, gyr_slice])))
-        if gyr_max > 1500.0:
-            arr[:, gyr_slice] /= 65.5  # MPU6050 +-500 dps sensitivity
+    if arr.ndim == 2 and arr.shape[1] >= 12:
+        arr = arr[:, ESP32_HARDWARE_AXIS_PERMUTATION] * ESP32_HARDWARE_AXIS_SIGNS
     return arr
 
 
@@ -1088,8 +1185,9 @@ async def capture_native_ble_stream_200(capture_duration_sec: float = 2.2) -> tu
             arr[:, 6:12] = 0.0
         active_sensors = (1 if thigh_acc_mag >= 0.02 else 0) + (1 if shin_acc_mag >= 0.02 else 0)
         eff_fs = len(arr) / actual_dur
-        X_seq_raw = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=200)
-        return X_seq_raw, f"ESP32 BLE ({ble_name} [{ble_addr}] • {active_sensors}/2 Sensors Active • {actual_dur:.2f}s)", actual_dur
+        n_true_100hz = max(200, int(round(actual_dur * 100.0)))
+        X_seq_raw = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz)
+        return X_seq_raw, f"ESP32 BLE ({ble_name} [{ble_addr}] • {active_sensors}/2 Sensors Active • {actual_dur:.2f}s @ 100Hz)", actual_dur
 
     if len(packets_6ch) >= 15:
         arr6 = np.array(packets_6ch, dtype=np.float32)
@@ -1100,8 +1198,9 @@ async def capture_native_ble_stream_200(capture_duration_sec: float = 2.2) -> tu
         mat12 = np.zeros((N_pkt, 12), dtype=np.float32)
         mat12[:, 0:6] = imu6
         eff_fs = N_pkt / actual_dur
-        X_seq_raw = extractor_engine.resample_to_100hz(mat12, source_fs=eff_fs, target_samples=200)
-        return X_seq_raw, f"ESP32 BLE ({ble_name} [{ble_addr}] • 1 Sensor [6-Ch 28B Packet] • {actual_dur:.2f}s)", actual_dur
+        n_true_100hz = max(200, int(round(actual_dur * 100.0)))
+        X_seq_raw = extractor_engine.resample_to_100hz(mat12, source_fs=eff_fs, target_samples=n_true_100hz)
+        return X_seq_raw, f"ESP32 BLE ({ble_name} [{ble_addr}] • 1 Sensor [6-Ch 28B Packet] • {actual_dur:.2f}s @ 100Hz)", actual_dur
 
     raise HTTPException(
         status_code=400,
@@ -1112,20 +1211,21 @@ async def capture_native_ble_stream_200(capture_duration_sec: float = 2.2) -> tu
 @app.post("/api/esp32/record_and_analyze")
 async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
     """
-    STRICT PHYSICAL HARDWARE RECORDER (Fixes E40-E46):
-      - Never fakes hardware data, exercise classification, confidence, or quality grade.
-      - Tracks actual recording duration (actual_duration_sec) so resampling to 200 frames
-        never distorts angular velocity or repetition timing (Fixes E45).
-      - Uses general MAD/Hampel I2C spike filtering and axis unit verification (Fixes E43, E44, E46).
+    STRICT PHYSICAL HARDWARE RECORDER:
+      - Resamples any live recording to true 100.0 Hz (`n_100hz = round(actual_duration_sec * 100.0)`)
+        without squeezing >2.0s recordings into 200 samples (Fixes New #25).
+      - Slices multi-second recordings into sliding 200-sample (exact 2.0s @ 100 Hz) windows
+        and aggregates full-session outputs across all windows (Fixes Still open #6).
+      - Reports out-of-distribution / kinematic-protocol status when recording Heel Slides,
+        Quad Sets, or Straight-Leg Raise instead of forcing them into one of the 4 trained classes (Fixes New #29).
     """
     load_data_and_models()
     source_mode_used = req.connection_mode
-    req_duration = max(1.5, min(15.0, float(req.duration_sec or 2.0)))
+    req_duration = max(2.0, min(30.0, float(req.duration_sec or 2.0)))
     actual_duration_sec = req_duration
 
-    # 1. ACQUIRE RAW 12-CHANNEL SENSOR STREAM FROM PHYSICAL HARDWARE ONLY:
     if req.connection_mode == "backend_ble" or req.com_port == "BACKEND_BLE":
-        X_seq_raw, source_mode_used, actual_duration_sec = await capture_native_ble_stream_200(req_duration)
+        X_seq_full, source_mode_used, actual_duration_sec = await capture_native_ble_stream_200(req_duration)
 
     elif req.raw_rows and len(req.raw_rows) >= 25:
         arr = np.array(req.raw_rows, dtype=np.float32)
@@ -1135,10 +1235,11 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
                 detail="Invalid sensor frame format from device: Expected 12 comma-separated IMU channels per sample."
             )
         arr = clean_i2c_glitches_mad(arr[:, :12])
-        actual_duration_sec = max(0.5, len(arr) / 100.0) if req.duration_sec == 2.0 else req_duration
+        actual_duration_sec = max(2.0, len(arr) / 100.0) if req.duration_sec == 2.0 else req_duration
         eff_fs = len(arr) / actual_duration_sec
-        X_seq_raw = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=200)
-        source_mode_used = f"ESP32 Physical Hardware (Browser BLE/Serial • {len(arr)} samples in {actual_duration_sec:.2f}s)"
+        n_true_100hz = max(200, int(round(actual_duration_sec * 100.0)))
+        X_seq_full = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz)
+        source_mode_used = f"ESP32 Physical Hardware (Browser BLE/Serial • {len(arr)} samples -> {n_true_100hz} @ 100Hz in {actual_duration_sec:.2f}s)"
 
     elif req.connection_mode == "serial_com":
         if not req.com_port or req.com_port == "NONE":
@@ -1166,7 +1267,7 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
                         rows.append([float(x) for x in parts])
                     except ValueError:
                         pass
-            actual_duration_sec = max(0.5, time.time() - t_start)
+            actual_duration_sec = max(2.0, time.time() - t_start)
             ser.close()
         except Exception as e:
             raise HTTPException(
@@ -1181,8 +1282,9 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
             )
         arr = clean_i2c_glitches_mad(np.array(rows, dtype=np.float32))
         eff_fs = len(arr) / actual_duration_sec
-        X_seq_raw = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=200)
-        source_mode_used = f"ESP32 Physical Hardware ({req.com_port} • {len(arr)} frames in {actual_duration_sec:.2f}s)"
+        n_true_100hz = max(200, int(round(actual_duration_sec * 100.0)))
+        X_seq_full = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz)
+        source_mode_used = f"ESP32 Physical Hardware ({req.com_port} • {len(arr)} frames -> {n_true_100hz} @ 100Hz in {actual_duration_sec:.2f}s)"
 
     elif req.connection_mode == "wifi_stream":
         wifi_age = time.time() - ESP32_WIFI_BUFFER["last_received_ts"]
@@ -1193,10 +1295,11 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
             )
         n_grab = min(len(ESP32_WIFI_BUFFER["rows"]), int(round(req_duration * 100)))
         arr = clean_i2c_glitches_mad(np.array(ESP32_WIFI_BUFFER["rows"][-n_grab:], dtype=np.float32))
-        actual_duration_sec = max(0.5, len(arr) / 100.0)
+        actual_duration_sec = max(2.0, len(arr) / 100.0)
         eff_fs = len(arr) / actual_duration_sec
-        X_seq_raw = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=200)
-        source_mode_used = f"ESP32 Physical Hardware (Wi-Fi Stream • {len(arr)} frames in {actual_duration_sec:.2f}s)"
+        n_true_100hz = max(200, int(round(actual_duration_sec * 100.0)))
+        X_seq_full = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz)
+        source_mode_used = f"ESP32 Physical Hardware (Wi-Fi Stream • {len(arr)} frames -> {n_true_100hz} @ 100Hz in {actual_duration_sec:.2f}s)"
 
     else:
         raise HTTPException(
@@ -1204,16 +1307,17 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
             detail="No ESP32 device connected! Please click '🔵 Connect ESP32 via BLE' before recording."
         )
 
-    # 2. HARMONIZE UNITS, CALIBRATE, AND CHECK AUTO-SWAP:
-    X_seq_raw = check_and_align_esp32_axes(X_seq_raw)
-    X_seq_raw, was_swapped, swap_diag_msg = extractor_engine.auto_detect_and_correct_sensor_swap(
-        X_seq_raw, req.exercise_code
+    # 2. ALIGN DETERMINISTIC HARDWARE AXES & CHECK OPTIONAL STRAP DIAGNOSTIC:
+    X_seq_full = check_and_align_esp32_axes(X_seq_full)
+    X_seq_full, was_swapped, swap_diag_msg = extractor_engine.auto_detect_and_correct_sensor_swap(
+        X_seq_full, req.exercise_code, auto_swap=False
     )
 
-    # 3. SAVE CLEAN 12-CHANNEL CSV TO DATASET FOLDER WITH TRUE TIMESTAMPS:
+    # 3. SAVE FULL-SESSION 100 HZ 12-CHANNEL CSV WITH PSEUDONYM TOKEN (NO RAW PATIENT ID IN FILENAME):
+    pseudo_tok = pseudonymize_patient_id(req.subject_id)
     qual_short = ["Good", "NeedsImp", "Bad"][int(req.quality_grade) % 3]
     ts_str = time.strftime("%Y%m%d_%H%M%S")
-    csv_filename = f"AKIRA_{req.subject_id}_{req.exercise_code}_{qual_short}_{ts_str}.csv"
+    csv_filename = f"AKIRA_{pseudo_tok}_{req.exercise_code}_{qual_short}_{ts_str}.csv"
     csv_filepath = os.path.join(RECORDED_TRIALS_DIR, csv_filename)
 
     col_names = [
@@ -1222,44 +1326,70 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         "shin_acc_x", "shin_acc_y", "shin_acc_z",
         "shin_gyro_x", "shin_gyro_y", "shin_gyro_z"
     ]
-    dt_real = actual_duration_sec / max(1, len(X_seq_raw))
-    df_save = pd.DataFrame(X_seq_raw, columns=col_names)
-    df_save.insert(0, "time_s", [round(i * dt_real, 3) for i in range(len(X_seq_raw))])
+    df_save = pd.DataFrame(X_seq_full, columns=col_names)
+    df_save.insert(0, "time_s", [round(i * 0.01, 3) for i in range(len(X_seq_full))])
     df_save.to_csv(csv_filepath, index=False)
 
-    # 4. RUN MATH FEATURE EXTRACTOR LIVE ON THE RAW SENSOR STREAM WITH ACTUAL DURATION (Fixes E45):
+    # 4. COMPUTE FULL-SESSION KINEMATICS & SLIDING 2.0S (200-SAMPLE @ 100 HZ) WINDOWS:
     t0_math = time.time()
-    knee_angle = extractor_engine.compute_knee_angle(X_seq_raw, duration_sec=actual_duration_sec)
-    feat_dict, feat_vec = extractor_engine.extract_16_features(knee_angle, duration_sec=actual_duration_sec)
+    full_duration_sec = round(len(X_seq_full) / 100.0, 2)
+    knee_angle_full = extractor_engine.compute_knee_angle(X_seq_full, duration_sec=full_duration_sec)
+    feat_dict_full, feat_vec_full = extractor_engine.extract_16_features(knee_angle_full, duration_sec=full_duration_sec)
+
+    # Slice into exact 200-sample (2.00s @ 100 Hz) windows with 100-sample (1.0s) step
+    win_starts = list(range(0, max(1, len(X_seq_full) - 200 + 1), 100))
+    if not win_starts:
+        win_starts = [0]
+    win_seqs, win_feats = [], []
+    for ws in win_starts:
+        w_slice = X_seq_full[ws : ws + 200]
+        if len(w_slice) < 200:
+            w_slice = np.pad(w_slice, ((0, 200 - len(w_slice)), (0, 0)), mode="edge")
+        w_ang = extractor_engine.compute_knee_angle(w_slice, duration_sec=2.0)
+        _, w_fvec = extractor_engine.extract_16_features(w_ang, duration_sec=2.0)
+        win_seqs.append(w_slice)
+        win_feats.append(w_fvec)
     math_latency_ms = round((time.time() - t0_math) * 1000, 2)
 
-    # 5. RUN GENUINE DEEP LEARNING MODEL INFERENCE (Fixes E40, E41, E42):
+    # 5. RUN DEEP LEARNING MODEL ACROSS ALL 2.0S WINDOWS OF THE SESSION:
     model = get_or_load_model(req.model_key)
     scaler_mean = CACHE["test_data"]["scaler_mean"]
     scaler_scale = CACHE["test_data"]["scaler_scale"]
-    X_feat_sample = ((feat_vec - scaler_mean) / (scaler_scale + 1e-6)).reshape(1, 16)
-
     means = CACHE["test_data"]["means"]
     stds = CACHE["test_data"]["stds"]
-    X_seq_sample = ((X_seq_raw - means) / (stds + 1e-6)).reshape(1, 200, 12)
+
+    X_seq_batch = ((np.array(win_seqs, dtype=np.float32) - means) / (stds + 1e-6))
+    X_feat_batch = ((np.array(win_feats, dtype=np.float32) - scaler_mean) / (scaler_scale + 1e-6))
 
     t0_ai = time.time()
     preds = model.predict(
-        {"input_a_raw_seq": X_seq_sample, "input_b_clinical_feat": X_feat_sample},
+        {"input_a_raw_seq": X_seq_batch, "input_b_clinical_feat": X_feat_batch},
         verbose=0
     )
     ai_latency_ms = round((time.time() - t0_ai) * 1000, 2)
     total_latency_ms = round(math_latency_ms + ai_latency_ms, 2)
 
-    prob_class = preds[0][0].tolist()
-    prob_qual = preds[1][0].tolist()
+    prob_class = np.mean(preds[0], axis=0).tolist()
+    prob_qual = np.mean(preds[1], axis=0).tolist()
     pred_class_idx = int(np.argmax(prob_class))
     pred_qual_idx = int(np.argmax(prob_qual))
 
-    # Genuine model predictions (NEVER faked or overridden!)
-    recognized_name = EXERCISE_NAMES[pred_class_idx]
-    recognized_conf = round(prob_class[pred_class_idx] * 100, 1)
     ex_info = next((e for e in PROPOSAL_6_EXERCISES if e["code"] == req.exercise_code), PROPOSAL_6_EXERCISES[3])
+
+    # Do NOT force Heel Slides, Quad Sets, or SLR into one of the 4 trained classes (Fixes New #29)
+    if ex_info["is_new_device_ex"]:
+        recognized_name = f"{ex_info['name']} (Kinematic Protocol Mode — Outside 4-Class AI Set)"
+        recognized_conf = 0.0
+        is_ood = True
+    else:
+        recognized_name = EXERCISE_NAMES[pred_class_idx]
+        recognized_conf = round(prob_class[pred_class_idx] * 100, 1)
+        is_ood = False
+
+    X_seq_raw = X_seq_full
+    knee_angle = knee_angle_full
+    feat_vec = feat_vec_full
+    dt_real = 0.01
 
     channels_info = [
         {"id": 1, "name": "Thigh Acc X", "loc": "Thigh", "type": "Acc", "unit": "g", "color": "#2563eb", "data": [round(float(v), 3) for v in X_seq_raw[:, 0]]},
@@ -1295,22 +1425,24 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         quality_grade_id=pred_qual_idx,
         quality_name=QUALITY_NAMES[pred_qual_idx],
         prob_qual=prob_qual,
-        feat_vec=feat_vec
+        feat_vec=feat_vec,
+        knee_angle=knee_angle_full,
+        session_windows_count=len(win_starts)
     )
 
     feedback = [
-        f"📡 Recorded & saved 12-channel raw CSV: {csv_filename} ({source_mode_used}).",
-        f"✅ Extracted 16 clinical features on-the-fly (ROM: {session_outputs['out_02_rom_deg']}°, Depth: {session_outputs['out_03_movement_depth_deg']}°, Lag: {session_outputs['out_03_extension_lag_deg']}°, Reps: {session_outputs['out_04_repetition_count']})."
+        f"📡 Recorded & saved 100 Hz 12-channel CSV: {csv_filename} ({source_mode_used}, {len(win_starts)} window(s)).",
+        f"✅ Extracted 16 clinical features across full {full_duration_sec:.2f}s session (ROM: {session_outputs['out_02_rom_deg']}°, Max Angle: {session_outputs['out_02_max_knee_angle_deg']}°, Rep Depth: {session_outputs['out_03_movement_depth_deg']}°, P95 Peak: {session_outputs['out_03_peak_flexion_deg']}°, Reps: {session_outputs['out_04_repetition_count']})."
     ]
-    if was_swapped:
+    if "Possible open-chain strap swap" in swap_diag_msg or was_swapped:
         feedback.append(swap_diag_msg)
-    if ex_info["is_new_device_ex"]:
+    if is_ood:
         feedback.append(
-            f"ℹ️ User recorded reference protocol '{ex_info['name']}'; AI classifier mapped kinematics to closest trained class '{recognized_name}' ({recognized_conf}%)."
+            f"ℹ️ '{ex_info['name']}' is evaluated in Kinematic Protocol Mode (outside the 4 public-dataset AI classes; 4-class classifier output is not forced onto this exercise)."
         )
     feedback.extend(
         generate_personalized_clinical_recommendations(
-            exercise_name=recognized_name,
+            exercise_name=ex_info["name"] if is_ood else recognized_name,
             pred_qual_idx=pred_qual_idx,
             feat_vec=feat_vec,
             patient_id=req.subject_id
@@ -1321,16 +1453,16 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         "saved_csv_filename": csv_filename,
         "saved_csv_path": csv_filepath,
         "source_mode": source_mode_used,
+        "is_out_of_distribution_exercise": is_ood,
         "sample_detail": {
             "file_id": csv_filename,
-            "subject": req.subject_id,
-            "patient_pseudonym": pseudonymize_patient_id(req.subject_id),
+            "patient_pseudonym": pseudo_tok,
             "source_dataset": "ESP32 Dual-IMU Live Recording",
             "exercise_name": recognized_name,
             "user_selected_exercise": ex_info["name"],
             "quality_name": QUALITY_NAMES[pred_qual_idx],
             "user_labeled_quality": QUALITY_NAMES[int(req.quality_grade) % 3],
-            "duration_sec": round(actual_duration_sec, 2),
+            "duration_sec": full_duration_sec,
             "math_latency_ms": math_latency_ms,
             "features": build_16_feature_cards(feat_vec),
             "time_axis": [round(t * dt_real, 2) for t in range(len(X_seq_raw))],
@@ -1342,12 +1474,13 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         "prediction": {
             "pipeline_latency": {"math_ms": math_latency_ms, "ai_ms": ai_latency_ms, "total_ms": total_latency_ms},
             "predicted_exercise": {
-                "class_id": pred_class_idx,
+                "class_id": -1 if is_ood else pred_class_idx,
                 "name": recognized_name,
                 "confidence": recognized_conf,
+                "is_out_of_distribution": is_ood,
                 "probabilities": [round(p * 100, 1) for p in prob_class],
                 "class_names": EXERCISE_NAMES,
-                "matches_ground_truth": (recognized_name.lower() in ex_info["name"].lower()),
+                "matches_ground_truth": True if is_ood else (recognized_name.lower() in ex_info["name"].lower()),
                 "true_name": ex_info["name"]
             },
             "predicted_quality": {
@@ -1366,15 +1499,15 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
 
 
 # --------------------------------------------------------------------------------------
-# BOX 08 & BOX 09: LONGITUDINAL TRACKING & RECOVERY PREDICTION ENGINE (Fixes G52-G59)
+# BOX 08 & BOX 09: LONGITUDINAL TRACKING & RECOVERY PREDICTION ENGINE (Fixes G52-G59, Still open #11, New #27)
 # --------------------------------------------------------------------------------------
 DEFAULT_PROPOSAL_SESSIONS = [
-    # Reference baseline sessions clearly marked with patient_id, session_date, and is_reference_baseline=True
-    {"session_id": "S1", "patient_id": "P01", "patient_pseudonym": pseudonymize_patient_id("P01"), "session_date": "2026-09-15", "week": "Session 1 (2026-09-15)", "exercise": "Seated Knee Extension", "rom_deg": 45.0, "depth_deg": 45.0, "smoothness": 0.42, "quality_score": 32, "rep_count": 8,  "duration_s": 3.4, "is_reference_baseline": True},
-    {"session_id": "S2", "patient_id": "P01", "patient_pseudonym": pseudonymize_patient_id("P01"), "session_date": "2026-09-22", "week": "Session 2 (2026-09-22)", "exercise": "Seated Knee Extension", "rom_deg": 58.0, "depth_deg": 58.0, "smoothness": 0.51, "quality_score": 41, "rep_count": 10, "duration_s": 3.1, "is_reference_baseline": True},
-    {"session_id": "S3", "patient_id": "P01", "patient_pseudonym": pseudonymize_patient_id("P01"), "session_date": "2026-09-29", "week": "Session 3 (2026-09-29)", "exercise": "Seated Knee Extension", "rom_deg": 72.0, "depth_deg": 72.0, "smoothness": 0.63, "quality_score": 55, "rep_count": 10, "duration_s": 2.8, "is_reference_baseline": True},
-    {"session_id": "S4", "patient_id": "P01", "patient_pseudonym": pseudonymize_patient_id("P01"), "session_date": "2026-10-06", "week": "Session 4 (2026-10-06)", "exercise": "Seated Knee Extension", "rom_deg": 85.0, "depth_deg": 85.0, "smoothness": 0.71, "quality_score": 68, "rep_count": 12, "duration_s": 2.6, "is_reference_baseline": True},
-    {"session_id": "S5", "patient_id": "P01", "patient_pseudonym": pseudonymize_patient_id("P01"), "session_date": "2026-10-13", "week": "Session 5 (2026-10-13)", "exercise": "Seated Knee Extension", "rom_deg": 96.0, "depth_deg": 96.0, "smoothness": 0.78, "quality_score": 76, "rep_count": 12, "duration_s": 2.4, "is_reference_baseline": True}
+    # Reference baseline sessions clearly marked with patient_pseudonym="DEMO_REF", session_date, and is_reference_baseline=True
+    {"session_id": "S1", "patient_pseudonym": "DEMO_REF", "session_date": "2026-09-15", "week": "Session 1 (2026-09-15)", "exercise": "Seated Knee Extension", "rom_deg": 45.0, "depth_deg": 45.0, "smoothness": 0.42, "quality_score": 32, "rep_count": 8,  "duration_s": 3.4, "is_reference_baseline": True},
+    {"session_id": "S2", "patient_pseudonym": "DEMO_REF", "session_date": "2026-09-22", "week": "Session 2 (2026-09-22)", "exercise": "Seated Knee Extension", "rom_deg": 58.0, "depth_deg": 58.0, "smoothness": 0.51, "quality_score": 41, "rep_count": 10, "duration_s": 3.1, "is_reference_baseline": True},
+    {"session_id": "S3", "patient_pseudonym": "DEMO_REF", "session_date": "2026-09-29", "week": "Session 3 (2026-09-29)", "exercise": "Seated Knee Extension", "rom_deg": 72.0, "depth_deg": 72.0, "smoothness": 0.63, "quality_score": 55, "rep_count": 10, "duration_s": 2.8, "is_reference_baseline": True},
+    {"session_id": "S4", "patient_pseudonym": "DEMO_REF", "session_date": "2026-10-06", "week": "Session 4 (2026-10-06)", "exercise": "Seated Knee Extension", "rom_deg": 85.0, "depth_deg": 85.0, "smoothness": 0.71, "quality_score": 68, "rep_count": 12, "duration_s": 2.6, "is_reference_baseline": True},
+    {"session_id": "S5", "patient_pseudonym": "DEMO_REF", "session_date": "2026-10-13", "week": "Session 5 (2026-10-13)", "exercise": "Seated Knee Extension", "rom_deg": 96.0, "depth_deg": 96.0, "smoothness": 0.78, "quality_score": 76, "rep_count": 12, "duration_s": 2.4, "is_reference_baseline": True}
 ]
 
 
@@ -1386,19 +1519,41 @@ def load_longitudinal_sessions() -> list:
     try:
         with open(LONGITUDINAL_DB_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-            for idx, s in enumerate(data):
-                s.setdefault("patient_id", "P01")
-                s.setdefault("patient_pseudonym", pseudonymize_patient_id(s["patient_id"]))
-                s.setdefault("session_date", time.strftime("%Y-%m-%d"))
+            cleaned_changed = False
+            for s in data:
+                if "patient_id" in s:
+                    raw_pid = s.pop("patient_id")
+                    s.setdefault("patient_pseudonym", pseudonymize_patient_id(str(raw_pid)))
+                    cleaned_changed = True
+                # Reference baselines are strictly stored under DEMO_REF (Fixes #17)
+                if s.get("is_reference_baseline", False):
+                    if s.get("patient_pseudonym") != "DEMO_REF":
+                        s["patient_pseudonym"] = "DEMO_REF"
+                        cleaned_changed = True
                 s.setdefault("is_reference_baseline", False)
+                # Only the built-in reference sessions belong to DEMO_REF; a real session that lost
+                # its pseudonym is marked UNASSIGNED so it never mixes into the demo trend.
+                s.setdefault("patient_pseudonym", "DEMO_REF" if s["is_reference_baseline"] else "UNASSIGNED")
+                s.setdefault("session_date", time.strftime("%Y-%m-%d"))
+            if cleaned_changed:
+                save_longitudinal_sessions(data)
             return data
     except Exception:
         return [dict(s) for s in DEFAULT_PROPOSAL_SESSIONS]
 
 
 def save_longitudinal_sessions(sessions: list):
+    sanitized = []
+    for s in sessions:
+        item = dict(s)
+        if "patient_id" in item:
+            raw_pid = item.pop("patient_id")
+            item.setdefault("patient_pseudonym", pseudonymize_patient_id(str(raw_pid)))
+        if item.get("is_reference_baseline", False):
+            item["patient_pseudonym"] = "DEMO_REF"
+        sanitized.append(item)
     with open(LONGITUDINAL_DB_PATH, "w", encoding="utf-8") as f:
-        json.dump(sessions, f, indent=2)
+        json.dump(sanitized, f, indent=2)
 
 
 def compute_box08_and_box09_analytics(
@@ -1412,38 +1567,107 @@ def compute_box08_and_box09_analytics(
     """
     Executes Box 08 (Longitudinal Tracking & Trend Analysis) and
     Box 09 (Recovery Prediction Regression Model & Milestone Evaluation).
-    Fixes G52-G59:
-      - Filters sessions by patient_id and exercise so trends never mix exercises or patients (G58, G59).
+    Fixes G52-G59, Still open #11, New #27, Audit 4 #17:
+      - Stores and matches only pseudonymized patient identifiers (`patient_pseudonym`).
+      - Strictly isolates DEMO_REF baseline sessions from genuine patient IDs (P01, etc.).
+      - Strictly filters sessions by patient and exercise without silently falling back to another
+        patient or exercise when 0 matching sessions exist (New #27).
       - Uses clinician-defined protocol defaults per exercise when parameters are omitted (G56, G57).
       - Requires n >= 3 sessions for regression forecasting; never invents 1-session slopes or clips R^2 to 0.999 (G54).
       - Never forces forecast values >= last value, allowing declining recovery to be detected (G55).
     """
     filtered = list(sessions)
+    target_pseudonym = pseudonymize_patient_id("P01")
+
     if patient_id and patient_id.lower() != "all":
-        pt_matches = [s for s in filtered if str(s.get("patient_id", "P01")).lower() == patient_id.lower()]
-        if pt_matches:
-            filtered = pt_matches
+        if patient_id.upper() == "DEMO_REF":
+            target_pseudonym = "DEMO_REF"
+            filtered = [
+                s for s in filtered
+                if str(s.get("patient_pseudonym", "")).upper() == "DEMO_REF"
+            ]
+        else:
+            if patient_id.upper().startswith("PT-"):
+                target_pseudonym = patient_id.upper()
+            else:
+                target_pseudonym = pseudonymize_patient_id(patient_id)
+            # Never include reference baseline demo sessions in real patient history (Fixes Audit 4 #17)
+            filtered = [
+                s for s in filtered
+                if str(s.get("patient_pseudonym", "")).upper() == target_pseudonym.upper()
+                and not s.get("is_reference_baseline", False)
+            ]
+    elif filtered:
+        real_sessions = [s for s in filtered if not s.get("is_reference_baseline", False)]
+        if real_sessions:
+            target_pseudonym = str(real_sessions[-1].get("patient_pseudonym", ""))
+            filtered = [
+                s for s in filtered
+                if str(s.get("patient_pseudonym", "")).upper() == target_pseudonym.upper()
+                and not s.get("is_reference_baseline", False)
+            ]
+        else:
+            target_pseudonym = "DEMO_REF"
+            filtered = [
+                s for s in filtered
+                if str(s.get("patient_pseudonym", "")).upper() == "DEMO_REF"
+            ]
 
     if exercise and exercise.lower() != "all":
-        ex_matches = [s for s in filtered if str(s.get("exercise", "")).lower() == exercise.lower()]
-        if ex_matches:
-            filtered = ex_matches
+        requested_exercise = exercise
+        filtered = [
+            s for s in filtered
+            if str(s.get("exercise", "")).lower() == exercise.lower()
+        ]
     elif filtered:
-        # Default to the most recent session's exercise so different exercises are not mixed in regression
-        latest_ex = str(filtered[-1].get("exercise", "Seated Knee Extension"))
-        ex_matches = [s for s in filtered if str(s.get("exercise", "")).lower() == latest_ex.lower()]
-        if ex_matches:
-            filtered = ex_matches
+        requested_exercise = str(filtered[-1].get("exercise", "Seated Knee Extension"))
+        filtered = [
+            s for s in filtered
+            if str(s.get("exercise", "")).lower() == requested_exercise.lower()
+        ]
+    else:
+        requested_exercise = "Seated Knee Extension"
 
-    if not filtered:
-        filtered = [dict(s) for s in DEFAULT_PROPOSAL_SESSIONS]
-
-    active_exercise = str(filtered[-1].get("exercise", "Seated Knee Extension"))
-    protocol = get_protocol_for_exercise(active_exercise)
-
+    protocol = get_protocol_for_exercise(requested_exercise)
     eff_target_rom = float(target_rom_deg) if target_rom_deg is not None else float(protocol["target_rom_deg"])
     eff_safe_flex = float(max_safe_flexion_deg) if max_safe_flexion_deg is not None else float(protocol["max_safe_flexion_deg"])
     eff_sess_per_wk = float(sessions_per_week) if sessions_per_week is not None else float(protocol["sessions_per_week"])
+
+    # Do NOT fall back to all sessions or DEFAULT_PROPOSAL_SESSIONS when filter returns 0 matches (Fixes New #27)
+    if not filtered:
+        return {
+            "patient_pseudonym": target_pseudonym,
+            "active_exercise": requested_exercise,
+            "forecast_available": False,
+            "sessions": [],
+            "forecast_sessions": [],
+            "trend_analysis": {
+                "total_sessions": 0,
+                "initial_rom_deg": 0.0,
+                "current_rom_deg": 0.0,
+                "total_rom_gain_deg": 0.0,
+                "rom_rate_per_session": 0.0,
+                "depth_rate_per_session": 0.0,
+                "smoothness_rate_per_session": 0.0,
+                "quality_rate_per_session": 0.0,
+                "r2_regression_fit": 0.0,
+                "rmse_deg": 0.0
+            },
+            "milestone_prediction": {
+                "exercise": requested_exercise,
+                "target_rom_deg": eff_target_rom,
+                "max_safe_flexion_deg": eff_safe_flex,
+                "sessions_per_week": eff_sess_per_wk,
+                "sessions_to_milestone": -1,
+                "days_to_milestone": -1,
+                "milestone_status": (
+                    f"ℹ️ No longitudinal sessions recorded yet for patient {target_pseudonym} "
+                    f"on exercise '{requested_exercise}'."
+                )
+            }
+        }
+
+    active_exercise = str(filtered[-1].get("exercise", requested_exercise))
 
     n = len(filtered)
     x = np.arange(1, n + 1, dtype=np.float64)
@@ -1455,6 +1679,7 @@ def compute_box08_and_box09_analytics(
     enriched_sessions = []
     for i, s in enumerate(filtered):
         item = dict(s)
+        item.pop("patient_id", None)
         item["delta_rom"] = round(float(roms[i] - roms[i - 1]), 1) if i > 0 else 0.0
         item["delta_quality"] = int(round(float(quals[i] - quals[i - 1]))) if i > 0 else 0
         item["exceeds_safe_limit"] = float(s["rom_deg"]) > eff_safe_flex
@@ -1541,8 +1766,7 @@ def compute_box08_and_box09_analytics(
         milestone_status = f"⚠️ Recovery plateau detected (rate {slope_rom:+.2f}°/session < 0.5°/session). Review physiotherapy protocol."
 
     return {
-        "patient_id": str(filtered[-1].get("patient_id", "P01")),
-        "patient_pseudonym": pseudonymize_patient_id(str(filtered[-1].get("patient_id", "P01"))),
+        "patient_pseudonym": str(filtered[-1].get("patient_pseudonym", target_pseudonym)),
         "active_exercise": active_exercise,
         "forecast_available": (n >= 3),
         "sessions": enriched_sessions,
@@ -1631,7 +1855,6 @@ def add_session_to_longitudinal(
 
     new_entry = {
         "session_id": f"S{next_num}",
-        "patient_id": req.patient_id or "P01",
         "patient_pseudonym": pseudonymize_patient_id(req.patient_id or "P01"),
         "session_date": iso_today,
         "week": week_label,

@@ -295,7 +295,10 @@ async function runInference() {
     document.getElementById('res-quality-name').innerText = q.name;
     document.getElementById('res-quality-conf').innerText = `${q.confidence}%`;
     const badgeQ = document.getElementById('badge-qual-match');
-    if (q.matches_ground_truth) {
+    if (q.matches_ground_truth === null) {
+      badgeQ.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
+      badgeQ.innerText = 'ℹ️ No quality ground truth for this trial';
+    } else if (q.matches_ground_truth) {
       badgeQ.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
       badgeQ.innerText = '✅ Matches Ground Truth';
     } else {
@@ -602,7 +605,7 @@ function updateBox07UI(so) {
   setEl('box07-rom', `${so.out_02_rom_deg}°`);
   setEl('box07-max-angle', `Max θ: ${so.out_02_max_knee_angle_deg}°`);
   setEl('box07-depth', `${so.out_03_movement_depth_deg}°`);
-  setEl('box07-lag', `Quad Lag: ${so.out_03_extension_lag_deg}°`);
+  setEl('box07-lag', `Return deficit: ${so.out_03_extension_lag_deg}°`);
   setEl('box07-reps', `${so.out_04_repetition_count} rep(s)`);
   setEl('box07-smooth', `${so.out_05_smoothness_norm}`);
   setEl('box07-sparc', `SPARC: ${so.out_05_sparc_raw}`);

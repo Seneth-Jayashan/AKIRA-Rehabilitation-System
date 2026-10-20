@@ -1,57 +1,72 @@
 [
   {
     "session_id": "S1",
-    "week": "Week 2 Post-ORIF",
+    "patient_pseudonym": "DEMO_REF",
+    "session_date": "2026-09-15",
+    "week": "Session 1 (2026-09-15)",
     "exercise": "Seated Knee Extension",
     "rom_deg": 45.0,
-    "depth_deg": 5.0,
+    "depth_deg": 45.0,
     "smoothness": 0.42,
     "quality_score": 32,
     "rep_count": 8,
-    "duration_s": 3.4
+    "duration_s": 3.4,
+    "is_reference_baseline": true
   },
   {
     "session_id": "S2",
-    "week": "Week 3 Post-ORIF",
+    "patient_pseudonym": "DEMO_REF",
+    "session_date": "2026-09-22",
+    "week": "Session 2 (2026-09-22)",
     "exercise": "Seated Knee Extension",
     "rom_deg": 58.0,
-    "depth_deg": 8.0,
+    "depth_deg": 58.0,
     "smoothness": 0.51,
     "quality_score": 41,
     "rep_count": 10,
-    "duration_s": 3.1
+    "duration_s": 3.1,
+    "is_reference_baseline": true
   },
   {
     "session_id": "S3",
-    "week": "Week 4 Post-ORIF",
+    "patient_pseudonym": "DEMO_REF",
+    "session_date": "2026-09-29",
+    "week": "Session 3 (2026-09-29)",
     "exercise": "Seated Knee Extension",
     "rom_deg": 72.0,
-    "depth_deg": 12.0,
+    "depth_deg": 72.0,
     "smoothness": 0.63,
     "quality_score": 55,
     "rep_count": 10,
-    "duration_s": 2.8
+    "duration_s": 2.8,
+    "is_reference_baseline": true
   },
   {
     "session_id": "S4",
-    "week": "Week 5 Post-ORIF",
+    "patient_pseudonym": "DEMO_REF",
+    "session_date": "2026-10-06",
+    "week": "Session 4 (2026-10-06)",
     "exercise": "Seated Knee Extension",
     "rom_deg": 85.0,
-    "depth_deg": 16.0,
+    "depth_deg": 85.0,
     "smoothness": 0.71,
     "quality_score": 68,
     "rep_count": 12,
-    "duration_s": 2.6
+    "duration_s": 2.6,
+    "is_reference_baseline": true
   },
   {
     "session_id": "S5",
-    "week": "Week 6 Post-ORIF",
+    "patient_pseudonym": "DEMO_REF",
+    "session_date": "2026-10-13",
+    "week": "Session 5 (2026-10-13)",
     "exercise": "Seated Knee Extension",
     "rom_deg": 96.0,
-    "depth_deg": 20.0,
+    "depth_deg": 96.0,
     "smoothness": 0.78,
     "quality_score": 76,
     "rep_count": 12,
-    "duration_s": 2.4
+    "duration_s": 2.4,
+    "is_reference_baseline": true
   }
 ]

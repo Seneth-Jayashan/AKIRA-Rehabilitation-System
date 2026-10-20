@@ -1,208 +1,201 @@
-source_dataset,file_id,subject,exercise_name,class_id,quality_grade,rom_deg,duration_sec,orig_trial_duration_sec
-KneE-PAD,Subject_1_0_Trial_1,KP_Sub01,Mini Squat,2,0,40.58,2.0,3.03
-KneE-PAD,Subject_1_0_Trial_2,KP_Sub01,Mini Squat,2,0,37.34,2.0,3.35
-KneE-PAD,Subject_1_1_Trial_1,KP_Sub01,Mini Squat,2,1,45.1,2.0,3.28
-KneE-PAD,Subject_1_1_Trial_10,KP_Sub01,Mini Squat,2,1,46.44,2.0,3.16
-KneE-PAD,Subject_1_3_Trial_1,KP_Sub01,Seated Knee Extension,1,0,126.53,2.0,3.39
-KneE-PAD,Subject_1_3_Trial_10,KP_Sub01,Seated Knee Extension,1,0,100.79,2.0,3.35
-KneE-PAD,Subject_1_4_Trial_1,KP_Sub01,Seated Knee Extension,1,1,110.24,2.0,3.22
-KneE-PAD,Subject_1_4_Trial_10,KP_Sub01,Seated Knee Extension,1,1,101.03,2.0,3.24
-KneE-PAD,Subject_1_5_Trial_1,KP_Sub01,Seated Knee Extension,1,2,69.51,2.0,4.13
-KneE-PAD,Subject_1_5_Trial_10,KP_Sub01,Seated Knee Extension,1,2,84.77,2.0,3.27
-KneE-PAD,Subject_1_6_Trial_1_w1,KP_Sub01,Walking,0,0,65.36,2.0,7.52
-KneE-PAD,Subject_1_6_Trial_1_w2,KP_Sub01,Walking,0,0,62.97,2.0,7.52
-KneE-PAD,Subject_1_7_Trial_1_w1,KP_Sub01,Walking,0,1,65.55,2.0,8.43
-KneE-PAD,Subject_1_7_Trial_1_w2,KP_Sub01,Walking,0,1,47.26,2.0,8.43
-KneE-PAD,Subject_1_8_Trial_1_w1,KP_Sub01,Walking,0,2,42.05,2.0,9.72
-KneE-PAD,Subject_1_8_Trial_1_w2,KP_Sub01,Walking,0,2,56.73,2.0,9.72
-KneE-PAD,Subject_1_8_Trial_2_w1,KP_Sub01,Walking,0,2,43.66,2.0,10.2
-KneE-PAD,Subject_1_8_Trial_2_w2,KP_Sub01,Walking,0,2,45.32,2.0,10.2
-KneE-PAD,Subject_4_0_Trial_1,KP_Sub04,Mini Squat,2,0,30.59,2.0,3.76
-KneE-PAD,Subject_4_0_Trial_10,KP_Sub04,Mini Squat,2,0,32.4,2.0,3.26
-KneE-PAD,Subject_4_1_Trial_1,KP_Sub04,Mini Squat,2,1,22.93,2.0,4.36
-KneE-PAD,Subject_4_1_Trial_10,KP_Sub04,Mini Squat,2,1,44.67,2.0,3.78
-KneE-PAD,Subject_4_2_Trial_1,KP_Sub04,Mini Squat,2,2,40.75,2.0,3.42
-KneE-PAD,Subject_4_2_Trial_10,KP_Sub04,Mini Squat,2,2,38.69,2.0,4.24
-KneE-PAD,Subject_4_3_Trial_1,KP_Sub04,Seated Knee Extension,1,0,74.27,2.0,3.73
-KneE-PAD,Subject_4_3_Trial_10,KP_Sub04,Seated Knee Extension,1,0,81.67,2.0,3.31
-KneE-PAD,Subject_4_4_Trial_1,KP_Sub04,Seated Knee Extension,1,1,33.08,2.0,3.38
-KneE-PAD,Subject_4_4_Trial_10,KP_Sub04,Seated Knee Extension,1,1,43.75,2.0,3.23
-KneE-PAD,Subject_4_5_Trial_1,KP_Sub04,Seated Knee Extension,1,2,74.61,2.0,3.68
-KneE-PAD,Subject_4_5_Trial_10,KP_Sub04,Seated Knee Extension,1,2,73.2,2.0,3.18
-KneE-PAD,Subject_4_6_Trial_1_w1,KP_Sub04,Walking,0,0,53.98,2.0,9.72
-KneE-PAD,Subject_4_6_Trial_1_w2,KP_Sub04,Walking,0,0,43.36,2.0,9.72
-KneE-PAD,Subject_4_7_Trial_1_w1,KP_Sub04,Walking,0,1,43.81,2.0,15.31
-KneE-PAD,Subject_4_7_Trial_1_w2,KP_Sub04,Walking,0,1,46.33,2.0,15.31
-KneE-PAD,Subject_8_0_Trial_1,KP_Sub08,Mini Squat,2,0,36.0,2.0,3.28
-KneE-PAD,Subject_8_0_Trial_10,KP_Sub08,Mini Squat,2,0,36.48,2.0,3.19
-KneE-PAD,Subject_8_1_Trial_1,KP_Sub08,Mini Squat,2,1,45.21,2.0,3.32
-KneE-PAD,Subject_8_1_Trial_2,KP_Sub08,Mini Squat,2,1,44.64,2.0,3.86
-KneE-PAD,Subject_8_2_Trial_1,KP_Sub08,Mini Squat,2,2,48.54,2.0,3.0
-KneE-PAD,Subject_8_2_Trial_10,KP_Sub08,Mini Squat,2,2,48.34,2.0,3.41
-KneE-PAD,Subject_8_3_Trial_1,KP_Sub08,Seated Knee Extension,1,0,105.11,2.0,3.73
-KneE-PAD,Subject_8_3_Trial_10,KP_Sub08,Seated Knee Extension,1,0,100.12,2.0,3.34
-KneE-PAD,Subject_8_4_Trial_1,KP_Sub08,Seated Knee Extension,1,1,77.81,2.0,3.95
-KneE-PAD,Subject_8_4_Trial_10,KP_Sub08,Seated Knee Extension,1,1,70.78,2.0,3.76
-KneE-PAD,Subject_8_5_Trial_1,KP_Sub08,Seated Knee Extension,1,2,75.84,2.0,3.82
-KneE-PAD,Subject_8_5_Trial_10,KP_Sub08,Seated Knee Extension,1,2,75.59,2.0,3.84
-KneE-PAD,Subject_8_6_Trial_1_w1,KP_Sub08,Walking,0,0,59.92,2.0,8.86
-KneE-PAD,Subject_8_6_Trial_1_w2,KP_Sub08,Walking,0,0,48.63,2.0,8.86
-KneE-PAD,Subject_8_6_Trial_2_w1,KP_Sub08,Walking,0,0,44.79,2.0,12.69
-KneE-PAD,Subject_8_6_Trial_2_w2,KP_Sub08,Walking,0,0,39.5,2.0,12.69
-KneE-PAD,Subject_8_7_Trial_1_w1,KP_Sub08,Walking,0,1,38.73,2.0,15.02
-KneE-PAD,Subject_8_7_Trial_1_w2,KP_Sub08,Walking,0,1,38.06,2.0,15.02
-KneE-PAD,Subject_8_8_Trial_1_w1,KP_Sub08,Walking,0,2,21.82,2.0,15.88
-KneE-PAD,Subject_8_8_Trial_1_w2,KP_Sub08,Walking,0,2,28.59,2.0,15.88
-KneE-PAD,Subject_8_8_Trial_2_w1,KP_Sub08,Walking,0,2,35.39,2.0,15.84
-KneE-PAD,Subject_8_8_Trial_2_w2,KP_Sub08,Walking,0,2,41.8,2.0,15.84
-KneE-PAD,Subject_10_0_Trial_1,KP_Sub10,Mini Squat,2,0,40.42,2.0,1.5
-KneE-PAD,Subject_10_0_Trial_10,KP_Sub10,Mini Squat,2,0,42.62,2.0,2.6
-KneE-PAD,Subject_10_1_Trial_1,KP_Sub10,Mini Squat,2,1,48.57,2.0,2.64
-KneE-PAD,Subject_10_1_Trial_2,KP_Sub10,Mini Squat,2,1,47.6,2.0,2.89
-KneE-PAD,Subject_10_2_Trial_1,KP_Sub10,Mini Squat,2,2,44.55,2.0,3.45
-KneE-PAD,Subject_10_2_Trial_10,KP_Sub10,Mini Squat,2,2,50.19,2.0,3.88
-KneE-PAD,Subject_10_3_Trial_1,KP_Sub10,Seated Knee Extension,1,0,127.46,2.0,2.19
-KneE-PAD,Subject_10_3_Trial_2,KP_Sub10,Seated Knee Extension,1,0,114.09,2.0,2.14
-KneE-PAD,Subject_10_4_Trial_1,KP_Sub10,Seated Knee Extension,1,1,108.86,2.0,2.12
-KneE-PAD,Subject_10_4_Trial_10,KP_Sub10,Seated Knee Extension,1,1,88.21,2.0,3.07
-KneE-PAD,Subject_10_5_Trial_1,KP_Sub10,Seated Knee Extension,1,2,88.34,2.0,2.53
-KneE-PAD,Subject_10_5_Trial_10,KP_Sub10,Seated Knee Extension,1,2,73.59,2.0,3.08
-KneE-PAD,Subject_10_6_Trial_1_w1,KP_Sub10,Walking,0,0,56.88,2.0,11.06
-KneE-PAD,Subject_10_6_Trial_1_w2,KP_Sub10,Walking,0,0,52.13,2.0,11.06
-KneE-PAD,Subject_10_7_Trial_1_w1,KP_Sub10,Walking,0,1,46.94,2.0,14.68
-KneE-PAD,Subject_10_7_Trial_1_w2,KP_Sub10,Walking,0,1,48.0,2.0,14.68
-KneE-PAD,Subject_10_8_Trial_1_w1,KP_Sub10,Walking,0,2,39.6,2.0,16.54
-KneE-PAD,Subject_10_8_Trial_1_w2,KP_Sub10,Walking,0,2,43.05,2.0,16.54
-KneE-PAD,Subject_10_8_Trial_2_w1,KP_Sub10,Walking,0,2,46.68,2.0,14.45
-KneE-PAD,Subject_10_8_Trial_2_w2,KP_Sub10,Walking,0,2,41.43,2.0,14.45
-KneE-PAD,Subject_27_0_Trial_1,KP_Sub27,Mini Squat,2,0,27.8,2.0,3.36
-KneE-PAD,Subject_27_0_Trial_10,KP_Sub27,Mini Squat,2,0,27.29,2.0,3.8
-KneE-PAD,Subject_27_1_Trial_1,KP_Sub27,Mini Squat,2,1,24.56,2.0,4.03
-KneE-PAD,Subject_27_1_Trial_10,KP_Sub27,Mini Squat,2,1,46.96,2.0,3.76
-KneE-PAD,Subject_27_2_Trial_1,KP_Sub27,Mini Squat,2,2,41.08,2.0,2.72
-KneE-PAD,Subject_27_2_Trial_10,KP_Sub27,Mini Squat,2,2,41.58,2.0,3.72
-KneE-PAD,Subject_27_3_Trial_1,KP_Sub27,Seated Knee Extension,1,0,65.58,2.0,3.23
-KneE-PAD,Subject_27_3_Trial_10,KP_Sub27,Seated Knee Extension,1,0,68.81,2.0,3.36
-KneE-PAD,Subject_27_4_Trial_1,KP_Sub27,Seated Knee Extension,1,1,66.11,2.0,3.27
-KneE-PAD,Subject_27_4_Trial_2,KP_Sub27,Seated Knee Extension,1,1,63.57,2.0,3.22
-KneE-PAD,Subject_27_5_Trial_1,KP_Sub27,Seated Knee Extension,1,2,48.68,2.0,4.93
-KneE-PAD,Subject_27_5_Trial_10,KP_Sub27,Seated Knee Extension,1,2,80.23,2.0,3.96
-KneE-PAD,Subject_27_6_Trial_2_w1,KP_Sub27,Walking,0,0,63.16,2.0,11.63
-KneE-PAD,Subject_27_6_Trial_2_w2,KP_Sub27,Walking,0,0,57.19,2.0,11.63
-KneE-PAD,Subject_27_7_Trial_1_w1,KP_Sub27,Walking,0,1,53.52,2.0,14.04
-KneE-PAD,Subject_27_7_Trial_1_w2,KP_Sub27,Walking,0,1,52.26,2.0,14.04
-KneE-PAD,Subject_27_8_Trial_1_w1,KP_Sub27,Walking,0,2,46.95,2.0,13.65
-KneE-PAD,Subject_27_8_Trial_1_w2,KP_Sub27,Walking,0,2,38.05,2.0,13.65
-KneE-PAD,Subject_28_0_Trial_1,KP_Sub28,Mini Squat,2,0,44.25,2.0,3.81
-KneE-PAD,Subject_28_0_Trial_10,KP_Sub28,Mini Squat,2,0,41.53,2.0,3.82
-KneE-PAD,Subject_28_1_Trial_1,KP_Sub28,Mini Squat,2,1,49.04,2.0,3.77
-KneE-PAD,Subject_28_1_Trial_10,KP_Sub28,Mini Squat,2,1,43.68,2.0,4.59
-KneE-PAD,Subject_28_2_Trial_1,KP_Sub28,Mini Squat,2,2,48.16,2.0,4.08
-KneE-PAD,Subject_28_2_Trial_2,KP_Sub28,Mini Squat,2,2,45.92,2.0,3.85
-KneE-PAD,Subject_28_3_Trial_1,KP_Sub28,Seated Knee Extension,1,0,31.11,2.0,3.95
-KneE-PAD,Subject_28_3_Trial_10,KP_Sub28,Seated Knee Extension,1,0,58.26,2.0,4.24
-KneE-PAD,Subject_28_4_Trial_1,KP_Sub28,Seated Knee Extension,1,1,65.39,2.0,3.65
-KneE-PAD,Subject_28_4_Trial_10,KP_Sub28,Seated Knee Extension,1,1,41.98,2.0,4.54
-KneE-PAD,Subject_28_5_Trial_1,KP_Sub28,Seated Knee Extension,1,2,66.95,2.0,4.54
-KneE-PAD,Subject_28_5_Trial_10,KP_Sub28,Seated Knee Extension,1,2,67.06,2.0,4.35
-KneE-PAD,Subject_28_6_Trial_1_w1,KP_Sub28,Walking,0,0,75.42,2.0,12.32
-KneE-PAD,Subject_28_6_Trial_1_w2,KP_Sub28,Walking,0,0,55.87,2.0,12.32
-KneE-PAD,Subject_28_6_Trial_2_w1,KP_Sub28,Walking,0,0,67.55,2.0,9.84
-KneE-PAD,Subject_28_6_Trial_2_w2,KP_Sub28,Walking,0,0,83.2,2.0,9.84
-PHYTMO,A01GAT0_1.csv,PH_A01,Walking,0,0,97.8,2.0,40.63
-PHYTMO,A01GAT0_2.csv,PH_A01,Walking,0,0,78.97,2.0,39.78
-PHYTMO,A01GAT1_1.csv,PH_A01,Walking,0,1,93.89,2.0,37.93
-PHYTMO,A01GAT1_2.csv,PH_A01,Walking,0,2,55.17,2.0,44.08
-PHYTMO,A01GHT_1.csv,PH_A01,Step-Up,3,0,74.25,2.0,52.84
-PHYTMO,A01GHT_2.csv,PH_A01,Step-Up,3,0,53.98,2.0,53.24
-PHYTMO,A01KFER0_1.csv,PH_A01,Seated Knee Extension,1,0,91.92,2.0,42.9
-PHYTMO,A01KFER0_2.csv,PH_A01,Seated Knee Extension,1,0,89.25,2.0,41.99
-PHYTMO,A01KFER1_1.csv,PH_A01,Seated Knee Extension,1,1,93.11,2.0,43.67
-PHYTMO,A01KFER1_2.csv,PH_A01,Seated Knee Extension,1,2,97.21,2.0,43.74
-PHYTMO,A01SQT0_1.csv,PH_A01,Mini Squat,2,0,42.12,2.0,52.24
-PHYTMO,A01SQT0_2.csv,PH_A01,Mini Squat,2,0,41.54,2.0,50.32
-PHYTMO,A01SQT1_1.csv,PH_A01,Mini Squat,2,1,48.84,2.0,46.07
-PHYTMO,A01SQT1_2.csv,PH_A01,Mini Squat,2,2,49.92,2.0,47.91
-PHYTMO,A10GAT0_1.csv,PH_A10,Walking,0,0,57.45,2.0,39.77
-PHYTMO,A10GAT0_2.csv,PH_A10,Walking,0,0,50.12,2.0,40.71
-PHYTMO,A10GAT1_1.csv,PH_A10,Walking,0,1,114.15,2.0,47.38
-PHYTMO,A10GAT1_2.csv,PH_A10,Walking,0,2,34.83,2.0,44.45
-PHYTMO,A10GHT_1.csv,PH_A10,Step-Up,3,0,66.5,2.0,60.12
-PHYTMO,A10GHT_2.csv,PH_A10,Step-Up,3,0,81.84,2.0,52.06
-PHYTMO,A10KFER0_1.csv,PH_A10,Seated Knee Extension,1,0,134.46,2.0,41.46
-PHYTMO,A10KFER0_2.csv,PH_A10,Seated Knee Extension,1,0,106.02,2.0,48.42
-PHYTMO,A10KFER1_1.csv,PH_A10,Seated Knee Extension,1,1,96.36,2.0,39.62
-PHYTMO,A10KFER1_2.csv,PH_A10,Seated Knee Extension,1,2,96.69,2.0,39.57
-PHYTMO,A10SQT0_1.csv,PH_A10,Mini Squat,2,0,50.74,2.0,47.0
-PHYTMO,A10SQT0_2.csv,PH_A10,Mini Squat,2,0,52.13,2.0,49.4
-PHYTMO,A10SQT1_1.csv,PH_A10,Mini Squat,2,1,52.94,2.0,41.59
-PHYTMO,A10SQT1_2.csv,PH_A10,Mini Squat,2,2,51.2,2.0,39.29
-PHYTMO,B05GAT0_1.csv,PH_B05,Walking,0,0,61.48,2.0,30.26
-PHYTMO,B05GAT0_2.csv,PH_B05,Walking,0,0,74.98,2.0,32.91
-PHYTMO,B05GAT1_1.csv,PH_B05,Walking,0,1,60.58,2.0,49.52
-PHYTMO,B05GAT1_2.csv,PH_B05,Walking,0,2,64.75,2.0,38.55
-PHYTMO,B05GHT_1.csv,PH_B05,Step-Up,3,0,65.3,2.0,48.46
-PHYTMO,B05GHT_2.csv,PH_B05,Step-Up,3,0,50.27,2.0,39.52
-PHYTMO,B05KFER0_1.csv,PH_B05,Seated Knee Extension,1,0,94.48,2.0,20.42
-PHYTMO,B05KFER0_2.csv,PH_B05,Seated Knee Extension,1,0,72.81,2.0,15.39
-PHYTMO,B05KFER1_1.csv,PH_B05,Seated Knee Extension,1,1,137.59,2.0,16.38
-PHYTMO,B05SQT0_1.csv,PH_B05,Mini Squat,2,0,42.42,2.0,13.8
-PHYTMO,B05SQT0_2.csv,PH_B05,Mini Squat,2,0,43.04,2.0,14.74
-PHYTMO,B05SQT1_1.csv,PH_B05,Mini Squat,2,1,49.79,2.0,25.83
-PHYTMO,B05SQT1_2.csv,PH_B05,Mini Squat,2,2,47.49,2.0,24.76
-PHYTMO,C01GAT0_1.csv,PH_C01,Walking,0,0,65.73,2.0,46.59
-PHYTMO,C01GAT0_2.csv,PH_C01,Walking,0,0,63.24,2.0,39.09
-PHYTMO,C01GAT1_1.csv,PH_C01,Walking,0,1,39.45,2.0,43.04
-PHYTMO,C01GAT1_2.csv,PH_C01,Walking,0,2,44.79,2.0,44.36
-PHYTMO,C01GHT_1.csv,PH_C01,Step-Up,3,0,73.39,2.0,59.9
-PHYTMO,C01GHT_2.csv,PH_C01,Step-Up,3,0,46.53,2.0,61.56
-PHYTMO,C01KFER0_1.csv,PH_C01,Seated Knee Extension,1,0,98.02,2.0,38.2
-PHYTMO,C01KFER0_2.csv,PH_C01,Seated Knee Extension,1,0,86.15,2.0,37.15
-PHYTMO,C01KFER1_1.csv,PH_C01,Seated Knee Extension,1,1,92.43,2.0,36.72
-PHYTMO,C01KFER1_2.csv,PH_C01,Seated Knee Extension,1,2,83.8,2.0,35.85
-PHYTMO,C01SQT0_1.csv,PH_C01,Mini Squat,2,0,54.67,2.0,49.59
-StrengthSense,s19_a1(w)_t1_l.csv,SS_s19,Walking,0,2,55.35,2.0,15.22
-StrengthSense,s19_a1(w)_t2_l.csv,SS_s19,Walking,0,2,61.31,2.0,16.14
-StrengthSense,s19_a1(w)_t3_l.csv,SS_s19,Walking,0,2,54.46,2.0,13.99
-StrengthSense,s1_a1(w)_t1_l.csv,SS_s1,Walking,0,2,95.34,2.0,15.14
-StrengthSense,s1_a1(w)_t2_l.csv,SS_s1,Walking,0,1,64.12,2.0,15.68
-StrengthSense,s1_a1(w)_t3_l.csv,SS_s1,Walking,0,0,77.05,2.0,20.3
-StrengthSense,s1_a1(w)_t4_l.csv,SS_s1,Walking,0,0,55.3,2.0,11.68
-StrengthSense,s20_a1(w)_t1_l.csv,SS_s20,Walking,0,1,65.69,2.0,210.45
-StrengthSense,s20_a1(w)_t2_l.csv,SS_s20,Walking,0,1,62.23,2.0,227.38
-StrengthSense,s20_a1(w)_t3_l.csv,SS_s20,Walking,0,1,58.86,2.0,245.68
-StrengthSense,s19_a13_t1_l.csv,SS_s19,Mini Squat,2,0,38.76,2.0,11.76
-StrengthSense,s19_a13_t2_l.csv,SS_s19,Mini Squat,2,0,39.87,2.0,10.45
-StrengthSense,s19_a13_t3_l.csv,SS_s19,Mini Squat,2,0,41.85,2.0,12.53
-StrengthSense,s1_a13_t1_l.csv,SS_s1,Mini Squat,2,2,37.82,2.0,5.22
-StrengthSense,s1_a13_t2_l.csv,SS_s1,Mini Squat,2,2,40.12,2.0,5.14
-StrengthSense,s1_a13_t3_l.csv,SS_s1,Mini Squat,2,2,41.41,2.0,5.07
-StrengthSense,s20_a13_t1_l.csv,SS_s20,Mini Squat,2,2,40.23,2.0,137.3
-StrengthSense,s20_a13_t2_l.csv,SS_s20,Mini Squat,2,2,40.83,2.0,145.76
-StrengthSense,s20_a13_t3_l.csv,SS_s20,Mini Squat,2,0,54.77,2.0,154.14
-StrengthSense,s29_a13_t1_l.csv,SS_s29,Mini Squat,2,0,41.45,2.0,6.07
-StrengthSense,s29_a13_t2_l.csv,SS_s29,Mini Squat,2,0,40.94,2.0,5.84
-StrengthSense,s29_a13_t3_l.csv,SS_s29,Mini Squat,2,0,40.73,2.0,5.53
-StrengthSense,s19_a10_t1_l.csv,SS_s19,Step-Up,3,1,73.41,2.0,10.45
-StrengthSense,s19_a10_t2_l.csv,SS_s19,Step-Up,3,1,93.87,2.0,9.91
-StrengthSense,s19_a10_t3_l.csv,SS_s19,Step-Up,3,2,79.76,2.0,9.76
-StrengthSense,s19_a10_t4_l.csv,SS_s19,Step-Up,3,0,85.14,2.0,10.22
-StrengthSense,s19_a10_t5_l.csv,SS_s19,Step-Up,3,0,81.07,2.0,9.3
-StrengthSense,s19_a10_t6_l.csv,SS_s19,Step-Up,3,0,113.14,2.0,10.07
-StrengthSense,s1_a10_t2_l.csv,SS_s1,Step-Up,3,1,104.65,2.0,10.07
-StrengthSense,s1_a10_t3_l.csv,SS_s1,Step-Up,3,0,74.2,2.0,12.3
-StrengthSense,s1_a10_t4_l.csv,SS_s1,Step-Up,3,1,95.9,2.0,12.99
-StrengthSense,s1_a10_t5_l.csv,SS_s1,Step-Up,3,0,69.92,2.0,9.38
-StrengthSense,s1_a10_t6_l.csv,SS_s1,Step-Up,3,2,78.95,2.0,15.68
-StrengthSense,s20_a10_t1_l.csv,SS_s20,Step-Up,3,1,74.07,2.0,12.38
-StrengthSense,s20_a10_t2_l.csv,SS_s20,Step-Up,3,1,74.7,2.0,23.84
-StrengthSense,s20_a10_t3_l.csv,SS_s20,Step-Up,3,1,77.6,2.0,34.3
-StrengthSense,s20_a10_t4_l.csv,SS_s20,Step-Up,3,1,73.85,2.0,45.76
-StrengthSense,s20_a10_t5_l.csv,SS_s20,Step-Up,3,1,83.37,2.0,57.07
-StrengthSense,s20_a10_t6_l.csv,SS_s20,Step-Up,3,1,75.31,2.0,68.38
-HuGaDB,HuGaDB_v1_various_11_08.txt_seg260,HG_Sub11,Step-Up,3,0,88.4,2.0,4.55
-HuGaDB,HuGaDB_v1_various_11_10.txt_seg172,HG_Sub11,Step-Up,3,0,81.1,2.0,6.08
-HuGaDB,HuGaDB_v1_various_11_12.txt_seg141,HG_Sub11,Step-Up,3,0,75.73,2.0,6.45
-HuGaDB,HuGaDB_v1_various_11_14.txt_seg152,HG_Sub11,Step-Up,3,0,99.21,2.0,6.29
-HuGaDB,HuGaDB_v1_various_11_16.txt_seg152,HG_Sub11,Step-Up,3,0,109.78,2.0,7.59
-HuGaDB,HuGaDB_v1_various_13_00.txt_seg191,HG_Sub13,Step-Up,3,0,89.6,2.0,6.7
+source_dataset,file_id,subject,exercise_name,class_id,quality_grade,quality_rationale,rom_deg,duration_sec,orig_trial_duration_sec
+KneE-PAD,Subject_2_0_Trial_1,KP_Sub02,Mini Squat,2,0,KneE-PAD L0: Correct Squat,98.47,2.0,4.11
+KneE-PAD,Subject_2_0_Trial_10,KP_Sub02,Mini Squat,2,0,KneE-PAD L0: Correct Squat,93.06,2.0,4.46
+KneE-PAD,Subject_2_1_Trial_1,KP_Sub02,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),93.12,2.0,5.08
+KneE-PAD,Subject_2_1_Trial_10,KP_Sub02,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),87.65,2.0,5.01
+KneE-PAD,Subject_2_3_Trial_1,KP_Sub02,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,84.91,2.0,3.96
+KneE-PAD,Subject_2_3_Trial_10,KP_Sub02,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,78.99,2.0,3.89
+KneE-PAD,Subject_2_4_Trial_1,KP_Sub02,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),65.4,2.0,3.23
+KneE-PAD,Subject_2_4_Trial_10,KP_Sub02,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),66.55,2.0,3.68
+KneE-PAD,Subject_2_5_Trial_1,KP_Sub02,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),63.05,2.0,3.49
+KneE-PAD,Subject_2_5_Trial_10,KP_Sub02,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),76.08,2.0,3.95
+KneE-PAD,Subject_2_6_Trial_1_w1,KP_Sub02,Walking,0,0,KneE-PAD L6: Correct Walking,57.0,2.0,11.45
+KneE-PAD,Subject_2_6_Trial_1_w2,KP_Sub02,Walking,0,0,KneE-PAD L6: Correct Walking,63.33,2.0,11.45
+KneE-PAD,Subject_13_0_Trial_1,KP_Sub13,Mini Squat,2,0,KneE-PAD L0: Correct Squat,114.55,2.0,3.77
+KneE-PAD,Subject_13_0_Trial_10,KP_Sub13,Mini Squat,2,0,KneE-PAD L0: Correct Squat,108.69,2.0,3.24
+KneE-PAD,Subject_13_1_Trial_1,KP_Sub13,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),112.03,2.0,3.32
+KneE-PAD,Subject_13_1_Trial_2,KP_Sub13,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),109.09,2.0,3.86
+KneE-PAD,Subject_13_2_Trial_1,KP_Sub13,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),104.68,2.0,3.7
+KneE-PAD,Subject_13_2_Trial_10,KP_Sub13,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),95.21,2.0,3.95
+KneE-PAD,Subject_13_3_Trial_1,KP_Sub13,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,117.18,2.0,3.42
+KneE-PAD,Subject_13_3_Trial_10,KP_Sub13,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,124.12,2.0,3.49
+KneE-PAD,Subject_13_4_Trial_1,KP_Sub13,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),66.58,2.0,3.81
+KneE-PAD,Subject_13_4_Trial_10,KP_Sub13,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),73.36,2.0,3.34
+KneE-PAD,Subject_13_5_Trial_1,KP_Sub13,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),89.35,2.0,3.49
+KneE-PAD,Subject_13_5_Trial_10,KP_Sub13,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),113.57,2.0,3.2
+KneE-PAD,Subject_13_6_Trial_1_w1,KP_Sub13,Walking,0,0,KneE-PAD L6: Correct Walking,85.22,2.0,11.63
+KneE-PAD,Subject_13_6_Trial_1_w2,KP_Sub13,Walking,0,0,KneE-PAD L6: Correct Walking,75.37,2.0,11.63
+KneE-PAD,Subject_13_7_Trial_1_w1,KP_Sub13,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),44.88,2.0,23.63
+KneE-PAD,Subject_13_7_Trial_1_w2,KP_Sub13,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),49.01,2.0,23.63
+KneE-PAD,Subject_13_8_Trial_1_w1,KP_Sub13,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),56.17,2.0,19.96
+KneE-PAD,Subject_13_8_Trial_1_w2,KP_Sub13,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),39.66,2.0,19.96
+KneE-PAD,Subject_13_8_Trial_2_w1,KP_Sub13,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),42.15,2.0,19.98
+KneE-PAD,Subject_13_8_Trial_2_w2,KP_Sub13,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),58.48,2.0,19.98
+KneE-PAD,Subject_16_0_Trial_1,KP_Sub16,Mini Squat,2,0,KneE-PAD L0: Correct Squat,97.4,2.0,2.73
+KneE-PAD,Subject_16_0_Trial_10,KP_Sub16,Mini Squat,2,0,KneE-PAD L0: Correct Squat,95.91,2.0,3.41
+KneE-PAD,Subject_16_1_Trial_1,KP_Sub16,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),97.76,2.0,3.35
+KneE-PAD,Subject_16_1_Trial_10,KP_Sub16,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),61.21,2.0,2.73
+KneE-PAD,Subject_16_2_Trial_1,KP_Sub16,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),77.12,2.0,4.35
+KneE-PAD,Subject_16_2_Trial_10,KP_Sub16,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),84.94,2.0,3.85
+KneE-PAD,Subject_16_3_Trial_1,KP_Sub16,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,54.48,2.0,5.82
+KneE-PAD,Subject_16_3_Trial_10,KP_Sub16,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,59.5,2.0,5.24
+KneE-PAD,Subject_16_5_Trial_1,KP_Sub16,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),39.28,2.0,4.01
+KneE-PAD,Subject_16_5_Trial_2,KP_Sub16,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),35.49,2.0,3.26
+KneE-PAD,Subject_16_6_Trial_1_w1,KP_Sub16,Walking,0,0,KneE-PAD L6: Correct Walking,63.3,2.0,12.03
+KneE-PAD,Subject_16_6_Trial_1_w2,KP_Sub16,Walking,0,0,KneE-PAD L6: Correct Walking,55.14,2.0,12.03
+KneE-PAD,Subject_16_7_Trial_1_w1,KP_Sub16,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),57.35,2.0,17.12
+KneE-PAD,Subject_16_7_Trial_1_w2,KP_Sub16,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),42.41,2.0,17.12
+KneE-PAD,Subject_16_8_Trial_1_w1,KP_Sub16,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),21.62,2.0,19.39
+KneE-PAD,Subject_16_8_Trial_1_w2,KP_Sub16,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),33.65,2.0,19.39
+KneE-PAD,Subject_18_0_Trial_1,KP_Sub18,Mini Squat,2,0,KneE-PAD L0: Correct Squat,74.85,2.0,3.77
+KneE-PAD,Subject_18_0_Trial_10,KP_Sub18,Mini Squat,2,0,KneE-PAD L0: Correct Squat,73.3,2.0,5.23
+KneE-PAD,Subject_18_1_Trial_1,KP_Sub18,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),91.86,2.0,3.78
+KneE-PAD,Subject_18_2_Trial_1,KP_Sub18,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),67.36,2.0,5.05
+KneE-PAD,Subject_18_2_Trial_10,KP_Sub18,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),71.03,2.0,4.49
+KneE-PAD,Subject_18_3_Trial_1,KP_Sub18,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,109.44,2.0,3.8
+KneE-PAD,Subject_18_3_Trial_10,KP_Sub18,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,108.19,2.0,3.36
+KneE-PAD,Subject_18_4_Trial_1,KP_Sub18,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),94.91,2.0,3.39
+KneE-PAD,Subject_18_4_Trial_10,KP_Sub18,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),74.95,2.0,3.26
+KneE-PAD,Subject_18_5_Trial_1,KP_Sub18,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),54.3,2.0,3.99
+KneE-PAD,Subject_18_5_Trial_10,KP_Sub18,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),73.1,2.0,3.74
+KneE-PAD,Subject_18_6_Trial_2_w1,KP_Sub18,Walking,0,0,KneE-PAD L6: Correct Walking,70.03,2.0,9.02
+KneE-PAD,Subject_18_6_Trial_2_w2,KP_Sub18,Walking,0,0,KneE-PAD L6: Correct Walking,75.55,2.0,9.02
+KneE-PAD,Subject_18_7_Trial_1_w1,KP_Sub18,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),56.17,2.0,10.57
+KneE-PAD,Subject_18_7_Trial_1_w2,KP_Sub18,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),59.67,2.0,10.57
+KneE-PAD,Subject_18_8_Trial_1_w1,KP_Sub18,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),49.5,2.0,10.47
+KneE-PAD,Subject_18_8_Trial_1_w2,KP_Sub18,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),68.45,2.0,10.47
+KneE-PAD,Subject_23_0_Trial_1,KP_Sub23,Mini Squat,2,0,KneE-PAD L0: Correct Squat,108.38,2.0,3.59
+KneE-PAD,Subject_23_0_Trial_2,KP_Sub23,Mini Squat,2,0,KneE-PAD L0: Correct Squat,94.86,2.0,4.27
+KneE-PAD,Subject_23_1_Trial_1,KP_Sub23,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),110.41,2.0,3.72
+KneE-PAD,Subject_23_1_Trial_10,KP_Sub23,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),98.11,2.0,4.55
+KneE-PAD,Subject_23_2_Trial_1,KP_Sub23,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),91.03,2.0,3.81
+KneE-PAD,Subject_23_2_Trial_2,KP_Sub23,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),108.22,2.0,4.35
+KneE-PAD,Subject_23_3_Trial_1,KP_Sub23,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,21.09,2.0,3.77
+KneE-PAD,Subject_23_3_Trial_10,KP_Sub23,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,16.02,2.0,3.45
+KneE-PAD,Subject_23_4_Trial_1,KP_Sub23,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),24.52,2.0,3.15
+KneE-PAD,Subject_23_4_Trial_10,KP_Sub23,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),25.36,2.0,3.41
+KneE-PAD,Subject_23_5_Trial_1,KP_Sub23,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),12.82,2.0,4.78
+KneE-PAD,Subject_23_5_Trial_2,KP_Sub23,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),11.18,2.0,3.74
+KneE-PAD,Subject_23_6_Trial_1_w1,KP_Sub23,Walking,0,0,KneE-PAD L6: Correct Walking,64.76,2.0,11.3
+KneE-PAD,Subject_23_6_Trial_1_w2,KP_Sub23,Walking,0,0,KneE-PAD L6: Correct Walking,52.09,2.0,11.3
+KneE-PAD,Subject_23_7_Trial_1_w1,KP_Sub23,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),74.91,2.0,19.08
+KneE-PAD,Subject_23_7_Trial_1_w2,KP_Sub23,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),58.75,2.0,19.08
+KneE-PAD,Subject_23_8_Trial_1_w1,KP_Sub23,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),51.22,2.0,19.24
+KneE-PAD,Subject_23_8_Trial_1_w2,KP_Sub23,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),52.17,2.0,19.24
+KneE-PAD,Subject_31_0_Trial_1,KP_Sub31,Mini Squat,2,0,KneE-PAD L0: Correct Squat,106.18,2.0,3.92
+KneE-PAD,Subject_31_0_Trial_2,KP_Sub31,Mini Squat,2,0,KneE-PAD L0: Correct Squat,113.06,2.0,3.86
+KneE-PAD,Subject_31_1_Trial_1,KP_Sub31,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),112.02,2.0,4.17
+KneE-PAD,Subject_31_1_Trial_10,KP_Sub31,Mini Squat,2,1,KneE-PAD L1: Incomplete loading (weight transfer to healthy leg),118.67,2.0,4.34
+KneE-PAD,Subject_31_2_Trial_1,KP_Sub31,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),59.28,2.0,4.04
+KneE-PAD,Subject_31_2_Trial_2,KP_Sub31,Mini Squat,2,2,KneE-PAD L2: Postural compensation (injured leg placed in front),108.25,2.0,4.46
+KneE-PAD,Subject_31_3_Trial_1,KP_Sub31,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,98.03,2.0,3.78
+KneE-PAD,Subject_31_3_Trial_10,KP_Sub31,Seated Knee Extension,1,0,KneE-PAD L3: Correct Seated Knee Extension,99.77,2.0,2.68
+KneE-PAD,Subject_31_4_Trial_1,KP_Sub31,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),68.75,2.0,3.09
+KneE-PAD,Subject_31_4_Trial_10,KP_Sub31,Seated Knee Extension,1,1,KneE-PAD L4: Incomplete ROM (extension without full range),81.36,2.0,2.66
+KneE-PAD,Subject_31_5_Trial_1,KP_Sub31,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),98.75,2.0,3.8
+KneE-PAD,Subject_31_5_Trial_10,KP_Sub31,Seated Knee Extension,1,2,KneE-PAD L5: Postural compensation (lifting limb from chair),108.18,2.0,3.72
+KneE-PAD,Subject_31_6_Trial_1_w1,KP_Sub31,Walking,0,0,KneE-PAD L6: Correct Walking,72.53,2.0,11.45
+KneE-PAD,Subject_31_6_Trial_1_w2,KP_Sub31,Walking,0,0,KneE-PAD L6: Correct Walking,111.56,2.0,11.45
+KneE-PAD,Subject_31_7_Trial_1_w1,KP_Sub31,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),32.77,2.0,20.24
+KneE-PAD,Subject_31_7_Trial_1_w2,KP_Sub31,Walking,0,1,KneE-PAD L7: Incomplete ROM (injured knee not fully extended),48.96,2.0,20.24
+KneE-PAD,Subject_31_8_Trial_1_w1,KP_Sub31,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),26.73,2.0,18.31
+KneE-PAD,Subject_31_8_Trial_1_w2,KP_Sub31,Walking,0,2,KneE-PAD L8: Postural compensation (stiff knee with hip abduction),41.3,2.0,18.31
+PHYTMO,A08GAT0_1.csv,PH_A08,Walking,0,0,PHYTMO P=0: correct execution (dataset label),96.51,2.0,39.88
+PHYTMO,A08GAT0_2.csv,PH_A08,Walking,0,0,PHYTMO P=0: correct execution (dataset label),81.7,2.0,36.06
+PHYTMO,A08GAT1_1.csv,PH_A08,Walking,0,1,PHYTMO P=1 GAT: dragging the feet (incomplete knee excursion),71.43,2.0,41.09
+PHYTMO,A08GAT1_2.csv,PH_A08,Walking,0,1,PHYTMO P=1 GAT: dragging the feet (incomplete knee excursion),56.37,2.0,48.5
+PHYTMO,A08KFER0_1.csv,PH_A08,Seated Knee Extension,1,0,PHYTMO P=0: correct execution (dataset label),106.34,2.0,45.78
+PHYTMO,A08KFER0_2.csv,PH_A08,Seated Knee Extension,1,0,PHYTMO P=0: correct execution (dataset label),82.15,2.0,48.23
+PHYTMO,A08KFER1_1.csv,PH_A08,Seated Knee Extension,1,2,PHYTMO P=1 KFE: compensation (plane deviation / thigh-driven / both legs),74.81,2.0,43.72
+PHYTMO,A08KFER1_2.csv,PH_A08,Seated Knee Extension,1,2,PHYTMO P=1 KFE: compensation (plane deviation / thigh-driven / both legs),62.74,2.0,50.27
+PHYTMO,A08SQT0_1.csv,PH_A08,Mini Squat,2,0,PHYTMO P=0: correct execution (dataset label),69.62,2.0,44.34
+PHYTMO,A08SQT0_2.csv,PH_A08,Mini Squat,2,0,PHYTMO P=0: correct execution (dataset label),48.81,2.0,40.24
+PHYTMO,A08SQT1_1.csv,PH_A08,Mini Squat,2,-1,PHYTMO P=1 SQT: wrong execution of unspecified type (quality unlabelled),75.81,2.0,44.85
+PHYTMO,A08SQT1_2.csv,PH_A08,Mini Squat,2,-1,PHYTMO P=1 SQT: wrong execution of unspecified type (quality unlabelled),68.22,2.0,50.67
+PHYTMO,C01GAT0_1.csv,PH_C01,Walking,0,0,PHYTMO P=0: correct execution (dataset label),62.78,2.0,46.59
+PHYTMO,C01GAT0_2.csv,PH_C01,Walking,0,0,PHYTMO P=0: correct execution (dataset label),62.01,2.0,39.09
+PHYTMO,C01GAT1_1.csv,PH_C01,Walking,0,1,PHYTMO P=1 GAT: dragging the feet (incomplete knee excursion),47.21,2.0,43.04
+PHYTMO,C01GAT1_2.csv,PH_C01,Walking,0,1,PHYTMO P=1 GAT: dragging the feet (incomplete knee excursion),98.72,2.0,44.36
+PHYTMO,C01KFER0_1.csv,PH_C01,Seated Knee Extension,1,0,PHYTMO P=0: correct execution (dataset label),90.23,2.0,38.2
+PHYTMO,C01KFER0_2.csv,PH_C01,Seated Knee Extension,1,0,PHYTMO P=0: correct execution (dataset label),86.59,2.0,37.15
+PHYTMO,C01KFER1_1.csv,PH_C01,Seated Knee Extension,1,2,PHYTMO P=1 KFE: compensation (plane deviation / thigh-driven / both legs),100.26,2.0,36.72
+PHYTMO,C01KFER1_2.csv,PH_C01,Seated Knee Extension,1,2,PHYTMO P=1 KFE: compensation (plane deviation / thigh-driven / both legs),73.44,2.0,35.85
+PHYTMO,C04GAT0_1.csv,PH_C04,Walking,0,0,PHYTMO P=0: correct execution (dataset label),102.67,2.0,33.06
+PHYTMO,C04GAT0_2.csv,PH_C04,Walking,0,0,PHYTMO P=0: correct execution (dataset label),142.01,2.0,41.13
+PHYTMO,C04GAT1_1.csv,PH_C04,Walking,0,1,PHYTMO P=1 GAT: dragging the feet (incomplete knee excursion),66.68,2.0,42.58
+PHYTMO,C04GAT1_2.csv,PH_C04,Walking,0,1,PHYTMO P=1 GAT: dragging the feet (incomplete knee excursion),145.4,2.0,34.5
+PHYTMO,C04KFER0_1.csv,PH_C04,Seated Knee Extension,1,0,PHYTMO P=0: correct execution (dataset label),69.85,2.0,23.33
+PHYTMO,C04KFER0_2.csv,PH_C04,Seated Knee Extension,1,0,PHYTMO P=0: correct execution (dataset label),70.0,2.0,27.91
+PHYTMO,C04KFER1_1.csv,PH_C04,Seated Knee Extension,1,2,PHYTMO P=1 KFE: compensation (plane deviation / thigh-driven / both legs),87.39,2.0,20.97
+PHYTMO,C04KFER1_2.csv,PH_C04,Seated Knee Extension,1,2,PHYTMO P=1 KFE: compensation (plane deviation / thigh-driven / both legs),85.77,2.0,17.57
+PHYTMO,C04SQT0_1.csv,PH_C04,Mini Squat,2,0,PHYTMO P=0: correct execution (dataset label),95.63,2.0,17.58
+PHYTMO,C04SQT0_2.csv,PH_C04,Mini Squat,2,0,PHYTMO P=0: correct execution (dataset label),103.25,2.0,17.42
+PHYTMO,C04SQT1_1.csv,PH_C04,Mini Squat,2,-1,PHYTMO P=1 SQT: wrong execution of unspecified type (quality unlabelled),89.59,2.0,27.69
+PHYTMO,C04SQT1_2.csv,PH_C04,Mini Squat,2,-1,PHYTMO P=1 SQT: wrong execution of unspecified type (quality unlabelled),96.59,2.0,23.71
+StrengthSense,s12_a1(w)_t1_l.csv,SS_s12,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),53.53,2.0,15.45
+StrengthSense,s12_a1(w)_t2_l.csv,SS_s12,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),75.75,2.0,16.22
+StrengthSense,s12_a1(w)_t3_l.csv,SS_s12,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),66.76,2.0,14.91
+StrengthSense,s20_a1(w)_t1_l.csv,SS_s20,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),61.61,2.0,210.45
+StrengthSense,s20_a1(w)_t2_l.csv,SS_s20,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),97.32,2.0,227.38
+StrengthSense,s20_a1(w)_t3_l.csv,SS_s20,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),83.17,2.0,245.68
+StrengthSense,s21_a1(w)_t1_l.csv,SS_s21,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),63.79,2.0,12.68
+StrengthSense,s21_a1(w)_t2_l.csv,SS_s21,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),70.94,2.0,12.61
+StrengthSense,s21_a1(w)_t3_l.csv,SS_s21,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),76.84,2.0,12.99
+StrengthSense,s22_a1(w)_t2_l.csv,SS_s22,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),72.86,2.0,13.14
+StrengthSense,s22_a1(w)_t3_l.csv,SS_s22,Walking,0,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),79.46,2.0,12.91
+StrengthSense,s12_a13_t1_l.csv,SS_s12,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),128.17,2.0,6.22
+StrengthSense,s12_a13_t2_l.csv,SS_s12,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),133.63,2.0,6.99
+StrengthSense,s12_a13_t3_l.csv,SS_s12,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),132.89,2.0,6.61
+StrengthSense,s20_a13_t1_l.csv,SS_s20,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),83.19,2.0,137.3
+StrengthSense,s20_a13_t2_l.csv,SS_s20,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),57.82,2.0,145.76
+StrengthSense,s20_a13_t3_l.csv,SS_s20,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),84.04,2.0,154.14
+StrengthSense,s22_a13_t1_l.csv,SS_s22,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),100.17,2.0,5.91
+StrengthSense,s22_a13_t2_l.csv,SS_s22,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),93.45,2.0,5.91
+StrengthSense,s22_a13_t3_l.csv,SS_s22,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),111.6,2.0,6.22
+StrengthSense,s22_a13_t4_l.csv,SS_s22,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),89.69,2.0,6.07
+StrengthSense,s27_a13_t1_l.csv,SS_s27,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),118.35,2.0,7.53
+StrengthSense,s27_a13_t2_l.csv,SS_s27,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),124.93,2.0,6.14
+StrengthSense,s27_a13_t3_l.csv,SS_s27,Mini Squat,2,-1,StrengthSense: no movement-quality ground truth (quality unlabelled),129.54,2.0,5.84
+StrengthSense,s12_a10_t1_l.csv,SS_s12,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,100.56,2.0,10.84
+StrengthSense,s12_a10_t3_l.csv,SS_s12,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,76.64,2.0,8.45
+StrengthSense,s12_a10_t5_l.csv,SS_s12,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,58.86,2.0,9.68
+StrengthSense,s20_a10_t1_l.csv,SS_s20,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,76.85,2.0,12.38
+StrengthSense,s20_a10_t3_l.csv,SS_s20,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,80.61,2.0,34.3
+StrengthSense,s20_a10_t5_l.csv,SS_s20,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,81.8,2.0,57.07
+StrengthSense,s21_a10_t1_l.csv,SS_s21,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,72.86,2.0,12.76
+StrengthSense,s21_a10_t3_l.csv,SS_s21,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,79.4,2.0,9.3
+StrengthSense,s21_a10_t5_l.csv,SS_s21,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,83.87,2.0,9.22
+StrengthSense,s22_a10_t1_l.csv,SS_s22,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,68.03,2.0,14.38
+StrengthSense,s22_a10_t3_l.csv,SS_s22,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,77.16,2.0,8.91
+StrengthSense,s22_a10_t5_l.csv,SS_s22,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,66.86,2.0,9.14
+StrengthSense,s27_a10_t1_l.csv,SS_s27,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,64.08,2.0,10.22
+StrengthSense,s27_a10_t3_l.csv,SS_s27,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,75.11,2.0,8.38
+StrengthSense,s5_a10_t1_l.csv,SS_s5,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,64.24,2.0,9.61
+StrengthSense,s5_a10_t3_l.csv,SS_s5,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,74.34,2.0,7.07
+StrengthSense,s5_a10_t5_l.csv,SS_s5,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,76.12,2.0,7.84
+StrengthSense,s9_a10_t1_l.csv,SS_s9,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,82.17,2.0,11.68
+StrengthSense,s9_a10_t3_l.csv,SS_s9,Step-Up,3,-1,StrengthSense: no movement-quality ground truth (quality unlabelled); stair ascent assumed from odd take number,72.23,2.0,7.53
+HuGaDB,HuGaDB_v1_various_08_04.txt_seg163,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),62.4,2.0,16.51
+HuGaDB,HuGaDB_v1_various_08_05.txt_seg263,HG_Sub08,Step-Up,3,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),64.14,2.0,6.11
+HuGaDB,HuGaDB_v1_various_08_05.txt_seg608,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),48.18,2.0,4.23
+HuGaDB,HuGaDB_v1_various_08_06.txt_seg406,HG_Sub08,Step-Up,3,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),68.1,2.0,5.95
+HuGaDB,HuGaDB_v1_various_08_06.txt_seg742,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),55.64,2.0,4.29
+HuGaDB,HuGaDB_v1_various_08_07.txt_seg334,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),130.2,2.0,3.13
+HuGaDB,HuGaDB_v1_various_08_08.txt_seg558,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),125.9,2.0,3.95
+HuGaDB,HuGaDB_v1_various_08_09.txt_seg168,HG_Sub08,Step-Up,3,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),61.24,2.0,7.07
+HuGaDB,HuGaDB_v1_various_08_09.txt_seg567,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),58.97,2.0,4.27
+HuGaDB,HuGaDB_v1_various_08_10.txt_seg326,HG_Sub08,Step-Up,3,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),79.04,2.0,2.99
+HuGaDB,HuGaDB_v1_various_08_10.txt_seg495,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),68.81,2.0,2.65
+HuGaDB,HuGaDB_v1_various_08_11.txt_seg255,HG_Sub08,Step-Up,3,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),57.52,2.0,7.8
+HuGaDB,HuGaDB_v1_various_08_11.txt_seg695,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),59.99,2.0,5.17
+HuGaDB,HuGaDB_v1_various_08_12.txt_seg439,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),102.96,2.0,4.89
+HuGaDB,HuGaDB_v1_various_08_13.txt_seg596,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),79.66,2.0,3.2
+HuGaDB,HuGaDB_v1_various_08_14.txt_seg763,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),62.43,2.0,3.91
+HuGaDB,HuGaDB_v1_various_08_20.txt_seg0,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),87.04,2.0,6.79
+HuGaDB,HuGaDB_v1_various_08_21.txt_seg0,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),93.85,2.0,3.52
+HuGaDB,HuGaDB_v1_various_08_22.txt_seg0,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),55.31,2.0,14.37
+HuGaDB,HuGaDB_v1_various_08_23.txt_seg0,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),101.14,2.0,13.36
+HuGaDB,HuGaDB_v1_various_08_24.txt_seg0,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),58.16,2.0,3.61
+HuGaDB,HuGaDB_v1_various_08_25.txt_seg247,HG_Sub08,Step-Up,3,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),52.2,2.0,6.91
+HuGaDB,HuGaDB_v1_various_08_25.txt_seg1805,HG_Sub08,Walking,0,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),96.72,2.0,46.82
+HuGaDB,HuGaDB_v1_various_13_00.txt_seg191,HG_Sub13,Step-Up,3,-1,HuGaDB: no movement-quality ground truth (quality unlabelled),80.64,2.0,6.7

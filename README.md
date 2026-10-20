@@ -8,56 +8,216 @@
 
 ## 1. Executive Summary
 
-This repository contains the complete hardware firmware, multi-dataset signal processing pipeline, 3D sensor fusion & 16-feature biomechanical extractor, leak-free subject-independent Dual-Stream Hybrid Deep Learning models, quantized TensorFlow Lite (`.tflite`) edge deployment artifacts, and FastAPI/Chart.js clinical web application for **Post-ORIF Knee Rehabilitation**.
+This repository contains the ESP32 dual-IMU firmware, a reproducible multi-dataset preprocessing pipeline, a 3D Madgwick sensor-fusion knee-angle and 16-feature extractor, subject-independent dual-stream hybrid deep-learning models, a full-int8 TensorFlow Lite edge model, and a FastAPI/Chart.js web application for **post-ORIF knee rehabilitation**.
 
-### Key Engineering & Clinical Highlights
-* **Multi-Dataset Harmonized Corpus (`1,036` Trials, `77` Subjects):** Integrates **KneE-PAD** (general knee rehabilitation), **PHYTMO** (optical mocap & IMU knee kinematics), **StrengthSense** (lower-limb strength & stair negotiation), and **HuGaDB** (human gait & stair ascent) so all 4 target exercises (`Walking`, `Seated Knee Extension`, `Mini Squat`, `Step-Up`) span multiple datasets and all 3 quality grades (`Good`, `Needs Improvement`, `Bad`).
-* **5-Stage Kinematic Sensor Fusion (`math_feature_extractor.py`):** Implements Cubic-Spline $100\text{ Hz}$ resampling, 4th-order $5\text{ Hz}$ Butterworth low-pass filtering, static sensor-to-segment tare & gyro bias calibration, 3D Madgwick/Complementary sensor fusion, and 3D SVD principal hinge-axis projection.
-* **Optical Motion Capture Validation:** Validated against synchronized **OptiTrack 3D Optical Motion Capture** (`A01KFER0_1`): $\text{MAE} = 0.91^\circ$, $\text{RMSE} = 1.12^\circ$, Pearson $r = 0.9988$.
-* **Distinct 16 Biomechanical Features:** Independently quantifies Active ROM (Feature 1), Peak Flexion Depth (Feature 2, mean $|\text{F1}-\text{F2}| = 4.47^\circ$), Quadriceps Terminal Extension Lag (Feature 3, $5.42^\circ \pm 5.55^\circ$), SPARC Smoothness (Feature 6), Adaptive Repetition Count (Feature 7), and Standardized Flexion/Extension Angular Velocities (Features 12 & 13).
-* **Leak-Free Subject-Independent Evaluation (`train_models.py`):** Uses `GroupKFold` by subject (`61` train subjects / `16` unseen test subjects, `0` subject overlap) with `StandardScaler` and channel normalizers fit strictly on the training split.
-* **Quantized Edge-AI Deployment (`.tflite` & C Array):** Exports `akira_hybrid_cnn_edge.tflite` (**73.29 KB**, **0.208 ms** mean inference latency, **100.0%** Exercise / **99.03%** Quality agreement with Keras) and `edge_akira_classifier.c`.
-
----
-
-## 2. Unseen-Subject Benchmark Leaderboard (`207` Test Trials, `16` Unseen Subjects)
-
-| Rank | Model Architecture | Parameters | Exercise Acc (%) | Exercise Macro F1 (%) | Quality Acc (%) | Quality Macro F1 (%) | Combined Score (%) | Inference Latency |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **#1** | **Hybrid 5: Self-Attention + Kinematics** | 42,055 | 89.86% | 89.73% | **57.49%** | **54.45%** | **73.67%** | ~3.01 ms |
-| **#2** | **Hybrid 1: 1D-CNN + Kinematics (Edge Model)** | 55,879 | **92.27%** | **91.85%** | 53.14% | 50.68% | **72.71%** | ~2.12 ms |
-| **#3** | **Hybrid 4: 1D-ResNet + Kinematics** | 159,431 | 90.34% | 89.70% | 54.59% | 51.43% | **72.46%** | ~3.31 ms |
-| **#4** | **Hybrid 6: Gated Attention + Kinematics** | 43,335 | 89.37% | 89.13% | 52.17% | 49.14% | **70.77%** | ~2.76 ms |
-| **#5** | **Hybrid 3: CNN-BiLSTM + Kinematics** | 97,223 | 91.79% | 91.53% | 44.44% | 42.91% | **68.12%** | ~5.03 ms |
-| **#6** | **Hybrid 2: BiLSTM + Kinematics** | 103,559 | 90.82% | 90.28% | 44.44% | 42.56% | **67.63%** | ~6.94 ms |
-| — | *Baseline 2: Single-IMU 1D-CNN (Thigh 6-Ch)* | 27,271 | 86.96% | 86.25% | 47.34% | 44.57% | *67.15%* | ~1.40 ms |
-| — | *Baseline 1: Random Forest (16 Features)* | — | 81.64% | 82.89% | 50.72% | 46.84% | *66.18%* | ~0.85 ms |
+### Key Points (all numbers are reproduced by the scripts in `app/api/`)
+* **Multi-dataset corpus (`997` windows, `87` subject IDs, 4 public datasets):** KneE-PAD, PHYTMO, StrengthSense and HuGaDB. Every exercise comes from at least two datasets. Signals are never rescaled.
+* **Quality labels only from published ground truth:** KneE-PAD fault codes and PHYTMO correct/wrong labels. StrengthSense and HuGaDB have no correctness annotation, so their windows (and therefore all Step-Up windows) are marked *unlabelled* and train exercise recognition only.
+* **Knee angle:** 6-DoF Madgwick fusion per sensor, relative orientation in the thigh frame, projection on the knee hinge axis, referenced to the most-extended posture of each recording (never negative).
+* **OptiTrack validation (97 trials, no agreement-based exclusion):** angle-trace error ignoring polarity, median **3.43°** (mean 5.84°). Polarity agrees with OptiTrack in **79.4%** of trials (see §4B).
+* **Subject-independent evaluation:** 3-way split (57 / 12 / 18 subjects) plus full 5-fold cross-validation. Exercise accuracy **96.5%** on unseen people (5-fold **97.0% ± 1.6%**). Quality accuracy **56.6%** on labelled test windows (5-fold **57.6% ± 3.1%**).
+* **Edge model:** `akira_hybrid_cnn_edge.tflite`, **76.91 KB**, verified **full int8** (no float internal tensors), plus the complete C byte array. On-device ESP32 latency is **not measured yet** because the firmware does not run TFLite Micro.
 
 ---
 
-## 3. Clinician Rehabilitation Protocols & Safe Flexion Limits
+## 2. End-to-End Component Flow & Architecture (Boxes 01 to 08)
 
-Consistent across backend code (`main.py`), documentation, and clinician configuration endpoints (`/api/clinician/protocol`):
+The knee rehabilitation component implements the multi-stage clinical pipeline specified in the project proposal and methodology architecture diagram:
 
-| Exercise | Target ROM ($^\circ$) | Max Safe Flexion Ceiling ($^\circ$) | Max Extensor Lag Threshold ($^\circ$) | Recommended Frequency |
+```mermaid
+flowchart TD
+    subgraph P1["01. DATA ACQUISITION"]
+        IMU1["IMU 1 (Thigh, 0x68)\n[Ax, Ay, Az, Gx, Gy, Gz]"]
+        IMU2["IMU 2 (Shin, 0x69)\n[Ax, Ay, Az, Gx, Gy, Gz]"]
+        ESP["ESP32 Microcontroller\nesp32_firmware.ino (100 Hz I2C)"]
+        IMU1 --> ESP
+        IMU2 --> ESP
+        Stream["12-Channel Raw Data Stream\n(200 samples × 12 channels = 2.0s window)"]
+        ESP --> Stream
+    end
+
+    subgraph P2["02. KNEE ANGLE PIPELINE"]
+        Stream --> S21["2.1 Data Sync: Cubic-Spline Resampling (100 Hz)"]
+        S21 --> S22["2.2 Noise Filter: 4th-Order 5 Hz Butterworth LPF"]
+        S22 --> S23["2.3 Sensor Calibration: Static Gyro Bias Removal & Tare Extensor Lag"]
+        S23 --> S24["2.4 Sensor Fusion: 6-DoF Madgwick (q_thigh & q_shin)"]
+        S24 --> S25["2.5 Relative Orientation: q_rel = q_thigh* ⊗ q_shin"]
+        S25 --> S26["2.6 Angle Calculation: Frame-Consistent SVD Sagittal Projection\n(Knee Flexion & Signed Hyperextension)"]
+    end
+
+    subgraph P3["03. FEATURE EXTRACTION"]
+        S26 --> F16["Extract 16 Biomechanical Features\n• Range of Motion (ROM = max - min)\n• Movement Depth (Peak Flexion)\n• Terminal Extension Deficit / Lag\n• Angular Velocities (Peak, Mean, Max Flex/Ext)\n• SPARC Movement Smoothness\n• Adaptive Repetition Count\n• Movement Duration & Cycle Period\n• Angle RMS, IQR & Dispersion"]
+    end
+
+    subgraph P4["04. DUAL-STREAM AI MODEL"]
+        Stream --> StreamA["Stream A: Raw Waveform (200 × 12)"]
+        F16 --> StreamB["Stream B: 16 Clinical Features"]
+        StreamA --> Model["Hybrid Model (1D-CNN / Attention)\nQuantized TFLite Micro (76.9 KB full int8)"]
+        StreamB --> Model
+        Model --> Head1["Head 1: Exercise Classification\n(4 Classes or Kinematic Protocol Mode)"]
+        Model --> Head2["Head 2: Quality Grading\n(Good / Needs Improvement / Bad)"]
+    end
+
+    subgraph P5["05. SESSION OUTPUT"]
+        Head1 --> Out["7 Official Session Outputs\n01. Recognized Exercise\n02. ROM & Max Knee Angle\n03. Movement Depth\n04. Repetition Count\n05. Movement Smoothness\n06. Movement Duration\n07. Session Quality Score"]
+        Head2 --> Out
+    end
+
+    subgraph P6["06. LONGITUDINAL TRACKING"]
+        Out --> DB["Pseudonymized Session Database (longitudinal_sessions.json)\nSalted SHA-256 (PT-...)"]
+        DB --> Trends["Track Session History (S1, S2, S3...)\nCompute Improvement Rates (ΔROM, ΔDepth, ΔQuality)"]
+    end
+
+    subgraph P7["07. RECOVERY PREDICTION"]
+        Trends --> Reg["Recovery Prediction Model (Regression on n ≥ 3 sessions)"]
+        Reg --> Traj["Forecast Future Trajectory"]
+        Reg --> Mile["Estimate Time to Milestone (Target ROM e.g. 90°)"]
+    end
+
+    subgraph P8["08. FINAL REHABILITATION ASSESSMENT"]
+        Traj --> Dash["Web Dashboard & Clinician Portal"]
+        Mile --> Dash
+        Dash --> C1["1. Current Progress (ROM gain vs baseline)"]
+        Dash --> C2["2. Estimated Time to Next Milestone (Weeks/Sessions)"]
+        Dash --> C3["3. Recovery Trajectory Chart (Interactive Curves)"]
+        Dash --> C4["4. Personalized Recommendations (Safe flexion limits, pacing alerts)"]
+    end
+```
+
+### Detailed Breakdown by Stage
+
+#### Box 01: Data Acquisition
+* **Sensors:** Two 6-axis MPU-6050 IMUs (3-axis Accelerometer + 3-axis Gyroscope = 6 channels per unit).
+* **Placement:** Thigh (address `0x68`, anterior femur) and Shin (address `0x69`, anterior tibia).
+* **Firmware:** [`firmware/esp32_firmware.ino`](firmware/esp32_firmware.ino) samples simultaneously at **$100\text{ Hz}$** ($10\text{ ms}$ interval), packaging a synchronized 12-channel stream streamed over BLE or Serial.
+
+#### Box 02: Knee Angle Computation Pipeline (`app/api/math_feature_extractor.py`)
+1. **2.1 Synchronization:** Cubic-spline temporal resampling onto a strict uniform $100.0\text{ Hz}$ time grid ($\Delta t = 0.01\text{ s}$).
+2. **2.2 Noise Filtering:** 4th-order zero-phase $5.0\text{ Hz}$ Butterworth low-pass filter suppresses tremor and mechanical noise without phase delay.
+3. **2.3 Calibration:** Detects rest periods to remove static zero-rate gyro bias and measures baseline extension deficit ($\le 25^\circ$).
+4. **2.4 Sensor Fusion:** 6-DoF Madgwick orientation quaternion tracking ($q_{\text{thigh}}$ and $q_{\text{shin}}$) initialized directly from gravity.
+5. **2.5 Relative Orientation:** Quaternion conjugate product $q_{\text{rel}} = q_{\text{thigh}}^* \otimes q_{\text{shin}}$ yields relative rotation from shin to thigh.
+6. **2.6 Knee Angle Calculation:** Rotates shin angular velocity into the thigh frame, computes SVD to isolate the true anatomical sagittal hinge axis $\mathbf{u}_{\text{hinge}}^{(T)}$, and extracts signed flexion and true hyperextension ($<0^\circ$) without artificial clipping:
+   $$\theta(t) = 2 \arctan2(\mathbf{q}_v \cdot \mathbf{u}_{\text{hinge}}, q_w) + \text{tare\_angle}$$
+
+#### Box 03: Feature Extraction (The 16 Biomechanical Features)
+Computes a standardized 16-D feature vector mapping directly to the 7 diagram categories:
+* **3.1 Knee Angle:** `mean_angle` (F14), `angle_std` (F09), `angle_rms` (F15), and `extension_return_deficit_deg` (F03).
+* **3.2 Range of Motion (ROM):** `rom_deg` (F01) and `angle_iqr` (F11).
+* **3.3 Angular Velocity:** `peak_angular_velocity` (F04), `mean_angular_velocity` (F05), `velocity_std` (F10), `max_ang_vel` (flexion speed, F12), and `min_ang_vel` (extension speed, F13).
+* **3.4 Movement Depth:** `peak_depth_deg` (F02, true maximum flexion depth).
+* **3.5 Movement Smoothness:** `sparc_smoothness` (F06, spectral arc length of angular velocity).
+* **3.6 Repetition Count:** `repetition_count` (F07, adaptive peak-prominence cycle detection).
+* **3.7 Movement Duration:** `mean_repetition_duration` (F08, cycle duration) and `sparc_per_duration` (F16, normalized smoothness rate).
+
+#### Box 04: AI Model (Dual-Stream Hybrid Deep Learning)
+* **Stream A:** Raw 12-channel IMU sequence ($200 \times 12$).
+* **Stream B:** 16-D clinical feature vector ($16$).
+* **Model Families:** 6 benchmarked hybrid architectures (1D-CNN, BiLSTM, CNN-BiLSTM, 1D-ResNet, Self-Attention, Gated Attention) fusing temporal and kinematic representations.
+* **Dual Output Heads:** Exercise Class Classification (4 dynamic classes) and Movement Quality Grading (Good, Needs Improvement, Bad).  
+  *Phase 1 acute exercises (Heel Slides, Quad Sets, SLR) activate **Kinematic Protocol Mode** for safety and kinematic tracking.*
+* **Edge AI:** Full int8 quantized TensorFlow Lite model (`akira_hybrid_cnn_edge.tflite`, **76.91 KB**, pure `TFLITE_BUILTINS_INT8`) exported to C array (`edge_akira_classifier.c`).
+
+#### Box 05: Session Output (The 7 Official Session Outputs)
+1. `out_01_recognized_exercise`: Exercise class or protocol mode.
+2. `out_02_rom_deg` & `out_02_max_knee_angle_deg`: Active joint excursion and maximum flexion angle.
+3. `out_03_peak_flexion_deg`: Functional movement depth.
+4. `out_04_rep_count`: Validated repetition count.
+5. `out_05_smoothness_score`: SPARC smoothness index ($0\text{ to }1$).
+6. `out_06_duration_s`: Active session duration.
+7. `out_07_movement_quality_score`: Composite quality score ($0\text{ to }100$).
+
+#### Box 06: Longitudinal Tracking
+* **Privacy-Preserving Storage:** Patient IDs are hashed via salted SHA-256 (`PT-...`). Stored in `app/api/datasets/longitudinal_sessions.json`.
+* **Trend Analysis:** Tracks session-by-session progression ($S_1, S_2, S_3, \dots$) and calculates improvement slopes ($\Delta\text{ROM/session}$, $\Delta\text{Depth/session}$, $\Delta\text{Quality/session}$).
+
+#### Box 07: Recovery Prediction Engine
+* **Regression Modeling:** Fits recovery regression trajectories across historical points ($n \ge 3$ sessions).
+* **Milestone Forecasting:** Compares projected trajectory against clinician targets in `clinician_protocols.json` (e.g. $90^\circ$ for Seated Knee Extension) to calculate estimated sessions and weeks to recovery.
+
+#### Box 08: Final Rehabilitation Assessment (Dashboard & Clinician Portal)
+* **Current Progress:** Displays ROM gain since baseline and current functional capability.
+* **Estimated Time to Next Milestone:** Projected date and remaining sessions.
+* **Recovery Trajectory:** Interactive Chart.js graph displaying historical progress curves alongside projected recovery forecasts.
+* **Personalized Recommendations:** Safe flexion compliance alerts (e.g. $\le 45^\circ$ during mini squats), repetition cadence pacing, and extensor lag warnings.
+
+---
+
+## 3. Unseen-Subject Benchmark (`200` held-out test windows, `18` unseen subjects)
+
+Quality metrics use only the **129** test windows that have a ground-truth quality label.
+
+| Rank | Model Architecture | Parameters | Val Score (%) | Exercise Acc (%) | Exercise Macro F1 (%) | Quality Acc (%) | Quality Macro F1 (%) | Combined (%) | Host PC Latency |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **#1** | **Hybrid 5: Self-Attention + Kinematics** | 42,055 | 82.80 | **97.00** | 97.07 | **58.91** | 57.63 | **77.96** | 1.12 ms |
+| **#2** | **Hybrid 1: 1D-CNN + Kinematics (Edge Model)** | 55,879 | 86.08 | **96.50** | 96.67 | **58.91** | 56.97 | **77.71** | 0.16 ms (TFLite) |
+| **#3** | **Hybrid 4: 1D-ResNet + Kinematics** | 159,431 | 81.87 | 96.00 | 96.03 | 57.36 | 55.33 | **76.68** | 0.99 ms |
+| **#4** | **Hybrid 2: BiLSTM + Kinematics** | 103,559 | 78.51 | 96.50 | 96.57 | 54.26 | 52.62 | **75.38** | 2.40 ms |
+| **#5** | **Hybrid 3: CNN-BiLSTM + Kinematics** | 97,223 | 76.36 | 94.00 | 93.40 | 55.81 | 54.38 | **74.91** | 1.27 ms |
+| **#6** | **Hybrid 6: Gated Attention + Kinematics** | 43,335 | 75.52 | 93.50 | 93.00 | 48.06 | 44.77 | **70.78** | 0.84 ms |
+| — | *Baseline 2: Single-IMU 1D-CNN (Thigh 6-Ch)* | — | — | 97.00 | 97.10 | 46.51 | 43.44 | 71.76 | — |
+| — | *Baseline 1: Random Forest (16 Features)* | — | — | 74.00 | 72.07 | 46.51 | 44.11 | 60.26 | — |
+
+Full report: [`app/docs/HYBRID_MODELS_BENCHMARK.md`](app/docs/HYBRID_MODELS_BENCHMARK.md) (generated by `train_models.py`).
+
+---
+
+## 4. Clinician Rehabilitation Protocols & Safe Flexion Limits
+
+Defaults from `main.py`, editable through `/api/clinician/protocol`:
+
+| Exercise | Target ROM ($^\circ$) | Max Safe Flexion ($^\circ$) | Max Return Deficit ($^\circ$) | Frequency |
 | :--- | :---: | :---: | :---: | :---: |
-| **Mini Squat** | $42.0^\circ$ | **$45.0^\circ$ ($30^\circ\text{--}45^\circ$ Safe Zone)** | $\le 5.0^\circ$ | 3 sessions / week |
-| **Seated Knee Extension** | $90.0^\circ$ | $100.0^\circ$ | $\le 5.0^\circ$ | 3 sessions / week |
-| **Step-Up** | $65.0^\circ$ | $75.0^\circ$ | $\le 5.0^\circ$ | 2 sessions / week |
-| **Walking** | $60.0^\circ$ | $70.0^\circ$ | $\le 5.0^\circ$ | 3 sessions / week |
+| **Mini Squat** | $42$ | **$45$** ($30^\circ\text{--}45^\circ$ safe zone) | $\le 5$ | 3 / week |
+| **Seated Knee Extension** | $90$ | $100$ | $\le 5$ | 3 / week |
+| **Step-Up** | $65$ | $75$ | $\le 5$ | 2 / week |
+| **Walking** | $60$ | $70$ | $\le 5$ | 3 / week |
 
 ---
 
-## 4. Repository Structure & Quick Start
+## 5. Validation Honesty & Research Limitations
 
-* [`app/README.md`](app/README.md) — Detailed architecture, hardware pinout, and operational guide.
-* [`app/docs/HOW_16_FEATURES_ARE_CALCULATED.md`](app/docs/HOW_16_FEATURES_ARE_CALCULATED.md) — Mathematical equations for Steps 2.1–2.5 and all 16 clinical features.
-* [`app/docs/HYBRID_MODELS_BENCHMARK.md`](app/docs/HYBRID_MODELS_BENCHMARK.md) — Synchronized unseen-subject benchmark, baselines, and TFLite report.
-* [`app/api/preprocess_datasets.py`](app/api/preprocess_datasets.py) — Reproducible multi-dataset builder (`KneE-PAD`, `PHYTMO`, `StrengthSense`, `HuGaDB`) & OptiTrack validator.
-* [`app/api/math_feature_extractor.py`](app/api/math_feature_extractor.py) — 3D Sensor Fusion, 16-Feature Extractor, and Auto-Swap Detection Engine.
-* [`app/api/train_models.py`](app/api/train_models.py) — Leak-free `GroupKFold` trainer, baseline evaluator, and `.tflite` exporter.
-* [`app/api/main.py`](app/api/main.py) — FastAPI server, live ESP32 BLE/Serial/Wi-Fi recorder, and longitudinal recovery analytics.
-* [`app/tests/test_akira_system.py`](app/tests/test_akira_system.py) — Automated `pytest` verification suite.
+### A. What the second IMU adds
+For **exercise recognition** a thigh-only IMU is as good as both IMUs (97.5% vs 96.5%). The second IMU is needed for **joint kinematics**: the knee angle, ROM, peak depth and extension return deficit are all measured from the relative thigh–shin orientation, which a single sensor cannot observe. It also helps quality grading (56.6% vs 48.1%).
+
+### B. OptiTrack validation (`app/api/models/optitrack_validation_metrics.json`)
+* **Method:** the system's own `compute_knee_angle` vs OptiTrack thigh/shin rigid bodies on PHYTMO. Both are projected on their own hinge axis and use the same polarity rule independently. No rescaling, no high-pass filter, and no trial excluded for disagreeing with the IMU.
+* **Evaluated:** 97 trials. Excluded with logged reasons: 34 optical drop-outs, 7 failed synchronisations, 5 files without rigid bodies.
+* **Results on the 93 windows the system accepts (ROM 4–155°):**
+  * Angle-trace error ignoring polarity: mean **5.84°**, median **3.43°**.
+  * As output: mean **12.45°**, median **4.17°**.
+* **Polarity:** IMU data alone cannot tell flexion from extension without a known sensor orientation. The angle direction is therefore a convention, and it agrees with OptiTrack in **79.4%** of trials. ROM, angular speed, SPARC and repetition timing do not depend on it. A fixed, documented sensor orientation on the AKIRA hardware (or a one-time calibration movement) would remove this ambiguity.
+
+### C. Knee-angle zero and extensor lag
+The angle is measured from the most-extended posture **in each recording**, not from anatomical full extension: the public datasets have no straight-leg calibration pose. Feature 3 is therefore the **extension return deficit** (how completely the knee returns to extension between repetitions), not an absolute extensor lag.
+
+### D. Hardware claims
+* **Latency:** 12.8 ms per 2 s window on the host PC (feature extraction 12.7 ms + TFLite 0.10 ms). ESP32 on-device latency is **not measured**: the firmware does not yet run TFLite Micro.
+* **Dual-IMU synchronisation:** **not measured** on AKIRA hardware. Saved recordings are resampled and do not keep per-sample device timestamps. The expected skew from the shared I2C bus is ~1.3 ms (a design figure, not a measurement).
+
+### E. Dataset limitations (threats to validity)
+* **Mini Squat** source data are squats of 75–115° median ROM; no public mini-squat recordings exist. The class learns the squat pattern, and depth safety is judged from the measured ROM.
+* **Step-Up** source data are stair ascent (HuGaDB `going_up`; StrengthSense odd takes, inferred from the take order because the dataset labels ascent and descent alike), the closest available proxy for a step-up.
+* **Quality** grades exist only for Walking, Seated Knee Extension and Mini Squat. Step-Up quality is not validated, and the app says so. Labels are dataset fault codes, not physiotherapist ratings.
+* **HuGaDB** contains many saturated (±2000°/s) gyroscope recordings; 320 such windows and 206 non-physiological windows were rejected and logged.
+* Participants are healthy or general knee-pathology volunteers, not tibial plateau ORIF patients. Target-population data collection with the AKIRA device remains necessary.
+
+### F. Security
+Patient IDs are stored only as salted SHA-256 pseudonyms. No API key is stored in the source code: set the `AKIRA_API_KEY` environment variable to require an `X-AKIRA-API-Key` header on patient-data endpoints. Without it the server runs in local-development mode (bound to `127.0.0.1`).
+
+---
+
+## 6. Repository Structure & Quick Start
+
+* [`app/README.md`](app/README.md) — Architecture, hardware, datasets and operational guide.
+* [`app/docs/HOW_16_FEATURES_ARE_CALCULATED.md`](app/docs/HOW_16_FEATURES_ARE_CALCULATED.md) — Knee-angle pipeline (Steps 2.1–2.6) and all 16 features.
+* [`app/docs/HYBRID_MODELS_BENCHMARK.md`](app/docs/HYBRID_MODELS_BENCHMARK.md) — Generated benchmark, 5-fold CV, baselines and TFLite report.
+* [`app/api/preprocess_datasets.py`](app/api/preprocess_datasets.py) — Multi-dataset builder and OptiTrack validator.
+* [`app/api/math_feature_extractor.py`](app/api/math_feature_extractor.py) — Sensor fusion, knee angle and 16-feature extractor.
+* [`app/api/train_models.py`](app/api/train_models.py) — Subject-independent trainer, 5-fold CV and full-int8 TFLite exporter.
+* [`app/api/evaluate_nfr_metrics.py`](app/api/evaluate_nfr_metrics.py) — NFR report (states where each result was measured).
+* [`app/api/main.py`](app/api/main.py) — FastAPI server, ESP32 recorder and longitudinal analytics.
+* [`app/tests/test_akira_system.py`](app/tests/test_akira_system.py) — `pytest` suite.
 
 ```powershell
 # Run the Web Application Dashboard

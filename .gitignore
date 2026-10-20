@@ -12,6 +12,12 @@
 # training and test splits tracked in git so training is 100% reproducible!
 app/api/datasets/recorded_trials/*.tmp
 
+# ---- Security, Privacy & Live Recorded Patient Trials ----------------
+.akira_secret_salt
+app/api/.akira_secret_salt
+app/api/datasets/recorded_trials/*.csv
+app/api/datasets/recorded_trials/*.tmp
+
 # ---- Backup files ----------------------------------------------------
 *.backup.html
 *.backup.css
