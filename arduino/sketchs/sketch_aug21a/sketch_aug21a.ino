@@ -13,21 +13,16 @@
 #define STATUS_CHAR_UUID       "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
 // =====================================================================
-// I2C ADDRESSES & PCA9548A MULTIPLEXER CHANNELS
-// Supports all 4 Project Members / Body Components:
-// - Member 1 (Ankle): Sensor 1 = Tibia (CH0),     Sensor 2 = Foot (CH1)
-// - Member 2 (Knee):  Sensor 1 = Thigh (CH0),     Sensor 2 = Shank (CH1)
-// - Member 3 (Wrist): Sensor 1 = Wrist (CH0),     Sensor 2 = Hand (CH1)
-// - Member 4 (Elbow): Sensor 1 = Upper Arm (CH0), Sensor 2 = Forearm (CH1)
+// DIRECT I2C SENSOR ADDRESSES — NO MULTIPLEXER
+// Both sensors share SDA=GPIO21 and SCL=GPIO22.
+// Sensor 1 AD0 LOW  -> address 0x68
+// Sensor 2 AD0 HIGH -> address 0x69
 // =====================================================================
-#define PCA9548A_ADDR 0x70
-#define MPU6500_ADDR  0x68
-
-#define CH_SENSOR_1   0  // Proximal Segment (Tibia / Thigh / Wrist / Upper Arm)
-#define CH_SENSOR_2   1  // Distal Segment   (Foot / Shank / Hand / Forearm)
+#define MPU_SENSOR_1_ADDR 0x68
+#define MPU_SENSOR_2_ADDR 0x69
 
 // =====================================
-// MPU6500 REGISTERS
+// MPU6050 REGISTERS
 // =====================================
 #define WHO_AM_I_REG   0x75
 #define CONFIG_REG     0x1A
@@ -56,14 +51,14 @@ struct ImuReading {
 // Sensor 1 (6 channels) + Sensor 2 (6 channels) sampled synchronously
 struct __attribute__((packed)) DualImuPacket {
     uint32_t timestamp;  // 4 bytes: ESP32 millis() timestamp
-    // Sensor 1 / Proximal IMU (CH0) - 24 bytes
+    // Sensor 1 / Proximal IMU (0x68) - 24 bytes
     float s1_ax;
     float s1_ay;
     float s1_az;
     float s1_gx;
     float s1_gy;
     float s1_gz;
-    // Sensor 2 / Distal IMU (CH1) - 24 bytes
+    // Sensor 2 / Distal IMU (0x69) - 24 bytes
     float s2_ax;
     float s2_ay;
     float s2_az;
@@ -96,19 +91,10 @@ class MyServerCallbacks: public BLEServerCallbacks {
 };
 
 // =====================================
-// SELECT PCA9548A CHANNEL (Fast, No Delay)
+// WRITE IMU REGISTER (DIRECT I2C)
 // =====================================
-bool selectChannel(uint8_t channel) {
-  Wire.beginTransmission(PCA9548A_ADDR);
-  Wire.write(1 << channel);
-  return (Wire.endTransmission(true) == 0);
-}
-
-// =====================================
-// WRITE MPU6500 REGISTER
-// =====================================
-bool writeRegister(uint8_t reg, uint8_t value) {
-  Wire.beginTransmission(MPU6500_ADDR);
+bool writeRegister(uint8_t address, uint8_t reg, uint8_t value) {
+  Wire.beginTransmission(address);
   Wire.write(reg);
   Wire.write(value);
   return (Wire.endTransmission(true) == 0);
@@ -117,15 +103,15 @@ bool writeRegister(uint8_t reg, uint8_t value) {
 // =====================================
 // READ MULTIPLE BYTES (With STOP & Turnaround Delay)
 // =====================================
-bool readBytes(uint8_t reg, uint8_t *buffer, uint8_t length) {
-  Wire.beginTransmission(MPU6500_ADDR);
+bool readBytes(uint8_t address, uint8_t reg, uint8_t *buffer, uint8_t length) {
+  Wire.beginTransmission(address);
   Wire.write(reg);
-  // Releasing the bus with STOP condition (true) ensures PCA9548A multiplexer does not glitch
+  // Releasing the bus with STOP condition (true) ensures a STOP condition before the read
   if (Wire.endTransmission(true) != 0) {
     return false;
   }
   delayMicroseconds(50);
-  uint8_t received = Wire.requestFrom((uint8_t)MPU6500_ADDR, length);
+  uint8_t received = Wire.requestFrom((uint8_t)address, length);
   if (received != length) {
     return false;
   }
@@ -143,21 +129,21 @@ inline int16_t combineBytes(uint8_t high, uint8_t low) {
 }
 
 // =====================================
-// READ MPU6500 INTO ImuReading STRUCT
+// READ MPU6050 INTO ImuReading STRUCT
 // Explicitly reads ACCEL (0x3B) and GYRO (0x43) separately
 // to prevent auto-increment stalls across the temperature registers.
 // =====================================
-bool readMPU6500(ImuReading &out) {
+bool readMPU6050(uint8_t address, ImuReading &out) {
   uint8_t accelData[6];
   uint8_t gyroData[6];
 
   // 1. Read 6 bytes of Accelerometer data (0x3B..0x40)
-  if (!readBytes(ACCEL_XOUT_H, accelData, 6)) {
+  if (!readBytes(address, ACCEL_XOUT_H, accelData, 6)) {
     return false;
   }
 
   // 2. Read 6 bytes of Gyroscope data (0x43..0x48)
-  if (!readBytes(GYRO_XOUT_H, gyroData, 6)) {
+  if (!readBytes(address, GYRO_XOUT_H, gyroData, 6)) {
     return false;
   }
 
@@ -183,64 +169,58 @@ bool readMPU6500(ImuReading &out) {
 }
 
 // =====================================
-// INITIALIZE AN IMU ON SPECIFIC CHANNEL
-// Ensures device reset, Gyro PLL clock selection, and active gyro axes
+// INITIALIZE AN IMU AT A DIRECT I2C ADDRESS
 // =====================================
-bool initSensorOnChannel(uint8_t channel, const char* sensorName) {
-  if (!selectChannel(channel)) {
-    Serial.printf("ERROR: PCA9548A failed to select channel %d (%s)\n", channel, sensorName);
+bool initSensor(uint8_t address, const char* sensorName) {
+  // Confirm the sensor acknowledges before attempting configuration.
+  Wire.beginTransmission(address);
+  if (Wire.endTransmission(true) != 0) {
+    Serial.printf("ERROR: %s not found at 0x%02X\n", sensorName, address);
     return false;
   }
-  delay(15);
 
-  // 1. Device Reset to clear any corrupted state or standby locks
-  writeRegister(PWR_MGMT_1, 0x80);
+  delay(10);
+
+  // Reset device.
+  if (!writeRegister(address, PWR_MGMT_1, 0x80)) {
+    Serial.printf("ERROR: %s reset command failed\n", sensorName);
+    return false;
+  }
   delay(100);
 
-  // 2. Wake up and set clock source to PLL with Gyro X reference (0x01)
-  // CLKSEL 1 powers up the gyroscope drive circuitry and provides a stable clock reference
-  if (!writeRegister(PWR_MGMT_1, 0x01)) {
+  // Wake up and select gyro X PLL clock.
+  if (!writeRegister(address, PWR_MGMT_1, 0x01)) {
     Serial.printf("ERROR: %s wake/clock init failed\n", sensorName);
     return false;
   }
   delay(15);
 
-  // 3. Clear all standby bits in PWR_MGMT_2 (0x6C)
-  // STBY_XG (bit 2), STBY_YG (bit 1), STBY_ZG (bit 0) MUST be 0 for Gyro to run!
-  writeRegister(PWR_MGMT_2, 0x00);
+  writeRegister(address, PWR_MGMT_2, 0x00);
+  writeRegister(address, USER_CTRL_REG, 0x00);
+  writeRegister(address, ACCEL_CONFIG, 0x00); // +/-2g
+  writeRegister(address, GYRO_CONFIG, 0x00);  // +/-250 deg/s
+  writeRegister(address, CONFIG_REG, 0x03);   // DLPF ~42Hz
   delay(10);
 
-  // 4. Disable FIFO and I2C Master mode
-  writeRegister(USER_CTRL_REG, 0x00);
-  delay(5);
-
-  // 5. Configure Accelerometer ±2g (0x00)
-  writeRegister(ACCEL_CONFIG, 0x00);
-  delay(5);
-
-  // 6. Configure Gyroscope ±250 deg/s (0x00)
-  writeRegister(GYRO_CONFIG, 0x00);
-  delay(5);
-
-  // 7. Configure Digital Low Pass Filter (DLPF ~42Hz bandwidth)
-  writeRegister(CONFIG_REG, 0x03);
-  delay(5);
-
-  // Diagnostic readback
   uint8_t whoami = 0, pwr1 = 0, pwr2 = 0, gyroCfg = 0;
-  readBytes(WHO_AM_I_REG, &whoami, 1);
-  readBytes(PWR_MGMT_1, &pwr1, 1);
-  readBytes(PWR_MGMT_2, &pwr2, 1);
-  readBytes(GYRO_CONFIG, &gyroCfg, 1);
+  readBytes(address, WHO_AM_I_REG, &whoami, 1);
+  readBytes(address, PWR_MGMT_1, &pwr1, 1);
+  readBytes(address, PWR_MGMT_2, &pwr2, 1);
+  readBytes(address, GYRO_CONFIG, &gyroCfg, 1);
 
-  Serial.printf("%s [CH%d]: WHO_AM_I=0x%02X, PWR1=0x%02X, PWR2=0x%02X, GYRO_CFG=0x%02X\n",
-                sensorName, channel, whoami, pwr1, pwr2, gyroCfg);
+  Serial.printf("%s [0x%02X]: WHO_AM_I=0x%02X, PWR1=0x%02X, PWR2=0x%02X, GYRO_CFG=0x%02X\n",
+                sensorName, address, whoami, pwr1, pwr2, gyroCfg);
 
-  if (pwr2 != 0x00) {
-    Serial.printf("WARNING: %s PWR_MGMT_2 is 0x%02X (standby bits non-zero!)\n", sensorName, pwr2);
+  if (whoami != 0x68) {
+    Serial.printf("WARNING: %s returned unexpected WHO_AM_I value 0x%02X\n",
+                  sensorName, whoami);
   }
 
-  Serial.printf("%s ready on PCA9548A channel %d!\n", sensorName, channel);
+  if (pwr2 != 0x00) {
+    Serial.printf("WARNING: %s PWR_MGMT_2 is 0x%02X\n", sensorName, pwr2);
+  }
+
+  Serial.printf("%s ready at I2C address 0x%02X\n", sensorName, address);
   return true;
 }
 
@@ -260,12 +240,12 @@ void displaySensorData() {
 
   // Sensor 1 (Proximal: Tibia / Thigh / Wrist / UpperArm)
   char line[32];
-  oled.drawStr(0, 22, "S1 Prox (CH0)");
+  oled.drawStr(0, 22, "S1 Prox (0x68)");
   snprintf(line, sizeof(line), "A:%4.1f %4.1f %4.1f", sensor1Data.ax, sensor1Data.ay, sensor1Data.az);
   oled.drawStr(0, 32, line);
 
   // Sensor 2 (Distal: Foot / Shank / Hand / Forearm)
-  oled.drawStr(0, 44, "S2 Dist (CH1)");
+  oled.drawStr(0, 44, "S2 Dist (0x69)");
   snprintf(line, sizeof(line), "A:%4.1f %4.1f %4.1f", sensor2Data.ax, sensor2Data.ay, sensor2Data.az);
   oled.drawStr(0, 54, line);
 
@@ -281,7 +261,7 @@ void displayStreamingScreen() {
   oled.drawStr(0, 15, "AKIRA 4-Member Hub");
   oled.drawHLine(0, 18, 128);
   oled.drawStr(0, 30, "BLE: Connected");
-  oled.drawStr(0, 44, "S1(CH0) + S2(CH1)");
+  oled.drawStr(0, 44, "S1(68) + S2(69)");
   oled.drawStr(0, 58, "Streaming @ 100 Hz");
   oled.sendBuffer();
 }
@@ -293,7 +273,7 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  // 400kHz Fast Mode I2C
+  // I2C shared by both directly connected IMUs and OLED
   Wire.begin(21, 22);
   Wire.setClock(400000);
 
@@ -308,7 +288,7 @@ void setup() {
 
   Serial.println();
   Serial.println("=================================================");
-  Serial.println("AKIRA REHABILITATION: 4-MEMBER DUAL-IMU PLATFORM");
+  Serial.println("AKIRA REHABILITATION: DIRECT DUAL-IMU PLATFORM");
   Serial.println("M1: Ankle (Tibia/Foot)  | M2: Knee (Thigh/Shank)");
   Serial.println("M3: Wrist (Wrist/Hand)  | M4: Elbow (UpperArm/Forearm)");
   Serial.println("=================================================");
@@ -330,7 +310,7 @@ void setup() {
                       STATUS_CHAR_UUID,
                       BLECharacteristic::PROPERTY_READ
                     );
-  pStatusCharacteristic->setValue("AKIRA Dual-IMU 12-Channel Hub Ready");
+  pStatusCharacteristic->setValue("AKIRA Direct Dual-IMU 12-Channel Hub Ready");
 
   pService->start();
 
@@ -343,13 +323,13 @@ void setup() {
 
   Serial.println("BLE Ready to Pair!");
 
-  // Initialize Sensor 1 (CH0 - Proximal) & Sensor 2 (CH1 - Distal)
-  sensor1Available = initSensorOnChannel(CH_SENSOR_1, "Sensor 1 (Proximal CH0)");
-  sensor2Available = initSensorOnChannel(CH_SENSOR_2, "Sensor 2 (Distal CH1)");
+  // Initialize both sensors directly by their distinct I2C addresses.
+  sensor1Available = initSensor(MPU_SENSOR_1_ADDR, "Sensor 1 (Proximal)");
+  sensor2Available = initSensor(MPU_SENSOR_2_ADDR, "Sensor 2 (Distal)");
 
   // Show status on OLED
   oled.clearBuffer();
-  oled.drawStr(0, 15, "Sensors (CH0/CH1):");
+  oled.drawStr(0, 15, "Sensors (0x68/0x69):");
   char statusLine[32];
   snprintf(statusLine, sizeof(statusLine), "S1 Prox: %s", sensor1Available ? "OK" : "ERROR");
   oled.drawStr(0, 32, statusLine);
@@ -359,7 +339,7 @@ void setup() {
   oled.sendBuffer();
 
   delay(1500);
-  Serial.println("AKIRA Dual IMU Platform Ready!");
+  Serial.println("AKIRA Direct Dual IMU Platform Ready!");
 }
 
 // =====================================
@@ -384,9 +364,9 @@ void loop() {
       memset(&packet, 0, sizeof(DualImuPacket));
       packet.timestamp = now;
 
-      // 1. Synchronously sample Sensor 1 (PCA9548A CH0)
-      if (sensor1Available && selectChannel(CH_SENSOR_1)) {
-        if (readMPU6500(sensor1Data)) {
+      // 1. Sample Sensor 1 directly at I2C address 0x68.
+      if (sensor1Available) {
+        if (readMPU6050(MPU_SENSOR_1_ADDR, sensor1Data)) {
           packet.s1_ax = sensor1Data.ax;
           packet.s1_ay = sensor1Data.ay;
           packet.s1_az = sensor1Data.az;
@@ -396,9 +376,9 @@ void loop() {
         }
       }
 
-      // 2. Synchronously sample Sensor 2 (PCA9548A CH1)
-      if (sensor2Available && selectChannel(CH_SENSOR_2)) {
-        if (readMPU6500(sensor2Data)) {
+      // 2. Sample Sensor 2 directly at I2C address 0x69.
+      if (sensor2Available) {
+        if (readMPU6050(MPU_SENSOR_2_ADDR, sensor2Data)) {
           packet.s2_ax = sensor2Data.ax;
           packet.s2_ay = sensor2Data.ay;
           packet.s2_az = sensor2Data.az;
@@ -426,11 +406,11 @@ void loop() {
     static unsigned long lastDisplayUpdate = 0;
 
     if (now - lastDisplayUpdate > 500) {
-      if (sensor1Available && selectChannel(CH_SENSOR_1)) {
-        readMPU6500(sensor1Data);
+      if (sensor1Available) {
+        readMPU6050(MPU_SENSOR_1_ADDR, sensor1Data);
       }
-      if (sensor2Available && selectChannel(CH_SENSOR_2)) {
-        readMPU6500(sensor2Data);
+      if (sensor2Available) {
+        readMPU6050(MPU_SENSOR_2_ADDR, sensor2Data);
       }
       displaySensorData();
       lastDisplayUpdate = now;

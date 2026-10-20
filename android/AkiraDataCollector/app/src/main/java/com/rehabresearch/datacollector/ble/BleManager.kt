@@ -54,6 +54,9 @@ class BleManager @Inject constructor(
     private val _connectionState = MutableStateFlow<BleConnectionState>(BleConnectionState.Disconnected)
     val connectionState: StateFlow<BleConnectionState> = _connectionState.asStateFlow()
 
+    private val _discoveredDevices = MutableStateFlow<List<DiscoveredBleDevice>>(emptyList())
+    val discoveredDevices: StateFlow<List<DiscoveredBleDevice>> = _discoveredDevices.asStateFlow()
+
     private val _linkStats = MutableStateFlow(BleLinkStats())
     val linkStats: StateFlow<BleLinkStats> = _linkStats.asStateFlow()
 
@@ -74,13 +77,35 @@ class BleManager @Inject constructor(
         }
     }
 
+    /** Check if system Location Services are enabled (required for BLE discovery on Xiaomi/MIUI and Android <= 11) */
+    fun isLocationEnabled(): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            locationManager.isLocationEnabled
+        } else {
+            @Suppress("DEPRECATION")
+            val mode = android.provider.Settings.Secure.getInt(
+                context.contentResolver,
+                android.provider.Settings.Secure.LOCATION_MODE,
+                android.provider.Settings.Secure.LOCATION_MODE_OFF
+            )
+            mode != android.provider.Settings.Secure.LOCATION_MODE_OFF
+        }
+    }
+
     private val scanTimeoutRunnable = Runnable {
         if (_connectionState.value is BleConnectionState.Scanning) {
-            Log.w(BleConstants.LOG_TAG, "Scan timed out after ${BleConstants.SCAN_TIMEOUT_MILLIS}ms")
+            Log.w(BleConstants.LOG_TAG, "Scan completed after ${BleConstants.SCAN_TIMEOUT_MILLIS}ms")
             stopScan()
-            _connectionState.value = BleConnectionState.Error(
-                "No ESP32 sensor found. Ensure the sensor is powered on, in range, and advertising."
-            )
+            val foundCount = _discoveredDevices.value.size
+            if (foundCount == 0) {
+                val locHint = if (!isLocationEnabled()) " Note: Location (GPS) is currently OFF. Xiaomi/MIUI requires Location ON to discover BLE devices." else ""
+                _connectionState.value = BleConnectionState.Error(
+                    "No BLE devices found within range.$locHint Ensure the ESP32 sensor is powered on and advertising."
+                )
+            } else {
+                _connectionState.value = BleConnectionState.Disconnected
+            }
         }
     }
 
@@ -95,15 +120,6 @@ class BleManager @Inject constructor(
             return
         }
 
-        // On Android <= 11, Location Services (GPS) must be enabled for BLE scanning
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
-            if (locationManager != null && !locationManager.isLocationEnabled) {
-                _connectionState.value = BleConnectionState.Error("Location (GPS) must be turned ON for Bluetooth scanning on Android 11 and below.")
-                return
-            }
-        }
-
         // Verify runtime permissions before starting scan
         if (!hasRequiredPermissions()) {
             _connectionState.value = BleConnectionState.Error("Bluetooth scan permission is required. Please grant permissions in app settings.")
@@ -113,6 +129,9 @@ class BleManager @Inject constructor(
         // Stop any previous scan session cleanly
         stopScan()
 
+        // Clear previous discoveries for a fresh scan
+        _discoveredDevices.value = emptyList()
+
         val bleScanner = currentAdapter.bluetoothLeScanner
         if (bleScanner == null) {
             _connectionState.value = BleConnectionState.Error("Bluetooth LE scanner unavailable. Try toggling Bluetooth.")
@@ -120,7 +139,7 @@ class BleManager @Inject constructor(
         }
 
         _connectionState.value = BleConnectionState.Scanning
-        Log.i(BleConstants.LOG_TAG, "Starting BLE scan (Low Latency)...")
+        Log.i(BleConstants.LOG_TAG, "Starting BLE scan (Low Latency)... Location enabled: ${isLocationEnabled()}")
 
         val settings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -152,6 +171,9 @@ class BleManager @Inject constructor(
         } catch (e: Exception) {
             Log.w(BleConstants.LOG_TAG, "Error stopping scan: ${e.message}")
         }
+        if (_connectionState.value is BleConnectionState.Scanning) {
+            _connectionState.value = BleConnectionState.Disconnected
+        }
     }
 
     private val scanCallback = object : ScanCallback() {
@@ -162,7 +184,6 @@ class BleManager @Inject constructor(
         override fun onBatchScanResults(results: MutableList<ScanResult>) {
             for (result in results) {
                 processScanResult(result)
-                if (_connectionState.value is BleConnectionState.DeviceFound) break
             }
         }
 
@@ -201,15 +222,41 @@ class BleManager @Inject constructor(
             advertisedName.contains("AKIRA", ignoreCase = true)
         )
 
-        if (matchesName || hasMatchingServiceUuid) {
-            val resolvedName = advertisedName ?: "ESP32-REHAB Sensor"
+        val isTarget = matchesName || hasMatchingServiceUuid
+        val resolvedName = advertisedName ?: (if (isTarget) "ESP32-REHAB Sensor" else "BLE Device (${device.address.takeLast(5)})")
+
+        // Update the live discovered devices list
+        val currentList = _discoveredDevices.value.toMutableList()
+        val existingIndex = currentList.indexOfFirst { it.address == device.address }
+        val updatedItem = DiscoveredBleDevice(
+            name = if (advertisedName != null) advertisedName else if (existingIndex >= 0) currentList[existingIndex].name else resolvedName,
+            address = device.address,
+            rssi = result.rssi,
+            isTarget = isTarget
+        )
+
+        if (existingIndex >= 0) {
+            currentList[existingIndex] = updatedItem
+        } else {
+            currentList.add(updatedItem)
+        }
+
+        // Sort: target devices at the top, then strongest signal (RSSI descending)
+        currentList.sortWith(
+            compareByDescending<DiscoveredBleDevice> { it.isTarget }
+                .thenByDescending { it.rssi }
+        )
+        _discoveredDevices.value = currentList
+
+        if (isTarget) {
             Log.i(BleConstants.LOG_TAG, "Discovered target BLE device: '$resolvedName' [${device.address}] RSSI: ${result.rssi} dBm")
-            stopScan()
-            _connectionState.value = BleConnectionState.DeviceFound(
-                name = resolvedName,
-                address = device.address,
-                rssi = result.rssi
-            )
+            if (_connectionState.value is BleConnectionState.Scanning) {
+                _connectionState.value = BleConnectionState.DeviceFound(
+                    name = resolvedName,
+                    address = device.address,
+                    rssi = result.rssi
+                )
+            }
         }
     }
 
@@ -400,3 +447,12 @@ private object BluetoothGattDescriptorValue {
     val ENABLE_NOTIFICATION_VALUE: ByteArray =
         android.bluetooth.BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
 }
+
+/** Represents a BLE peripheral discovered during scanning */
+data class DiscoveredBleDevice(
+    val name: String,
+    val address: String,
+    val rssi: Int,
+    val isTarget: Boolean,
+    val lastSeenTimestamp: Long = System.currentTimeMillis()
+)
