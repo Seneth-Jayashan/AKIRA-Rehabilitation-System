@@ -1,5 +1,6 @@
 package com.rehabresearch.datacollector.ble
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -9,11 +10,18 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.ParcelUuid
+import android.util.Log
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +29,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
-import android.util.Log
 
 /**
  * Owns the entire BLE lifecycle: scan -> connect -> discover services ->
@@ -31,13 +38,8 @@ import android.util.Log
  * it only knows about Bluetooth. RecordingViewModel is responsible for turning
  * the packet stream into stored SensorReadingEntity rows. Keeping these
  * separate means the BLE code can be tested/reused independent of storage.
- *
- * IMPORTANT: All Bluetooth permission checks (BLUETOOTH_SCAN, BLUETOOTH_CONNECT
- * on API 31+, or ACCESS_FINE_LOCATION below that) must happen in the UI layer
- * BEFORE calling startScan()/connect(). This class assumes permissions are
- * already granted, since permission UX belongs in Compose, not here.
  */
-@SuppressLint("MissingPermission") // caller is contractually required to have checked permissions
+@SuppressLint("MissingPermission") // caller or hasRequiredPermissions() checks runtime permissions
 @Singleton
 class BleManager @Inject constructor(
     private val context: Context
@@ -61,43 +63,153 @@ class BleManager @Inject constructor(
 
     val isBluetoothEnabled: Boolean get() = adapter?.isEnabled == true
 
+    /** Check if runtime permissions for BLE scanning are granted. */
+    fun hasRequiredPermissions(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    private val scanTimeoutRunnable = Runnable {
+        if (_connectionState.value is BleConnectionState.Scanning) {
+            Log.w(BleConstants.LOG_TAG, "Scan timed out after ${BleConstants.SCAN_TIMEOUT_MILLIS}ms")
+            stopScan()
+            _connectionState.value = BleConnectionState.Error(
+                "No ESP32 sensor found. Ensure the sensor is powered on, in range, and advertising."
+            )
+        }
+    }
+
     fun startScan() {
-        val bleScanner = adapter?.bluetoothLeScanner ?: run {
-            _connectionState.value = BleConnectionState.Error("Bluetooth is off or unsupported on this device")
+        val currentAdapter = adapter
+        if (currentAdapter == null) {
+            _connectionState.value = BleConnectionState.Error("Bluetooth hardware is not available on this device")
             return
         }
+        if (!currentAdapter.isEnabled) {
+            _connectionState.value = BleConnectionState.Error("Bluetooth is turned OFF. Please enable Bluetooth to search for sensors.")
+            return
+        }
+
+        // On Android <= 11, Location Services (GPS) must be enabled for BLE scanning
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+            if (locationManager != null && !locationManager.isLocationEnabled) {
+                _connectionState.value = BleConnectionState.Error("Location (GPS) must be turned ON for Bluetooth scanning on Android 11 and below.")
+                return
+            }
+        }
+
+        // Verify runtime permissions before starting scan
+        if (!hasRequiredPermissions()) {
+            _connectionState.value = BleConnectionState.Error("Bluetooth scan permission is required. Please grant permissions in app settings.")
+            return
+        }
+
+        // Stop any previous scan session cleanly
+        stopScan()
+
+        val bleScanner = currentAdapter.bluetoothLeScanner
+        if (bleScanner == null) {
+            _connectionState.value = BleConnectionState.Error("Bluetooth LE scanner unavailable. Try toggling Bluetooth.")
+            return
+        }
+
         _connectionState.value = BleConnectionState.Scanning
+        Log.i(BleConstants.LOG_TAG, "Starting BLE scan (Low Latency)...")
+
         val settings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .setReportDelay(0)
             .build()
-        bleScanner.startScan(null, settings, scanCallback)
 
-        mainHandler.postDelayed({
-            if (_connectionState.value is BleConnectionState.Scanning) {
-                stopScan()
-                _connectionState.value = BleConnectionState.Disconnected
-            }
-        }, BleConstants.SCAN_TIMEOUT_MILLIS)
+        try {
+            // Unfiltered scan with in-code filtering allows discovering devices even if
+            // the name or service UUID is delivered across separate advertisement / scan response packets.
+            bleScanner.startScan(null, settings, scanCallback)
+        } catch (e: SecurityException) {
+            Log.e(BleConstants.LOG_TAG, "SecurityException starting BLE scan", e)
+            _connectionState.value = BleConnectionState.Error("Bluetooth scan permission denied. Please grant permissions in app settings.")
+            return
+        } catch (e: Exception) {
+            Log.e(BleConstants.LOG_TAG, "Exception starting BLE scan", e)
+            _connectionState.value = BleConnectionState.Error("Failed to start scan: ${e.message}")
+            return
+        }
+
+        mainHandler.removeCallbacks(scanTimeoutRunnable)
+        mainHandler.postDelayed(scanTimeoutRunnable, BleConstants.SCAN_TIMEOUT_MILLIS)
     }
 
     fun stopScan() {
-        adapter?.bluetoothLeScanner?.stopScan(scanCallback)
+        mainHandler.removeCallbacks(scanTimeoutRunnable)
+        try {
+            adapter?.bluetoothLeScanner?.stopScan(scanCallback)
+        } catch (e: Exception) {
+            Log.w(BleConstants.LOG_TAG, "Error stopping scan: ${e.message}")
+        }
     }
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            val name = result.device.name ?: return
-            if (name.startsWith(BleConstants.DEVICE_NAME_PREFIX)) {
-                _connectionState.value = BleConnectionState.DeviceFound(
-                    name = name,
-                    address = result.device.address,
-                    rssi = result.rssi
-                )
+            processScanResult(result)
+        }
+
+        override fun onBatchScanResults(results: MutableList<ScanResult>) {
+            for (result in results) {
+                processScanResult(result)
+                if (_connectionState.value is BleConnectionState.DeviceFound) break
             }
         }
 
         override fun onScanFailed(errorCode: Int) {
-            _connectionState.value = BleConnectionState.Error("Scan failed (code $errorCode)")
+            val message = when (errorCode) {
+                SCAN_FAILED_ALREADY_STARTED -> "Scan already in progress. Retrying..."
+                SCAN_FAILED_APPLICATION_REGISTRATION_FAILED -> "Bluetooth stack registration error. Please toggle Bluetooth."
+                SCAN_FAILED_INTERNAL_ERROR -> "Internal Bluetooth error. Please toggle Bluetooth."
+                SCAN_FAILED_FEATURE_UNSUPPORTED -> "BLE scanning unsupported on this hardware."
+                SCAN_FAILED_OUT_OF_HARDWARE_RESOURCES -> "Out of Bluetooth hardware resources. Close other BLE apps and retry."
+                else -> "Scan failed (error code $errorCode)"
+            }
+            Log.e(BleConstants.LOG_TAG, "BLE scan failed: $message (code $errorCode)")
+            _connectionState.value = BleConnectionState.Error(message)
+        }
+    }
+
+    private fun processScanResult(result: ScanResult) {
+        val device = result.device
+        val scanRecord = result.scanRecord
+
+        // CRITICAL FIX: device.name is often null on first discovery before OS bonding/caching.
+        // The advertised local name is stored in scanRecord.deviceName.
+        val advertisedName = scanRecord?.deviceName ?: runCatching { device.name }.getOrNull()
+
+        // Check if advertisement contains our target IMU Service UUID
+        val hasMatchingServiceUuid = scanRecord?.serviceUuids?.any {
+            it.uuid == BleConstants.IMU_SERVICE_UUID
+        } == true
+
+        // Check if advertised name matches prefix or contains ESP32 / REHAB / AKIRA (case-insensitive)
+        val matchesName = advertisedName != null && (
+            advertisedName.startsWith(BleConstants.DEVICE_NAME_PREFIX, ignoreCase = true) ||
+            advertisedName.contains("ESP32", ignoreCase = true) ||
+            advertisedName.contains("REHAB", ignoreCase = true) ||
+            advertisedName.contains("AKIRA", ignoreCase = true)
+        )
+
+        if (matchesName || hasMatchingServiceUuid) {
+            val resolvedName = advertisedName ?: "ESP32-REHAB Sensor"
+            Log.i(BleConstants.LOG_TAG, "Discovered target BLE device: '$resolvedName' [${device.address}] RSSI: ${result.rssi} dBm")
+            stopScan()
+            _connectionState.value = BleConnectionState.DeviceFound(
+                name = resolvedName,
+                address = device.address,
+                rssi = result.rssi
+            )
         }
     }
 

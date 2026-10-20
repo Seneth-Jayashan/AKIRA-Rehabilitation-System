@@ -64,10 +64,13 @@ fun BleDeviceScreen(
                     Card(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
                         Column(Modifier.padding(16.dp)) {
                             Text(state.name, style = MaterialTheme.typography.titleLarge)
+                            Text("Address: ${state.address}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text("Signal: ${state.rssi} dBm", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
-                    Button(onClick = { viewModel.connect(state.address) }) { Text("Connect") }
+                    Button(onClick = { viewModel.connect(state.address) }, modifier = Modifier.fillMaxWidth()) { Text("Connect") }
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(onClick = { viewModel.startScan() }, modifier = Modifier.fillMaxWidth()) { Text("Scan Again") }
                 }
                 is BleConnectionState.Connecting -> {
                     CircularProgressIndicator()
@@ -101,9 +104,14 @@ fun BleDeviceScreen(
                     Text("Enabling sensor notifications...")
                 }
                 is BleConnectionState.Error -> {
-                    Text(state.message, color = MaterialTheme.colorScheme.error)
+                    Text(
+                        state.message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
                     Spacer(Modifier.height(16.dp))
-                    Button(onClick = { viewModel.startScan() }) { Text("Retry") }
+                    Button(onClick = { viewModel.startScan() }) { Text("Retry Scan") }
                 }
             }
 
