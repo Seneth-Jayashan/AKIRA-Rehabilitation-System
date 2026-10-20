@@ -1,0 +1,141 @@
+{
+  "project_root": "D:/me/project",
+  "raw_datasets_root": "D:/me/project/datasets/raw",
+  "canonical_channels_12": [
+    "ua_acc_x_ms2",
+    "ua_acc_y_ms2",
+    "ua_acc_z_ms2",
+    "ua_gyr_x_rads",
+    "ua_gyr_y_rads",
+    "ua_gyr_z_rads",
+    "fa_acc_x_ms2",
+    "fa_acc_y_ms2",
+    "fa_acc_z_ms2",
+    "fa_gyr_x_rads",
+    "fa_gyr_y_rads",
+    "fa_gyr_z_rads"
+  ],
+  "window_duration_sec": 2.0,
+  "window_stride_sec": 0.5,
+  "random_seed": 42,
+  "models": ["TCN", "1D_CNN", "LSTM", "GRU"],
+  "shared_7class_taxonomy": {
+    "0": {
+      "name": "elbow_flex_ext",
+      "Optotrak vs DOT": ["11"],
+      "JU-IMU": ["ElbFlex"],
+      "PHYTMO": ["EFE0"]
+    },
+    "1": {
+      "name": "forearm_pro_sup",
+      "Optotrak vs DOT": ["12"],
+      "JU-IMU": ["SupPro"],
+      "PHYTMO": []
+    },
+    "2": {
+      "name": "shoulder_flex",
+      "Optotrak vs DOT": ["13"],
+      "JU-IMU": ["ShFlex90"],
+      "PHYTMO": ["EAH0"]
+    },
+    "3": {
+      "name": "shoulder_abd",
+      "Optotrak vs DOT": ["14"],
+      "JU-IMU": ["ShAbd90"],
+      "PHYTMO": []
+    },
+    "4": {
+      "name": "shoulder_rot",
+      "Optotrak vs DOT": ["15"],
+      "JU-IMU": ["ShRot"],
+      "PHYTMO": []
+    },
+    "5": {
+      "name": "wrist_flex_ext",
+      "Optotrak vs DOT": ["16"],
+      "JU-IMU": ["WrstFlex", "WrstExt"],
+      "PHYTMO": []
+    },
+    "6": {
+      "name": "drinking_cup_adl",
+      "Optotrak vs DOT": ["18"],
+      "JU-IMU": ["PickCup"],
+      "PHYTMO": []
+    }
+  },
+  "subject_splits": {
+    "PHYTMO": {
+      "train": [
+        "A02", "A04", "A05", "A06", "A07", "A08", "A09", "A10",
+        "B03", "B04", "B05",
+        "C03", "C04", "C05",
+        "D03", "D04", "D05",
+        "E03", "E04", "E05"
+      ],
+      "val": ["A01", "B01", "C01", "D01", "E01"],
+      "test": ["A03", "B02", "C02", "D02", "E02"],
+      "efe_excluded_subjects": ["A06", "A07", "B03"],
+      "eah_excluded_subjects": ["A02"]
+    },
+    "Optotrak_vs_DOT_Classification": {
+      "train": [
+        "subject 1", "subject 4", "subject 6", "subject 7", "subject 8",
+        "subject 10", "subject 12", "subject 14", "subject 16"
+      ],
+      "val": ["subject 3", "subject 9", "subject 13"],
+      "test": ["subject 5", "subject 11", "subject 15"],
+      "excluded_subjects": {
+        "subject 2": "Sensors placed on left arm due to right-side injury (documented in Readme.docx)"
+      }
+    },
+    "Optotrak_vs_DOT_AngleRegression": {
+      "train": [
+        "subject 1", "subject 4", "subject 6", "subject 7",
+        "subject 10", "subject 12", "subject 14", "subject 16"
+      ],
+      "val": ["subject 3", "subject 9", "subject 13"],
+      "test": ["subject 5", "subject 11", "subject 15"],
+      "excluded_subjects": {
+        "subject 2": "Sensors placed on left arm due to right-side injury",
+        "subject 8": "Missing medial epicondyle (ME) bony landmark digitization; H_Joint_Angles_Aligned_FINAL omitted"
+      }
+    },
+    "JU_IMU": {
+      "train": [
+        "ND4", "ND5", "ND7", "ND10", "ND11", "ND14", "ND16", "ND17", "ND19", "ND20",
+        "ND21", "ND23", "ND24", "ND26", "ND27", "ND28", "ND30", "ND32", "ND33",
+        "Stroke2", "Stroke3", "Stroke5", "Stroke7", "Stroke8", "Stroke9", "Stroke12",
+        "Stroke14", "Stroke15", "Stroke16"
+      ],
+      "val": ["ND6", "ND15", "ND22", "ND29", "Stroke4", "Stroke10"],
+      "test": ["ND8", "ND18", "ND25", "ND31", "Stroke6", "Stroke13"]
+    },
+    "StrokeRehab": {
+      "train": [
+        "C4", "C5", "C7", "C12", "C15", "C19", "C22",
+        "C24", "C25", "C26", "C27", "C29", "C31", "C32"
+      ],
+      "val": ["C9", "C20", "C28"],
+      "test": ["C11", "C23", "C30"]
+    },
+    "ULF_in_ADL": {
+      "train": [
+        "H01", "H03", "H05",
+        "P02", "P03", "P04", "P06", "P09", "P10", "P12",
+        "P17", "P20", "P21", "P22", "P25", "P29", "P30"
+      ],
+      "val": ["H02", "P05", "P16", "P24"],
+      "test": ["H04", "P08", "P19", "P28"]
+    },
+    "ULTra_MoCap": {
+      "train": ["P01", "P02", "P04", "P05", "P07", "P08", "P10", "P11", "P13"],
+      "val": ["P03", "P09"],
+      "test": ["P06", "P12"]
+    },
+    "VIDIMU": {
+      "train": ["S40", "S41", "S44", "S47", "S48", "S50", "S52", "S53", "S55", "S57"],
+      "val": ["S42", "S49", "S54"],
+      "test": ["S46", "S51", "S56"]
+    }
+  }
+}

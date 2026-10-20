@@ -1,247 +1,615 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKIRA | AI Kinematic Intelligence</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Elbow Rehabilitation Assistant — Comprehensive Clinical Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-    <header>
-        <h1>AKIRA</h1>
-        <h2>AI Kinematic Intelligence for Rehabilitation Analysis</h2>
-        <h3>Elbow Rehabilitation — Kinematic Analysis Prototype</h3>
-        <div class="badge">Validated on healthy-subject public dataset data. Not clinically validated on Olecranon ORIF patients.</div>
-    </header>
-
-    <div class="container">
-        <!-- Integrity Warning -->
-        <div id="integrity-warning" class="hidden error-box">
-            MODEL INTEGRITY: ✗ FAILED (Hash mismatch)
-        </div>
-
-        <div class="row">
-            <!-- Research Status -->
-            <div class="card model-info">
-                <h3>Research Status</h3>
-                <ul>
-                    <li><strong>Model:</strong> Frozen TCN</li>
-                    <li><strong>Input:</strong> 2 IMUs / 12 channels / 240 samples</li>
-                    <li><strong>Primary outputs:</strong> Elbow Flexion/Extension, Forearm Pronation/Supination</li>
-                    <li><strong>Additional output:</strong> 20-class movement classification</li>
-                    <li><strong>Dataset:</strong> Healthy-subject public dataset</li>
-                    <li><strong>Clinical ORIF validation:</strong> Not yet performed</li>
-                    <li><strong>Real ESP32 validation:</strong> Not yet performed</li>
-                </ul>
-                <div class="hash-box" id="hash-box">
-                    MODEL INTEGRITY: ✓ VERIFIED<br>
-                    <span id="sha-hash" style="font-size: 0.8em; word-break: break-all;"></span>
-                </div>
-            </div>
-
-            <!-- Performance -->
-            <div class="card performance">
-                <h3>OFFICIAL TEST PERFORMANCE</h3>
-                <p class="subtitle">Official locked test-set results</p>
-                <ul>
-                    <li><strong>Test subjects:</strong> 2 unseen subjects</li>
-                    <li><strong>Dataset:</strong> Healthy public dataset</li>
-                    <hr>
-                    <li><strong>Elbow MAE:</strong> 13.38°</li>
-                    <li><strong>Elbow RMSE:</strong> 22.96°</li>
-                    <li><strong>Elbow R²:</strong> 0.72</li>
-                    <li><strong>Forearm MAE:</strong> 24.41°</li>
-                    <li><strong>Forearm Median Angular Error:</strong> 19.85°</li>
-                    <li><strong>Forearm 95th Percentile Angular Error:</strong> 72.09°</li>
-                    <li><strong>Classification Accuracy:</strong> 63.58%</li>
-                </ul>
-            </div>
-        </div>
-
-        
-        <div class="row">
-            <div class="card">
-                <h3>MODEL COMPARISON</h3>
-                <div class="row">
-                    <div style="flex: 1;">
-                        <table style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 15px;">
-                            <thead>
-                                <tr style="border-bottom: 2px solid #ccc;">
-                                    <th style="padding: 8px;">Model</th>
-                                    <th style="padding: 8px;">Elbow MAE</th>
-                                    <th style="padding: 8px;">Forearm MAE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style="background-color: #e9f7ef; font-weight: bold; border-bottom: 1px solid #ccc;">
-                                    <td style="padding: 8px;">TCN</td>
-                                    <td style="padding: 8px;">13.38°</td>
-                                    <td style="padding: 8px;">24.41°</td>
-                                </tr>
-                                <tr style="border-bottom: 1px solid #ccc;">
-                                    <td style="padding: 8px;">LSTM</td>
-                                    <td style="padding: 8px;">17.05°</td>
-                                    <td style="padding: 8px;">27.65°</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px;">Linear Baseline</td>
-                                    <td style="padding: 8px;">46.15°</td>
-                                    <td style="padding: 8px;">25.11°</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; font-weight: bold; margin-bottom: 10px;">
-                            ✓ SELECTED FINAL MODEL: TCN
-                        </div>
-                        <p style="font-size: 0.9em;">TCN achieved the lowest reported kinematic prediction error among the three tested approaches and was selected as the final model.</p>
-                        <p style="font-size: 0.9em; font-style: italic;">Lower MAE indicates lower average prediction error.</p>
-                    </div>
-                    <div style="flex: 1;">
-                        <div class="chart-container" style="height: 250px;">
-                            <canvas id="baselineChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Input Section -->
-
-        <div class="card input-section">
-            <h3>Real-Time Dataset Replay</h3>
-            
-            <p style="font-size: 0.95em; color: #333; margin-top: 5px;">
-                Select a recorded held-out test-set trial to replay through the frozen AKIRA model. Primary demonstrations focus on elbow flexion/extension and forearm pronation/supination because these are the main kinematic targets of the current AKIRA component.
-            </p>
-            <p style="font-size: 0.85em; color: #666; font-style: italic; margin-bottom: 15px;">
-                The current dataset contains healthy-subject movements. These recordings validate the kinematic-analysis prototype and are not clinical Olecranon ORIF rehabilitation data.
-            </p>
-
-            <div class="demo-selector" style="margin-bottom: 15px;">
-                <label for="demo-select"><strong>Demo Recording:</strong></label>
-                <select id="demo-select" style="width: 100%; max-width: 600px; height: 40px; display: block; margin-top: 5px; background: #fff; border: 1px solid #ccc; padding: 5px; font-size: 16px; border-radius: 4px; color: #333; cursor: pointer;">
-                    
-                    <optgroup label="PRIMARY ELBOW / FOREARM">
-                        <option value="task1">Task 1 — Dynamic Elbow Flexion/Extension</option>
-                        <option value="task2">Task 2 — Dynamic Forearm Pronation/Supination</option>
-                    </optgroup>
-                    
-                    <optgroup label="SUPPORTING UPPER-LIMB">
-                        <option value="task3">Task 3 — Dynamic Shoulder Flexion</option>
-                        <option value="task4">Task 4 — Dynamic Shoulder Abduction</option>
-                    </optgroup>
-
-                    <optgroup label="FUNCTIONAL ACTIVITY">
-                        <option value="task8">Task 8 — Drinking From a Cup</option>
-                    </optgroup>
-
-                    <optgroup label="CALIBRATION">
-                        <option value="cali_elbowflex">Elbow Flexion/Extension Calibration</option>
-                    </optgroup>
-
-                    <optgroup label="MODEL LIMITATION">
-                        <option value="error">Classification Error Example</option>
-                    </optgroup>
-
-                </select>
-            </div>
-            
-            <div class="testing-info" style="background: #f8f9fa; padding: 10px; border-left: 4px solid #0056b3; margin-bottom: 15px; border-radius: 4px;">
-                <p style="margin: 0 0 5px 0;"><strong>Movement:</strong> <span id="desc-movement">Dynamic Elbow Flexion/Extension</span></p>
-                <p style="margin: 0 0 5px 0;"><strong>AKIRA relevance:</strong> <span id="desc-relevance">Primary elbow/forearm target</span></p>
-                <p style="margin: 0 0 5px 0;"><strong>Dataset class:</strong> <span id="desc-dataset">task 1</span></p>
-                <p style="margin: 0;"><strong>Purpose:</strong> <span id="desc-purpose">Evaluate elbow kinematic estimation and supporting movement classification.</span></p>
-            </div>
-
-            <div class="button-row" style="align-items: center;">
-                <button class="btn btn-primary" id="btn-play">Start Replay</button>
-                <button class="btn" id="btn-pause">Pause</button>
-                <button class="btn" id="btn-reset">Reset</button>
-                
-                <label for="speed-select" style="margin-left: 20px;"><strong>Replay Speed:</strong></label>
-                <select id="speed-select" style="height: 40px; background-color: white; color: black; border: 1px solid #ccc; padding: 5px; font-size: 16px; border-radius: 4px; cursor: pointer;">
-                    <option value="0.5">0.5×</option>
-                    <option value="1" selected>1×</option>
-                    <option value="2">2×</option>
-                </select>
-            </div>
-            
-            <div id="error-msg" class="error-msg"></div>
-        </div>
-        
-        <!-- Live Status -->
-        <div class="card status-panel">
-            <h3>Live Status Panel</h3>
-            <ul id="status-list">
-                <li id="s-model">✓ Frozen checkpoint loaded</li>
-                <li><strong>Status:</strong> <span id="s-state" style="color: blue;">READY</span></li>
-                <li><strong>Source:</strong> Test-set recording</li>
-                <li><strong>Window:</strong> <span id="s-window">0 / 0</span> samples</li>
-            </ul>
-            <progress id="replay-progress" value="0" max="100" style="width: 100%; margin-top: 10px;"></progress>
-        </div>
-
-        <!-- Visualization -->
-        <div class="visualization" id="vis-section" style="opacity: 0.5; pointer-events: none;">
-            
-            <div class="card pred-summary">
-                <h3>Movement Classification</h3>
-                <div class="row">
-                    <div style="flex: 1;">
-                        <p style="font-size:1.1em;"><strong>Model Prediction:</strong> <span id="pred-class-human" class="highlight">---</span></p>
-                        <p><strong>Category:</strong> <span id="pred-category">---</span></p>
-                        <p><strong>Dataset Class:</strong> <span id="pred-class-raw">---</span></p>
-                        <p><strong>Confidence:</strong> <span id="pred-conf">0.0</span>%</p>
-                    </div>
-                    <div style="flex: 1;">
-                        <p style="font-size:1.1em;"><strong>Ground Truth:</strong> <span id="gt-class-human" style="color: green; font-weight: bold;">---</span></p>
-                        <p><strong>Ground Truth Dataset Class:</strong> <span id="gt-class-raw">---</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="card">
-                    <h3>ELBOW FLEXION / EXTENSION</h3>
-                    <div class="chart-container">
-                        <canvas id="elbowChart"></canvas>
-                    </div>
-                    <ul>
-                        <li><strong>Predicted Elbow Angle (Current):</strong> <span id="m-e-cur"></span>°</li>
-                        <li><strong>Predicted Elbow ROM:</strong> <span id="m-e-rom"></span>°</li>
-                        <li><strong>Predicted Elbow Angular Velocity:</strong> <span id="m-vel"></span> °/s</li>
-                        <li><strong>Predicted Repetitions:</strong> <span id="m-reps"></span></li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <h3>FOREARM PRONATION / SUPINATION</h3>
-                    <div class="chart-container">
-                        <canvas id="forearmChart"></canvas>
-                    </div>
-                    <ul>
-                        <li><strong>Predicted Forearm Angle (Current):</strong> <span id="m-f-cur"></span>°</li>
-                        <li><strong>Predicted Forearm ROM:</strong> <span id="m-f-rom"></span>°</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h3>Probability Distribution</h3>
-                <div class="chart-container" style="height: 400px;">
-                    <canvas id="probChart"></canvas>
-                </div>
-            </div>
-
-        </div>
+  <!-- Academic Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="header-badge-row">
+        <span class="badge badge-stage">Comprehensive Clinical Dashboard</span>
+        <span class="badge badge-research">Post-Olecranon Fracture ORIF Recovery</span>
+        <span class="badge badge-warning">Research Evaluation — Not for Autonomous Clinical Diagnosis</span>
+      </div>
+      <h1>AI-Based Elbow Rehabilitation Assistance System</h1>
+      <p class="subtitle">
+        Unified 12-Channel Dual-IMU Kinematics &amp; Multi-Task AI Evaluation Across TCN, 1D-CNN, LSTM, and GRU
+      </p>
+      <nav class="quick-nav" aria-label="Methodology Navigation">
+        <a href="#sec-1-data-acquisition">1. Data Acquisition</a>
+        <a href="#sec-2-preprocessing">2. Preprocessing &amp; Fusion</a>
+        <a href="#sec-3-joint-motion">3. Joint Motion Estimation</a>
+        <a href="#sec-4-ai-models">4. AI Models &amp; Benchmarks</a>
+        <a href="#sec-5-session-results">5. Session Results</a>
+        <a href="#sec-6-longitudinal-tracking">6. Longitudinal Tracking</a>
+        <a href="#sec-7-recovery-trends">7. Recovery Trends</a>
+        <a href="#sec-8-final-assessment">8. Final Assessment</a>
+      </nav>
     </div>
+  </header>
 
-    <footer>
-        <h4>Research Boundary</h4>
-        <p>This demonstration uses the frozen AKIRA TCN model validated on a healthy public dataset. It demonstrates model inference and kinematic estimation. It does not constitute clinical validation, ORIF recovery prediction, or therapeutic effectiveness evaluation.</p>
-    </footer>
+  <main class="main-container">
 
-    <script src="app.js"></script>
+    <!-- ===================================================================== -->
+    <!-- 1. DATA ACQUISITION SECTION                                           -->
+    <!-- ===================================================================== -->
+    <section id="sec-1-data-acquisition" class="card-section" style="border-left: 4px solid #10b981;">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker" style="color:#059669;">Stage 1: Data Acquisition Pipeline</span>
+          <h2>1. Data Acquisition &amp; Sensor Health</h2>
+        </div>
+        <span class="badge" id="esp32-transport-badge" style="background:#f1f5f9; color:#475569;">Physical Transport Ready</span>
+      </div>
+      <p class="section-desc">
+        Acquires continuous 12-channel upper-arm and forearm motion data. Supports verified physical ESP32 streaming (Web Serial/BLE), held-out benchmark samples, or custom CSV uploads.
+      </p>
+
+      <!-- Hardware Telemetry & Connection Sub-Panel -->
+      <div class="esp32-controls-box" style="margin-bottom:1.25rem;">
+        <div class="esp32-status-row" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; background:#f8fafc; padding:0.6rem 0.85rem; border-radius:6px; border:1px solid var(--border);">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span class="status-indicator status-offline" id="esp32-conn-indicator"></span>
+            <span id="esp32-status-label" style="font-weight:700; color:#475569;">Disconnected (Standby)</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; font-size:0.8rem; color:#64748b;">
+            <span>Rate: <strong id="esp32-live-rate" style="color:#0f172a;">0.0 Hz</strong></span>
+            <span>•</span>
+            <span>Packets: <strong id="esp32-live-packets" style="color:#0f172a;">0</strong></span>
+            <span>•</span>
+            <span>Drops: <strong id="esp32-live-drops" style="color:#0f172a;">0</strong></span>
+          </div>
+        </div>
+
+        <!-- Single-IMU Warning Banner -->
+        <div id="esp32-warning-banner" class="hidden" style="margin-top:0.75rem; background:#fffbeb; border:1px solid #fde68a; padding:0.65rem 0.85rem; border-radius:6px; font-size:0.82rem; color:#92400e;">
+          <strong id="esp32-warning-title">Hardware Warning:</strong> <span id="esp32-warning-desc">Single-IMU detected. Forearm IMU is silent. Dual-IMU kinematics require both sensors.</span>
+        </div>
+
+        <!-- Transport Buttons -->
+        <div class="action-bar" style="margin-top:0.75rem; padding-top:0.5rem; border-top:none;">
+          <button type="button" id="btn-esp32-connect-serial" class="btn-primary" style="background:#059669;">
+            Connect ESP32 (Web Serial / USB)
+          </button>
+          <button type="button" id="btn-esp32-connect-ble" class="btn-primary" style="background:#0284c7;">
+            Connect ESP32 (Web Bluetooth)
+          </button>
+          <button type="button" id="btn-esp32-disconnect" class="btn-secondary" style="color:#b91c1c; border-color:#fca5a5;" disabled>
+            Disconnect
+          </button>
+          <button type="button" id="btn-esp32-sim-replay" class="btn-secondary" style="border-color:#7c3aed; color:#7c3aed; font-weight:700;">
+            Run Offline Simulation Replay
+          </button>
+          <button type="button" id="btn-esp32-record" class="btn-secondary btn-record" disabled>
+            ⏺ Start Recording Stream
+          </button>
+          <button type="button" id="btn-esp32-save-csv" class="btn-secondary" disabled>
+            Save Recorded CSV
+          </button>
+          <button type="button" id="btn-esp32-analyze-stream" class="btn-primary" style="background:#2563eb;" disabled>
+            Analyze Recorded Stream
+          </button>
+        </div>
+
+        <!-- Dual IMU Diagnostics Readouts -->
+        <div class="signals-grid" style="margin-top:0.85rem;">
+          <div class="chart-box" style="padding:0.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <h4 style="margin:0;">IMU 1: Upper Arm (RUA)</h4>
+              <span class="badge" id="badge-rua-status" style="background:#f1f5f9; color:#475569;">Silent</span>
+            </div>
+            <div style="font-family:monospace; font-size:0.78rem; color:#334155; line-height:1.5;" id="telemetry-rua">
+              Acc: [0.00, 0.00, 0.00] m/s²<br>
+              Gyr: [0.00, 0.00, 0.00] rad/s
+            </div>
+          </div>
+          <div class="chart-box" style="padding:0.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <h4 style="margin:0;">IMU 2: Forearm (RLA)</h4>
+              <span class="badge" id="badge-rla-status" style="background:#f1f5f9; color:#475569;">Silent</span>
+            </div>
+            <div style="font-family:monospace; font-size:0.78rem; color:#334155; line-height:1.5;" id="telemetry-rla">
+              Acc: [0.00, 0.00, 0.00] m/s²<br>
+              Gyr: [0.00, 0.00, 0.00] rad/s
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Oscilloscope -->
+        <div class="chart-box" style="margin-top:0.85rem;">
+          <h4>Live 12-Channel Oscilloscope</h4>
+          <canvas id="canvas-esp32-scope" width="1200" height="160"></canvas>
+        </div>
+      </div>
+
+      <!-- Offline Sample / Custom CSV Selection -->
+      <div style="border-top:1px solid var(--border); padding-top:1rem;">
+        <h4 style="margin:0 0 0.5rem 0; font-size:0.95rem; color:#1e3a8a;">Benchmark Recording &amp; Inference Input Selection</h4>
+        <div class="controls-grid">
+          <div class="form-group">
+            <label for="model-select"><span class="step-num">1</span>Select AI Model</label>
+            <select id="model-select" class="form-select">
+              <option value="COMPARE_ALL">★ Compare All Four Models (TCN, 1D-CNN, LSTM, GRU)</option>
+              <option value="TCN">TCN (Temporal Convolutional Network)</option>
+              <option value="1D_CNN">1D-CNN (1D Convolutional Neural Network)</option>
+              <option value="LSTM">LSTM (Long Short-Term Memory)</option>
+              <option value="GRU">GRU (Gated Recurrent Unit)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sample-select"><span class="step-num">2</span>Select Prepared Sample CSV</label>
+            <select id="sample-select" class="form-select"></select>
+          </div>
+          <div class="form-group">
+            <label for="csv-file-input"><span class="step-num">OR</span>Upload Custom IMU CSV</label>
+            <input type="file" id="csv-file-input" accept=".csv" class="form-file-input" />
+          </div>
+        </div>
+
+        <div class="action-bar" style="margin-top:0.85rem;">
+          <button type="button" id="btn-run-analysis" class="btn-primary">
+            Run Complete Analysis
+          </button>
+          <button type="button" id="btn-download-sample" class="btn-secondary">
+            Download Current Sample CSV
+          </button>
+          <button type="button" id="btn-toggle-save-session" class="btn-secondary" style="border-color:#1e40af; color:#1e40af; font-weight:700;">
+            Save to Patient History
+          </button>
+          <span id="analysis-spinner" class="spinner hidden"></span>
+          <span id="analysis-status-text" class="status-text">Ready. Select a sample and click Run Complete Analysis.</span>
+        </div>
+
+        <div id="save-session-bar" class="hidden" style="margin-top:0.75rem; padding:0.65rem 0.85rem; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:0.82rem; font-weight:700; color:#1e3a8a;">Participant ID:</span>
+          <input type="text" id="input-session-patient-id" value="P012" placeholder="e.g. P012 or SUBJ05" style="padding:0.35rem 0.5rem; font-size:0.82rem; border:1px solid #93c5fd; border-radius:4px; width:130px;" />
+          <span style="font-size:0.82rem; font-weight:700; color:#1e3a8a;">Clinical Notes:</span>
+          <input type="text" id="input-session-notes" placeholder="Session observations, pain level, or assistance..." style="padding:0.35rem 0.5rem; font-size:0.82rem; border:1px solid #93c5fd; border-radius:4px; flex-grow:1; min-width:180px;" />
+          <button type="button" id="btn-confirm-save-session" class="btn-primary" style="padding:0.35rem 0.75rem; font-size:0.8rem;">
+            Confirm &amp; Log Session
+          </button>
+          <button type="button" id="btn-cancel-save-session" class="btn-secondary" style="padding:0.35rem 0.6rem; font-size:0.8rem;">
+            Cancel
+          </button>
+          <span id="save-session-feedback" style="font-size:0.82rem; font-weight:700; color:#15803d; margin-left:0.5rem;"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 2. PREPROCESSING & SENSOR FUSION SECTION                              -->
+    <!-- ===================================================================== -->
+    <section id="sec-2-preprocessing" class="card-section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">Stage 2: Signal Conditioning &amp; Fusion</span>
+          <h2>2. Preprocessing &amp; Sensor Fusion</h2>
+        </div>
+        <span class="badge" id="signal-info-badge">12 Channels • 100 Hz</span>
+      </div>
+      <p class="section-desc">
+        Standardized 12-channel dual-IMU representation resampled at 100 Hz ($\Delta t = 10	ext{ ms}$). Applies zero-phase 2nd-order Savitzky-Golay filtering, gravitational orientation normalization, and anatomical coordinate alignment between upper arm and forearm.
+      </p>
+      <div class="signals-grid">
+        <div class="chart-box">
+          <h4>Upper Arm IMU (Acc m/s² &amp; Gyr rad/s)</h4>
+          <canvas id="canvas-ua-signals" width="600" height="180"></canvas>
+        </div>
+        <div class="chart-box">
+          <h4>Forearm IMU (Acc m/s² &amp; Gyr rad/s)</h4>
+          <canvas id="canvas-fa-signals" width="600" height="180"></canvas>
+        </div>
+      </div>
+      <details class="csv-details">
+        <summary>View Standardized Input Data Table Preview (First 8 Rows)</summary>
+        <div class="table-responsive" id="csv-preview-table-container"></div>
+      </details>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 3. JOINT MOTION ESTIMATION SECTION                                    -->
+    <!-- ===================================================================== -->
+    <section id="sec-3-joint-motion" class="card-section task-card">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker" style="color:#1d4ed8; font-weight:800;">Stage 3: Continuous Biomechanical Kinematics</span>
+          <h2>3. Joint Motion Estimation</h2>
+        </div>
+        <div class="task-badges">
+          <span class="badge badge-primary">Primary Kinematic Output</span>
+          <span class="badge" id="task1-gt-status-badge">Ground Truth Available</span>
+        </div>
+      </div>
+      <p class="section-desc">
+        Predicts continuous elbow flexion/extension and forearm pronation/supination angle trajectories against synchronized ground truth.
+      </p>
+
+      <!-- Sub-Panel 3A: Elbow Flexion/Extension (Primary Output) -->
+      <div style="background:#ffffff; border:2px solid #3b82f6; border-radius:8px; padding:1.15rem; margin-bottom:1.5rem; box-shadow:0 2px 4px rgba(37,99,235,0.06);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <span class="badge badge-primary" style="font-weight:800; text-transform:uppercase; font-size:0.75rem;">Primary Clinical Output</span>
+            <h3 style="margin:0.25rem 0 0 0; color:#1e40af; font-size:1.25rem;">Elbow Flexion/Extension Angle &amp; Range of Motion</h3>
+          </div>
+          <span class="badge" style="background:#eff6ff; color:#1d4ed8; font-weight:700;">Continuous Angle θ(t)</span>
+        </div>
+        <p class="task-desc">
+          Continuous elbow flexion angle trajectory across time plotted against synchronized OpenSim IK ground-truth reference measurements.
+        </p>
+
+        <!-- KPI Grid for Flexion -->
+        <div class="kpi-grid" id="task1-kpi-grid"></div>
+
+        <!-- Trajectory Chart -->
+        <div class="chart-full">
+          <canvas id="canvas-flexion-trajectory" width="1200" height="260"></canvas>
+        </div>
+
+        <!-- Repetition Breakdown Table -->
+        <details class="reps-details" id="task1-reps-container" style="margin-top:0.75rem;">
+          <summary>View Elbow Repetition Segmentation Breakdown Table</summary>
+          <div class="reps-table-wrapper" id="task1-reps-table-box"></div>
+        </details>
+
+        <div class="metrics-row" id="task1-metrics-pills"></div>
+      </div>
+
+      <!-- Sub-Panel 3B: Forearm Pronation/Supination (Secondary Output) -->
+      <div style="background:#ffffff; border:1px solid var(--border-dark); border-radius:8px; padding:1.15rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <span class="badge" style="background:#f1f5f9; color:#475569; font-weight:700; text-transform:uppercase; font-size:0.75rem;">Secondary Output</span>
+            <h3 style="margin:0.25rem 0 0 0; color:#334155; font-size:1.15rem;">Forearm Pronation/Supination Rotational Angle</h3>
+          </div>
+          <div class="task-badges" id="task2-header-badges">
+            <span class="badge" id="task2-gt-status-badge">Ground Truth Available</span>
+          </div>
+        </div>
+        <p class="task-desc">
+          Continuous forearm pronation/supination rotational angle trajectory across time. Kept strictly isolated from flexion/extension kinematics.
+        </p>
+
+        <div class="kpi-grid" id="task2-kpi-grid"></div>
+
+        <div class="chart-full">
+          <canvas id="canvas-prosup-trajectory" width="1200" height="240"></canvas>
+        </div>
+        <div class="chart-full" style="margin-top:0.75rem;">
+          <canvas id="canvas-prosup-velocity" width="1200" height="160"></canvas>
+        </div>
+        <details class="reps-details" id="task2-reps-container">
+          <summary>View Forearm Rotational Cycle Breakdown Table</summary>
+          <div class="reps-table-wrapper" id="task2-reps-table-box"></div>
+        </details>
+        <div class="metrics-row" id="task2-metrics-pills"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 4. AI MODELS & BENCHMARKS SECTION                                     -->
+    <!-- ===================================================================== -->
+    <section id="sec-4-ai-models" class="card-section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">Stage 4: Multi-Task Sequence Modeling</span>
+          <h2>4. AI Models &amp; Multi-Task Architecture Benchmarks</h2>
+        </div>
+        <span class="badge">Equal ~85k–116k Parameter Budget</span>
+      </div>
+      <p class="section-desc">
+        Evaluates 4 sequence deep learning architectures (TCN, 1D-CNN, LSTM, GRU) across action recognition, continuous kinematics regression, and movement quality evaluation.
+      </p>
+
+      <!-- Task 3: 7-Class Harmonized Exercise Recognition -->
+      <div style="background:#ffffff; border:1px solid var(--border); border-radius:6px; padding:1rem; margin-bottom:1.25rem;">
+        <div class="section-header" style="margin-bottom:0.35rem;">
+          <div>
+            <span class="section-kicker">Task 3: Action Recognition</span>
+            <h4 style="margin:0; font-size:1.05rem;">Rehabilitation Exercise Classification (7-Class Harmonized)</h4>
+          </div>
+          <span class="badge" id="task3-gt-status-badge">Ground Truth Available</span>
+        </div>
+        <p class="task-desc">
+          Identifies active rehabilitation drills: <em>Elbow Flexion-Extension</em>, <em>Forearm Pronation-Supination</em>, <em>Shoulder Flexion / Overhead Reach</em>, <em>Shoulder Abduction / Scaption</em>, <em>Shoulder Int-Ext Rotation</em>, <em>Crossbody Reach</em>, or <em>Functional Drinking</em>.
+        </p>
+        <div class="chart-full">
+          <canvas id="canvas-exercise-probs" width="1200" height="220"></canvas>
+        </div>
+        <div class="metrics-row" id="task3-metrics-pills"></div>
+      </div>
+
+      <!-- Task 4: Movement Quality Classification -->
+      <div style="background:#ffffff; border:1px solid var(--border); border-radius:6px; padding:1rem; margin-bottom:1.25rem;">
+        <div class="section-header" style="margin-bottom:0.35rem;">
+          <div>
+            <span class="section-kicker">Task 4: Motor Quality &amp; Compensatory Detection</span>
+            <h4 style="margin:0; font-size:1.05rem;">Exercise Movement-Quality Classification (Correct vs. Incorrect)</h4>
+          </div>
+          <span class="badge" id="task4-gt-status-badge">Ground Truth Available</span>
+        </div>
+        <p class="task-desc">
+          Detects compensatory or improper movement execution: <em>Correct Execution</em> vs. <em>Incorrect / Compensatory Execution</em>.
+        </p>
+        <div class="chart-full">
+          <canvas id="canvas-quality-probs" width="1200" height="190"></canvas>
+        </div>
+        <div class="metrics-row" id="task4-metrics-pills"></div>
+      </div>
+
+      <!-- Four-Model Comparison Tables -->
+      <h4 class="table-subheading">Side-by-Side Model Comparison (Task 1: Continuous Elbow Flexion/Extension)</h4>
+      <div class="table-responsive">
+        <table class="data-table" id="table-comp-task1">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>Sample MAE</th>
+              <th>Sample RMSE</th>
+              <th>Predicted ROM</th>
+              <th>ROM Error</th>
+              <th>Reps</th>
+              <th>Held-Out Test MAE</th>
+              <th>Held-Out Test R²</th>
+              <th>Validation MAE (Selection)</th>
+              <th>Latency (p50)</th>
+              <th>Parameters</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h4 class="table-subheading" style="margin-top:1.25rem;">Side-by-Side Model Comparison (Task 2: Forearm Pronation/Supination)</h4>
+      <div class="table-responsive">
+        <table class="data-table" id="table-comp-task2">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>Sample MAE</th>
+              <th>Sample RMSE</th>
+              <th>Predicted ROM</th>
+              <th>ROM Error</th>
+              <th>Held-Out Test MAE</th>
+              <th>Held-Out Test R²</th>
+              <th>Validation MAE (Selection)</th>
+              <th>Latency (p50)</th>
+              <th>Parameters</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h4 class="table-subheading" style="margin-top:1.25rem;">Side-by-Side Model Comparison (Task 3: 7-Class Exercise Recognition)</h4>
+      <div class="table-responsive">
+        <table class="data-table" id="table-comp-task3">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>Predicted Exercise Class</th>
+              <th>Confidence</th>
+              <th>Sample Match</th>
+              <th>Held-Out Test Macro-F1</th>
+              <th>Held-Out Test Accuracy</th>
+              <th>Validation Macro-F1 (Selection)</th>
+              <th>Latency (p50)</th>
+              <th>Parameters</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h4 class="table-subheading" style="margin-top:1.25rem;">Side-by-Side Model Comparison (Task 4: Movement Quality Assessment)</h4>
+      <div class="table-responsive">
+        <table class="data-table" id="table-comp-task4">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>Sample Predicted Quality</th>
+              <th>Confidence</th>
+              <th>Sample Match</th>
+              <th>Held-Out Test Macro-F1</th>
+              <th>Held-Out Test Accuracy</th>
+              <th>Validation Macro-F1 (Selection)</th>
+              <th>Latency (p50)</th>
+              <th>Parameters</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 5. SESSION RESULTS & BIOMECHANICAL METRICS SECTION                     -->
+    <!-- ===================================================================== -->
+    <section id="sec-5-session-results" class="card-section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">Stage 5: Biomechanical Quantification</span>
+          <h2>5. Session Results &amp; Biomechanical Metrics</h2>
+        </div>
+        <span class="badge badge-primary">Clinical Metrics</span>
+      </div>
+      <p class="section-desc">
+        Quantifies clinical kinematic parameters: continuous angular velocity, discrete repetition segmentation cycles, and Spectral Arc Length (SPARC) motor coordination smoothness.
+      </p>
+
+      <!-- Angular Velocity Chart -->
+      <div class="chart-box" style="margin-bottom:1.25rem;">
+        <h4>Continuous Angular Velocity Profile (deg/s via 2nd-Order Savitzky-Golay)</h4>
+        <canvas id="canvas-flexion-velocity" width="1200" height="190"></canvas>
+      </div>
+
+
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 6. LONGITUDINAL TRACKING SECTION                                      -->
+    <!-- ===================================================================== -->
+    <section id="sec-6-longitudinal-tracking" class="card-section" style="border-left: 4px solid #2563eb;">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker" style="color:#1d4ed8;">Stage 6: Persistent History Tracking</span>
+          <h2>6. Longitudinal Rehabilitation Tracking</h2>
+        </div>
+        <span class="badge badge-primary" id="longitudinal-status-badge">Persistent SQLite Database</span>
+      </div>
+      <p class="section-desc">
+        Tracks patient kinematics across multiple rehabilitation appointments. Allows filtering by participant, date range, and customizable functional target.
+      </p>
+
+      <!-- Filter Controls Bar -->
+      <div class="controls-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:0.75rem; background:#f8fafc; padding:0.85rem; border-radius:6px; border:1px solid var(--border); margin-bottom:1rem;">
+        <div class="form-group">
+          <label for="select-patient-filter">Participant ID:</label>
+          <select id="select-patient-filter" class="form-select">
+            <option value="ALL">All Participants</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="input-date-start">Start Date:</label>
+          <input type="date" id="input-date-start" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label for="input-date-end">End Date:</label>
+          <input type="date" id="input-date-end" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label for="input-target-rom">Target Elbow ROM (°):</label>
+          <input type="number" id="input-target-rom" value="130.0" min="40" max="150" step="5" class="form-input" />
+        </div>
+        <div class="form-group" style="display:flex; align-items:flex-end; gap:0.4rem;">
+          <button type="button" id="btn-refresh-longitudinal" class="btn-primary" style="height:38px; padding:0 0.85rem;">
+            Update
+          </button>
+          <button type="button" id="btn-export-csv" class="btn-secondary" style="height:38px; padding:0 0.65rem;" title="Export filtered sessions as CSV">
+            CSV
+          </button>
+          <button type="button" id="btn-export-json" class="btn-secondary" style="height:38px; padding:0 0.65rem;" title="Export filtered sessions as JSON">
+            JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Longitudinal Progress Graphs -->
+      <div class="chart-box" style="margin-top:1rem;">
+        <h4>Elbow Range of Motion (ROM) Trajectory &amp; Clinician Target vs. Sessions</h4>
+        <canvas id="canvas-longitudinal-rom" width="1200" height="240"></canvas>
+      </div>
+
+      <div class="signals-grid" style="margin-top:1rem;">
+        <div class="chart-box">
+          <h4>Elbow Angle Envelope (Flexion Peak vs. Extension Min)</h4>
+          <canvas id="canvas-longitudinal-envelope" width="600" height="200"></canvas>
+        </div>
+        <div class="chart-box">
+          <h4>Forearm Pronation/Supination ROM Across Sessions</h4>
+          <canvas id="canvas-longitudinal-prosup" width="600" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="signals-grid" style="margin-top:1rem;">
+        <div class="chart-box">
+          <h4>Repetition Count &amp; Movement Smoothness (SPARC)</h4>
+          <canvas id="canvas-longitudinal-smoothness" width="600" height="200"></canvas>
+        </div>
+        <div class="chart-box">
+          <h4>Exercise Movement Quality Execution (% Correct)</h4>
+          <canvas id="canvas-longitudinal-quality" width="600" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Interactive Sessions Table -->
+      <details class="csv-details" style="margin-top:1.25rem;" open>
+        <summary>Review Recorded Session History Records (<span id="session-records-count">0</span> sessions)</summary>
+        <div class="table-responsive" style="margin-top:0.6rem;">
+          <table class="data-table" id="table-sessions-history">
+            <thead>
+              <tr>
+                <th>Session Date / Time</th>
+                <th>Participant ID</th>
+                <th>Exercise</th>
+                <th>Elbow ROM</th>
+                <th>Forearm ROM</th>
+                <th>Flex / Ext Range</th>
+                <th>Reps</th>
+                <th>Smoothness (SPARC)</th>
+                <th>Quality Class</th>
+                <th>Model</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 7. RECOVERY TRENDS SECTION                                            -->
+    <!-- ===================================================================== -->
+    <section id="sec-7-recovery-trends" class="card-section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">Stage 7: Recovery Analytics &amp; Target Milestones</span>
+          <h2>7. Recovery Trends &amp; Milestones</h2>
+        </div>
+        <span class="badge" style="background:#fef3c7; color:#92400e;">Descriptive Empirical Fit</span>
+      </div>
+      <p class="section-desc">
+        Evaluates patient recovery progression toward the clinician-defined functional ROM goal (default 130.0°). Calculates empirical rate of change and confidence bounds based strictly on recorded sessions.
+      </p>
+
+      <!-- Clinical Evidence Alert -->
+      <div class="notice-box" style="margin-bottom:1rem; background:#eff6ff; border:1px solid #bfdbfe; padding:0.75rem 1rem; border-radius:6px; font-size:0.83rem; color:#1e40af;">
+        <strong>Clinical Evidence Notice:</strong> Recovery trend metrics are calculated as empirical descriptive trajectory fits based strictly on recorded sessions. This system does not model biological tissue healing or guarantee individual recovery timelines.
+      </div>
+
+      <!-- Longitudinal Summary KPI Grid -->
+      <div class="kpi-grid" id="longitudinal-kpi-grid"></div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 8. FINAL ASSESSMENT & CLINICAL FEEDBACK SECTION                       -->
+    <!-- ===================================================================== -->
+    <section id="sec-8-final-assessment" class="card-section" style="border-left: 4px solid #7c3aed;">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker" style="color:#6d28d9;">Stage 8: Synthesized Evidence &amp; Guidance</span>
+          <h2>8. Final Assessment &amp; Clinical Feedback</h2>
+        </div>
+        <span class="badge" style="background:#f3e8ff; color:#7c3aed; font-weight:700;">Evidence-Grounded Feedback</span>
+      </div>
+      <p class="section-desc">
+        Comprehensive, objective clinical summary synthesizing active trial kinematics, functional recovery tier, motor coordination smoothness, compensatory substitution risk, and actionable therapeutic guidance.
+      </p>
+
+      <!-- Dynamic Final Assessment Container -->
+      <div id="final-assessment-container">
+        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:1.25rem; text-align:center; color:#64748b;">
+          Run an analysis on any sample to generate the synthesized clinical assessment report.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p>AI-Based Elbow Rehabilitation Assistance System • Post-Olecranon ORIF Recovery • University Research Prototype</p>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
 </body>
 </html>

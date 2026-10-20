@@ -1,38 +1,77 @@
-# Environments and Caches
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
 .venv/
 venv/
 env/
-__pycache__/
-*.pyc
-.pytest_cache/
+ENV/
 
-# Large Datasets and Raw Data
-data/processed/windows/
+# Datasets and large data artifacts (preserve raw data locally; do not commit)
 datasets/
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.mat
+*.c3d
+*.mvnx
+*.trc
+*.mot
+*.sto
+*.raw
 
-# Temporary smoke tests
-models/smoke_test/
+# Model checkpoints and weights
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.ckpt
+*.bin
 
-# Generated training logs and intermediate CSV results
-# (Official test metrics are saved in reports/)
-results/
+# Experiment logs, metrics, and generated outputs
+experiments/logs/*
+!experiments/logs/.gitkeep
+experiments/metrics/*
+!experiments/metrics/.gitkeep
+experiments/reports/*
+!experiments/reports/.gitkeep
+outputs/*
+!outputs/.gitkeep
 
-# Temporary root scripts and artifacts
-bad.csv
-extract_demo_samples.py
-extract_full_trials.py
-fix_encoding.py
-fix_options.py
-fix_text.py
-move_files.py
-update_ui.py
-audit.py
-file_list.csv
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
 
-# Ensure critical demo files and official resources are NOT ignored
-!reports/
-!demo/demo_data/
-!data/processed/class_mapping.json
-!models/final/best_tcn.pth
-!models/final/best_lstm.pth
-!models/final/best_linear.pth
+# Testing and coverage caches
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Secrets and environment variables
+.env
+*.env
+secrets.*
+credentials.*
+
+# Local SQLite databases
+*.db
+*.sqlite3
+data/sessions/*.db

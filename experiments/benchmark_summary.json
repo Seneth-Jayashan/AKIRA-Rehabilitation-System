@@ -1,0 +1,2529 @@
+{
+  "dataset_version": "unified_v2",
+  "timestamp": "2026-10-19T22:22:39Z",
+  "task_1_elbow_flexion": {
+    "task_name": "Continuous Elbow Flexion Angle Regression (deg)",
+    "task_mode": "regression",
+    "dataset": "ULTra-MoCap",
+    "target_names": [
+      "elbow_flex_ext_deg"
+    ],
+    "subject_splits": {
+      "train": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P07",
+        "P08",
+        "P10",
+        "P11"
+      ],
+      "val": [
+        "P03",
+        "P09"
+      ],
+      "test": [
+        "P06",
+        "P12",
+        "P13"
+      ]
+    },
+    "window_counts": {
+      "train": 11337,
+      "val": 1617,
+      "test": 2050,
+      "total": 15004
+    },
+    "models": {
+      "TCN": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_1_elbow_flexion_TCN_best.pt",
+        "efficiency": {
+          "num_parameters": 115249,
+          "inference_latency_ms_p50": 2.925,
+          "inference_latency_ms_p95": 3.245,
+          "checkpoint_size_kb": 475.3,
+          "training_duration_sec": 190.71,
+          "best_epoch": 2
+        },
+        "validation_metrics": {
+          "mae_deg": 8.99,
+          "rmse_deg": 11.922,
+          "r2": 0.8733,
+          "pearson_r": 0.9367,
+          "rom_mae_deg": 13.249
+        },
+        "held_out_test_metrics": {
+          "mae_deg": 9.162,
+          "rmse_deg": 11.802,
+          "r2": 0.902,
+          "pearson_r": 0.9515,
+          "rom_mae_deg": 10.782
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.089,
+            "val_mae_deg": 10.64,
+            "val_rmse_deg": 13.065,
+            "val_r2": 0.8478
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.04331,
+            "val_mae_deg": 8.99,
+            "val_rmse_deg": 11.922,
+            "val_r2": 0.8733
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.03332,
+            "val_mae_deg": 9.884,
+            "val_rmse_deg": 12.648,
+            "val_r2": 0.8574
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.03099,
+            "val_mae_deg": 9.096,
+            "val_rmse_deg": 11.864,
+            "val_r2": 0.8745
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.02834,
+            "val_mae_deg": 10.842,
+            "val_rmse_deg": 13.483,
+            "val_r2": 0.8379
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.02426,
+            "val_mae_deg": 9.379,
+            "val_rmse_deg": 12.138,
+            "val_r2": 0.8686
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.02254,
+            "val_mae_deg": 9.23,
+            "val_rmse_deg": 12.146,
+            "val_r2": 0.8684
+          }
+        ]
+      },
+      "1D_CNN": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_1_elbow_flexion_1D_CNN_best.pt",
+        "efficiency": {
+          "num_parameters": 85281,
+          "inference_latency_ms_p50": 0.79,
+          "inference_latency_ms_p95": 1.195,
+          "checkpoint_size_kb": 346.4,
+          "training_duration_sec": 200.17,
+          "best_epoch": 7
+        },
+        "validation_metrics": {
+          "mae_deg": 9.709,
+          "rmse_deg": 12.826,
+          "r2": 0.8533,
+          "pearson_r": 0.9319,
+          "rom_mae_deg": 19.07
+        },
+        "held_out_test_metrics": {
+          "mae_deg": 9.735,
+          "rmse_deg": 12.855,
+          "r2": 0.8837,
+          "pearson_r": 0.9451,
+          "rom_mae_deg": 14.883
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.09968,
+            "val_mae_deg": 12.101,
+            "val_rmse_deg": 15.369,
+            "val_r2": 0.7894
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.06394,
+            "val_mae_deg": 11.502,
+            "val_rmse_deg": 14.552,
+            "val_r2": 0.8112
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.05275,
+            "val_mae_deg": 12.516,
+            "val_rmse_deg": 15.706,
+            "val_r2": 0.78
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.04955,
+            "val_mae_deg": 12.151,
+            "val_rmse_deg": 15.275,
+            "val_r2": 0.7919
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.04617,
+            "val_mae_deg": 10.903,
+            "val_rmse_deg": 14.062,
+            "val_r2": 0.8237
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.04336,
+            "val_mae_deg": 10.872,
+            "val_rmse_deg": 13.749,
+            "val_r2": 0.8314
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.04257,
+            "val_mae_deg": 9.709,
+            "val_rmse_deg": 12.826,
+            "val_r2": 0.8533
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.04096,
+            "val_mae_deg": 10.868,
+            "val_rmse_deg": 14.004,
+            "val_r2": 0.8251
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.03753,
+            "val_mae_deg": 10.569,
+            "val_rmse_deg": 13.682,
+            "val_r2": 0.8331
+          },
+          {
+            "epoch": 10,
+            "train_loss": 0.03687,
+            "val_mae_deg": 10.491,
+            "val_rmse_deg": 13.512,
+            "val_r2": 0.8372
+          },
+          {
+            "epoch": 11,
+            "train_loss": 0.03652,
+            "val_mae_deg": 10.019,
+            "val_rmse_deg": 13.236,
+            "val_r2": 0.8438
+          },
+          {
+            "epoch": 12,
+            "train_loss": 0.03696,
+            "val_mae_deg": 10.362,
+            "val_rmse_deg": 13.455,
+            "val_r2": 0.8386
+          }
+        ]
+      },
+      "LSTM": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_1_elbow_flexion_LSTM_best.pt",
+        "efficiency": {
+          "num_parameters": 104961,
+          "inference_latency_ms_p50": 1.319,
+          "inference_latency_ms_p95": 1.768,
+          "checkpoint_size_kb": 415.97,
+          "training_duration_sec": 117.89,
+          "best_epoch": 4
+        },
+        "validation_metrics": {
+          "mae_deg": 9.325,
+          "rmse_deg": 13.179,
+          "r2": 0.8451,
+          "pearson_r": 0.9234,
+          "rom_mae_deg": 14.988
+        },
+        "held_out_test_metrics": {
+          "mae_deg": 10.884,
+          "rmse_deg": 14.409,
+          "r2": 0.8539,
+          "pearson_r": 0.9266,
+          "rom_mae_deg": 13.029
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.0949,
+            "val_mae_deg": 12.956,
+            "val_rmse_deg": 16.36,
+            "val_r2": 0.7613
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.04622,
+            "val_mae_deg": 12.097,
+            "val_rmse_deg": 15.109,
+            "val_r2": 0.7965
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.03487,
+            "val_mae_deg": 10.293,
+            "val_rmse_deg": 14.447,
+            "val_r2": 0.8139
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.02913,
+            "val_mae_deg": 9.325,
+            "val_rmse_deg": 13.179,
+            "val_r2": 0.8451
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.02683,
+            "val_mae_deg": 10.29,
+            "val_rmse_deg": 13.702,
+            "val_r2": 0.8326
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.02327,
+            "val_mae_deg": 10.832,
+            "val_rmse_deg": 14.353,
+            "val_r2": 0.8163
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.02163,
+            "val_mae_deg": 10.207,
+            "val_rmse_deg": 13.778,
+            "val_r2": 0.8307
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.01846,
+            "val_mae_deg": 10.29,
+            "val_rmse_deg": 13.964,
+            "val_r2": 0.8261
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.01749,
+            "val_mae_deg": 11.169,
+            "val_rmse_deg": 15.141,
+            "val_r2": 0.7956
+          }
+        ]
+      },
+      "GRU": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_1_elbow_flexion_GRU_best.pt",
+        "efficiency": {
+          "num_parameters": 104145,
+          "inference_latency_ms_p50": 10.679,
+          "inference_latency_ms_p95": 14.405,
+          "checkpoint_size_kb": 412.7,
+          "training_duration_sec": 421.55,
+          "best_epoch": 5
+        },
+        "validation_metrics": {
+          "mae_deg": 9.774,
+          "rmse_deg": 13.277,
+          "r2": 0.8428,
+          "pearson_r": 0.9224,
+          "rom_mae_deg": 12.331
+        },
+        "held_out_test_metrics": {
+          "mae_deg": 10.162,
+          "rmse_deg": 13.431,
+          "r2": 0.8731,
+          "pearson_r": 0.9417,
+          "rom_mae_deg": 11.231
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.10212,
+            "val_mae_deg": 11.601,
+            "val_rmse_deg": 14.981,
+            "val_r2": 0.7999
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.05076,
+            "val_mae_deg": 10.901,
+            "val_rmse_deg": 13.961,
+            "val_r2": 0.8262
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.03726,
+            "val_mae_deg": 10.445,
+            "val_rmse_deg": 13.454,
+            "val_r2": 0.8386
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.03025,
+            "val_mae_deg": 12.179,
+            "val_rmse_deg": 15.355,
+            "val_r2": 0.7898
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.02693,
+            "val_mae_deg": 9.774,
+            "val_rmse_deg": 13.277,
+            "val_r2": 0.8428
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.02321,
+            "val_mae_deg": 11.37,
+            "val_rmse_deg": 14.656,
+            "val_r2": 0.8085
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.02078,
+            "val_mae_deg": 10.768,
+            "val_rmse_deg": 14.607,
+            "val_r2": 0.8097
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.0188,
+            "val_mae_deg": 11.787,
+            "val_rmse_deg": 15.351,
+            "val_r2": 0.7899
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.01721,
+            "val_mae_deg": 11.07,
+            "val_rmse_deg": 14.537,
+            "val_r2": 0.8116
+          },
+          {
+            "epoch": 10,
+            "train_loss": 0.01626,
+            "val_mae_deg": 10.18,
+            "val_rmse_deg": 13.733,
+            "val_r2": 0.8318
+          }
+        ]
+      }
+    }
+  },
+  "task_2_forearm_prosup": {
+    "task_name": "Continuous Forearm Pronation/Supination Angle Regression (deg)",
+    "task_mode": "regression",
+    "dataset": "ULTra-MoCap",
+    "target_names": [
+      "forearm_pro_sup_deg"
+    ],
+    "subject_splits": {
+      "train": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P07",
+        "P08",
+        "P10",
+        "P11"
+      ],
+      "val": [
+        "P03",
+        "P09"
+      ],
+      "test": [
+        "P06",
+        "P12",
+        "P13"
+      ]
+    },
+    "window_counts": {
+      "train": 11337,
+      "val": 1617,
+      "test": 2050,
+      "total": 15004
+    },
+    "models": {
+      "TCN": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_2_forearm_prosup_TCN_best.pt",
+        "efficiency": {
+          "num_parameters": 115249,
+          "inference_latency_ms_p50": 2.757,
+          "inference_latency_ms_p95": 3.052,
+          "checkpoint_size_kb": 475.36,
+          "training_duration_sec": 190.17,
+          "best_epoch": 2
+        },
+        "validation_metrics": {
+          "mae_deg": 9.292,
+          "rmse_deg": 12.884,
+          "r2": 0.8434,
+          "pearson_r": 0.9224,
+          "rom_mae_deg": 9.805
+        },
+        "held_out_test_metrics": {
+          "mae_deg": 10.937,
+          "rmse_deg": 14.105,
+          "r2": 0.8533,
+          "pearson_r": 0.9335,
+          "rom_mae_deg": 11.679
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.11347,
+            "val_mae_deg": 10.465,
+            "val_rmse_deg": 14.285,
+            "val_r2": 0.8075
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.06091,
+            "val_mae_deg": 9.292,
+            "val_rmse_deg": 12.884,
+            "val_r2": 0.8434
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.05037,
+            "val_mae_deg": 11.148,
+            "val_rmse_deg": 14.603,
+            "val_r2": 0.7988
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.04346,
+            "val_mae_deg": 10.129,
+            "val_rmse_deg": 13.223,
+            "val_r2": 0.8351
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.03737,
+            "val_mae_deg": 10.224,
+            "val_rmse_deg": 13.26,
+            "val_r2": 0.8341
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.03267,
+            "val_mae_deg": 10.13,
+            "val_rmse_deg": 12.887,
+            "val_r2": 0.8433
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.02917,
+            "val_mae_deg": 10.395,
+            "val_rmse_deg": 12.936,
+            "val_r2": 0.8421
+          }
+        ]
+      },
+      "1D_CNN": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_2_forearm_prosup_1D_CNN_best.pt",
+        "efficiency": {
+          "num_parameters": 85281,
+          "inference_latency_ms_p50": 0.629,
+          "inference_latency_ms_p95": 0.784,
+          "checkpoint_size_kb": 346.43,
+          "training_duration_sec": 183.57,
+          "best_epoch": 6
+        },
+        "validation_metrics": {
+          "mae_deg": 9.616,
+          "rmse_deg": 13.104,
+          "r2": 0.838,
+          "pearson_r": 0.916,
+          "rom_mae_deg": 13.787
+        },
+        "held_out_test_metrics": {
+          "mae_deg": 11.491,
+          "rmse_deg": 14.751,
+          "r2": 0.8396,
+          "pearson_r": 0.9207,
+          "rom_mae_deg": 13.912
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.12146,
+            "val_mae_deg": 10.536,
+            "val_rmse_deg": 15.096,
+            "val_r2": 0.785
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.08845,
+            "val_mae_deg": 10.558,
+            "val_rmse_deg": 14.751,
+            "val_r2": 0.7947
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.07549,
+            "val_mae_deg": 10.023,
+            "val_rmse_deg": 14.025,
+            "val_r2": 0.8144
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.07065,
+            "val_mae_deg": 11.265,
+            "val_rmse_deg": 14.667,
+            "val_r2": 0.7971
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.06551,
+            "val_mae_deg": 10.821,
+            "val_rmse_deg": 14.568,
+            "val_r2": 0.7998
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.06028,
+            "val_mae_deg": 9.616,
+            "val_rmse_deg": 13.104,
+            "val_r2": 0.838
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.05827,
+            "val_mae_deg": 10.238,
+            "val_rmse_deg": 14.029,
+            "val_r2": 0.8143
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.05513,
+            "val_mae_deg": 10.538,
+            "val_rmse_deg": 14.329,
+            "val_r2": 0.8063
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.05294,
+            "val_mae_deg": 10.911,
+            "val_rmse_deg": 14.788,
+            "val_r2": 0.7937
+          },
+          {
+            "epoch": 10,
+            "train_loss": 0.05324,
+            "val_mae_deg": 10.852,
+            "val_rmse_deg": 14.324,
+            "val_r2": 0.8064
+          },
+          {
+            "epoch": 11,
+            "train_loss": 0.05104,
+            "val_mae_deg": 10.783,
+            "val_rmse_deg": 14.373,
+            "val_r2": 0.8051
+          }
+        ]
+      },
+      "LSTM": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_2_forearm_prosup_LSTM_best.pt",
+        "efficiency": {
+          "num_parameters": 104961,
+          "inference_latency_ms_p50": 1.712,
+          "inference_latency_ms_p95": 2.147,
+          "checkpoint_size_kb": 415.99,
+          "training_duration_sec": 106.05,
+          "best_epoch": 3
+        },
+        "validation_metrics": {
+          "mae_deg": 9.263,
+          "rmse_deg": 12.846,
+          "r2": 0.8443,
+          "pearson_r": 0.9227,
+          "rom_mae_deg": 10.861
+        },
+        "held_out_test_metrics": {
+          "mae_deg": 10.714,
+          "rmse_deg": 13.734,
+          "r2": 0.8609,
+          "pearson_r": 0.9337,
+          "rom_mae_deg": 14.209
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.11609,
+            "val_mae_deg": 11.063,
+            "val_rmse_deg": 15.15,
+            "val_r2": 0.7835
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.07122,
+            "val_mae_deg": 9.618,
+            "val_rmse_deg": 12.766,
+            "val_r2": 0.8463
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.05245,
+            "val_mae_deg": 9.263,
+            "val_rmse_deg": 12.846,
+            "val_r2": 0.8443
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.04795,
+            "val_mae_deg": 10.444,
+            "val_rmse_deg": 14.139,
+            "val_r2": 0.8114
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.03782,
+            "val_mae_deg": 12.135,
+            "val_rmse_deg": 15.137,
+            "val_r2": 0.7838
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.03208,
+            "val_mae_deg": 10.974,
+            "val_rmse_deg": 14.216,
+            "val_r2": 0.8093
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.02668,
+            "val_mae_deg": 11.451,
+            "val_rmse_deg": 14.765,
+            "val_r2": 0.7943
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.02738,
+            "val_mae_deg": 10.621,
+            "val_rmse_deg": 13.681,
+            "val_r2": 0.8234
+          }
+        ]
+      },
+      "GRU": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_2_forearm_prosup_GRU_best.pt",
+        "efficiency": {
+          "num_parameters": 104145,
+          "inference_latency_ms_p50": 11.457,
+          "inference_latency_ms_p95": 15.637,
+          "checkpoint_size_kb": 412.78,
+          "training_duration_sec": 351.36,
+          "best_epoch": 3
+        },
+        "validation_metrics": {
+          "mae_deg": 9.489,
+          "rmse_deg": 12.438,
+          "r2": 0.8541,
+          "pearson_r": 0.9383,
+          "rom_mae_deg": 8.959
+        },
+        "held_out_test_metrics": {
+          "mae_deg": 11.085,
+          "rmse_deg": 14.149,
+          "r2": 0.8524,
+          "pearson_r": 0.9336,
+          "rom_mae_deg": 14.294
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.11353,
+            "val_mae_deg": 10.303,
+            "val_rmse_deg": 14.0,
+            "val_r2": 0.8151
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.06892,
+            "val_mae_deg": 10.897,
+            "val_rmse_deg": 13.938,
+            "val_r2": 0.8167
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.05482,
+            "val_mae_deg": 9.489,
+            "val_rmse_deg": 12.438,
+            "val_r2": 0.8541
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.04326,
+            "val_mae_deg": 11.086,
+            "val_rmse_deg": 14.035,
+            "val_r2": 0.8142
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.03532,
+            "val_mae_deg": 11.874,
+            "val_rmse_deg": 14.468,
+            "val_r2": 0.8025
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.03245,
+            "val_mae_deg": 11.526,
+            "val_rmse_deg": 14.136,
+            "val_r2": 0.8115
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.02726,
+            "val_mae_deg": 10.537,
+            "val_rmse_deg": 13.453,
+            "val_r2": 0.8293
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.02588,
+            "val_mae_deg": 11.388,
+            "val_rmse_deg": 14.159,
+            "val_r2": 0.8109
+          }
+        ]
+      }
+    }
+  },
+  "task_3_exercise_classification": {
+    "task_name": "Rehabilitation Exercise Classification",
+    "task_mode": "classification",
+    "dataset": "PHYTMO",
+    "classes": [
+      "Elbow Flexion-Extension (EFE)",
+      "Extension of Arms Overhead (EAH)",
+      "Squeezing (SQZ)"
+    ],
+    "subject_splits": {
+      "train": [
+        "A02",
+        "A04",
+        "A05",
+        "A06",
+        "A07",
+        "A08",
+        "A09",
+        "A10",
+        "B03",
+        "B04",
+        "B05",
+        "C03",
+        "C04",
+        "C05",
+        "D03",
+        "D04",
+        "D05",
+        "E03",
+        "E04",
+        "E05"
+      ],
+      "val": [
+        "A01",
+        "B01",
+        "C01",
+        "D01"
+      ],
+      "test": [
+        "A03",
+        "B02",
+        "C02",
+        "D02",
+        "E01",
+        "E02"
+      ]
+    },
+    "window_counts": {
+      "train": 13167,
+      "val": 2113,
+      "test": 2115,
+      "total": 17395
+    },
+    "models": {
+      "TCN": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_3_exercise_classification_TCN_best.pt",
+        "efficiency": {
+          "num_parameters": 115531,
+          "inference_latency_ms_p50": 2.371,
+          "inference_latency_ms_p95": 3.189,
+          "checkpoint_size_kb": 477.13,
+          "training_duration_sec": 272.38,
+          "best_epoch": 4
+        },
+        "validation_metrics": {
+          "macro_f1": 0.8798,
+          "balanced_accuracy": 0.8768,
+          "overall_accuracy": 0.8793,
+          "per_class": {
+            "Elbow Flexion-Extension (EFE)": {
+              "precision": 0.8563,
+              "recall": 0.9016,
+              "f1": 0.8784,
+              "support": 681
+            },
+            "Extension of Arms Overhead (EAH)": {
+              "precision": 0.8565,
+              "recall": 0.8966,
+              "f1": 0.8761,
+              "support": 812
+            },
+            "Squeezing (SQZ)": {
+              "precision": 0.9451,
+              "recall": 0.8323,
+              "f1": 0.8851,
+              "support": 620
+            }
+          },
+          "confusion_matrix": [
+            [
+              614,
+              52,
+              15
+            ],
+            [
+              69,
+              728,
+              15
+            ],
+            [
+              34,
+              70,
+              516
+            ]
+          ]
+        },
+        "held_out_test_metrics": {
+          "macro_f1": 0.9341,
+          "balanced_accuracy": 0.9332,
+          "overall_accuracy": 0.9319,
+          "per_class": {
+            "Elbow Flexion-Extension (EFE)": {
+              "precision": 0.9142,
+              "recall": 0.9274,
+              "f1": 0.9207,
+              "support": 689
+            },
+            "Extension of Arms Overhead (EAH)": {
+              "precision": 0.9187,
+              "recall": 0.9242,
+              "f1": 0.9214,
+              "support": 831
+            },
+            "Squeezing (SQZ)": {
+              "precision": 0.9724,
+              "recall": 0.9479,
+              "f1": 0.96,
+              "support": 595
+            }
+          },
+          "confusion_matrix": [
+            [
+              639,
+              45,
+              5
+            ],
+            [
+              52,
+              768,
+              11
+            ],
+            [
+              8,
+              23,
+              564
+            ]
+          ]
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.17396,
+            "val_macro_f1": 0.8465,
+            "val_accuracy": 0.8438
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.10054,
+            "val_macro_f1": 0.8567,
+            "val_accuracy": 0.8552
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.07446,
+            "val_macro_f1": 0.8647,
+            "val_accuracy": 0.8642
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.06013,
+            "val_macro_f1": 0.8798,
+            "val_accuracy": 0.8793
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.05149,
+            "val_macro_f1": 0.8708,
+            "val_accuracy": 0.8699
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.04595,
+            "val_macro_f1": 0.8787,
+            "val_accuracy": 0.8779
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.03491,
+            "val_macro_f1": 0.8568,
+            "val_accuracy": 0.8566
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.03079,
+            "val_macro_f1": 0.8771,
+            "val_accuracy": 0.877
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.02468,
+            "val_macro_f1": 0.8699,
+            "val_accuracy": 0.8694
+          }
+        ]
+      },
+      "1D_CNN": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_3_exercise_classification_1D_CNN_best.pt",
+        "efficiency": {
+          "num_parameters": 85763,
+          "inference_latency_ms_p50": 0.854,
+          "inference_latency_ms_p95": 1.183,
+          "checkpoint_size_kb": 348.75,
+          "training_duration_sec": 184.01,
+          "best_epoch": 5
+        },
+        "validation_metrics": {
+          "macro_f1": 0.8813,
+          "balanced_accuracy": 0.8805,
+          "overall_accuracy": 0.8807,
+          "per_class": {
+            "Elbow Flexion-Extension (EFE)": {
+              "precision": 0.8299,
+              "recall": 0.9383,
+              "f1": 0.8808,
+              "support": 681
+            },
+            "Extension of Arms Overhead (EAH)": {
+              "precision": 0.8875,
+              "recall": 0.8645,
+              "f1": 0.8759,
+              "support": 812
+            },
+            "Squeezing (SQZ)": {
+              "precision": 0.942,
+              "recall": 0.8387,
+              "f1": 0.8874,
+              "support": 620
+            }
+          },
+          "confusion_matrix": [
+            [
+              639,
+              29,
+              13
+            ],
+            [
+              91,
+              702,
+              19
+            ],
+            [
+              40,
+              60,
+              520
+            ]
+          ]
+        },
+        "held_out_test_metrics": {
+          "macro_f1": 0.9397,
+          "balanced_accuracy": 0.9418,
+          "overall_accuracy": 0.939,
+          "per_class": {
+            "Elbow Flexion-Extension (EFE)": {
+              "precision": 0.9242,
+              "recall": 0.9376,
+              "f1": 0.9308,
+              "support": 689
+            },
+            "Extension of Arms Overhead (EAH)": {
+              "precision": 0.9561,
+              "recall": 0.9182,
+              "f1": 0.9368,
+              "support": 831
+            },
+            "Squeezing (SQZ)": {
+              "precision": 0.9337,
+              "recall": 0.9697,
+              "f1": 0.9514,
+              "support": 595
+            }
+          },
+          "confusion_matrix": [
+            [
+              646,
+              26,
+              17
+            ],
+            [
+              44,
+              763,
+              24
+            ],
+            [
+              9,
+              9,
+              577
+            ]
+          ]
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.18676,
+            "val_macro_f1": 0.846,
+            "val_accuracy": 0.8419
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.11623,
+            "val_macro_f1": 0.869,
+            "val_accuracy": 0.8665
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.08962,
+            "val_macro_f1": 0.8531,
+            "val_accuracy": 0.8514
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.07958,
+            "val_macro_f1": 0.87,
+            "val_accuracy": 0.868
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.07454,
+            "val_macro_f1": 0.8813,
+            "val_accuracy": 0.8807
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.05996,
+            "val_macro_f1": 0.8652,
+            "val_accuracy": 0.8651
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.05058,
+            "val_macro_f1": 0.8735,
+            "val_accuracy": 0.8727
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.04857,
+            "val_macro_f1": 0.8526,
+            "val_accuracy": 0.8514
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.0374,
+            "val_macro_f1": 0.8708,
+            "val_accuracy": 0.8699
+          },
+          {
+            "epoch": 10,
+            "train_loss": 0.03528,
+            "val_macro_f1": 0.8684,
+            "val_accuracy": 0.868
+          }
+        ]
+      },
+      "LSTM": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_3_exercise_classification_LSTM_best.pt",
+        "efficiency": {
+          "num_parameters": 105363,
+          "inference_latency_ms_p50": 1.586,
+          "inference_latency_ms_p95": 1.821,
+          "checkpoint_size_kb": 417.79,
+          "training_duration_sec": 154.53,
+          "best_epoch": 5
+        },
+        "validation_metrics": {
+          "macro_f1": 0.8931,
+          "balanced_accuracy": 0.8907,
+          "overall_accuracy": 0.8935,
+          "per_class": {
+            "Elbow Flexion-Extension (EFE)": {
+              "precision": 0.8769,
+              "recall": 0.9207,
+              "f1": 0.8983,
+              "support": 681
+            },
+            "Extension of Arms Overhead (EAH)": {
+              "precision": 0.8769,
+              "recall": 0.9126,
+              "f1": 0.8944,
+              "support": 812
+            },
+            "Squeezing (SQZ)": {
+              "precision": 0.9403,
+              "recall": 0.8387,
+              "f1": 0.8866,
+              "support": 620
+            }
+          },
+          "confusion_matrix": [
+            [
+              627,
+              39,
+              15
+            ],
+            [
+              53,
+              741,
+              18
+            ],
+            [
+              35,
+              65,
+              520
+            ]
+          ]
+        },
+        "held_out_test_metrics": {
+          "macro_f1": 0.9319,
+          "balanced_accuracy": 0.9311,
+          "overall_accuracy": 0.931,
+          "per_class": {
+            "Elbow Flexion-Extension (EFE)": {
+              "precision": 0.9355,
+              "recall": 0.9057,
+              "f1": 0.9204,
+              "support": 689
+            },
+            "Extension of Arms Overhead (EAH)": {
+              "precision": 0.9167,
+              "recall": 0.9398,
+              "f1": 0.9281,
+              "support": 831
+            },
+            "Squeezing (SQZ)": {
+              "precision": 0.9463,
+              "recall": 0.9479,
+              "f1": 0.9471,
+              "support": 595
+            }
+          },
+          "confusion_matrix": [
+            [
+              624,
+              49,
+              16
+            ],
+            [
+              34,
+              781,
+              16
+            ],
+            [
+              9,
+              22,
+              564
+            ]
+          ]
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.18231,
+            "val_macro_f1": 0.8643,
+            "val_accuracy": 0.8623
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.09237,
+            "val_macro_f1": 0.8694,
+            "val_accuracy": 0.8694
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.06704,
+            "val_macro_f1": 0.8528,
+            "val_accuracy": 0.8504
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.04915,
+            "val_macro_f1": 0.8633,
+            "val_accuracy": 0.8623
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.04216,
+            "val_macro_f1": 0.8931,
+            "val_accuracy": 0.8935
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.032,
+            "val_macro_f1": 0.8677,
+            "val_accuracy": 0.8675
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.02314,
+            "val_macro_f1": 0.8795,
+            "val_accuracy": 0.8803
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.01873,
+            "val_macro_f1": 0.8727,
+            "val_accuracy": 0.8722
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.01395,
+            "val_macro_f1": 0.8773,
+            "val_accuracy": 0.8774
+          },
+          {
+            "epoch": 10,
+            "train_loss": 0.01135,
+            "val_macro_f1": 0.8673,
+            "val_accuracy": 0.867
+          }
+        ]
+      },
+      "GRU": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_3_exercise_classification_GRU_best.pt",
+        "efficiency": {
+          "num_parameters": 104607,
+          "inference_latency_ms_p50": 13.0,
+          "inference_latency_ms_p95": 15.796,
+          "checkpoint_size_kb": 414.83,
+          "training_duration_sec": 346.69,
+          "best_epoch": 2
+        },
+        "validation_metrics": {
+          "macro_f1": 0.8733,
+          "balanced_accuracy": 0.8773,
+          "overall_accuracy": 0.8708,
+          "per_class": {
+            "Elbow Flexion-Extension (EFE)": {
+              "precision": 0.8146,
+              "recall": 0.9486,
+              "f1": 0.8765,
+              "support": 681
+            },
+            "Extension of Arms Overhead (EAH)": {
+              "precision": 0.8945,
+              "recall": 0.7833,
+              "f1": 0.8352,
+              "support": 812
+            },
+            "Squeezing (SQZ)": {
+              "precision": 0.9163,
+              "recall": 0.9,
+              "f1": 0.9081,
+              "support": 620
+            }
+          },
+          "confusion_matrix": [
+            [
+              646,
+              21,
+              14
+            ],
+            [
+              139,
+              636,
+              37
+            ],
+            [
+              8,
+              54,
+              558
+            ]
+          ]
+        },
+        "held_out_test_metrics": {
+          "macro_f1": 0.9238,
+          "balanced_accuracy": 0.9269,
+          "overall_accuracy": 0.9229,
+          "per_class": {
+            "Elbow Flexion-Extension (EFE)": {
+              "precision": 0.8955,
+              "recall": 0.9448,
+              "f1": 0.9195,
+              "support": 689
+            },
+            "Extension of Arms Overhead (EAH)": {
+              "precision": 0.9521,
+              "recall": 0.8845,
+              "f1": 0.917,
+              "support": 831
+            },
+            "Squeezing (SQZ)": {
+              "precision": 0.9188,
+              "recall": 0.9513,
+              "f1": 0.9348,
+              "support": 595
+            }
+          },
+          "confusion_matrix": [
+            [
+              651,
+              22,
+              16
+            ],
+            [
+              62,
+              735,
+              34
+            ],
+            [
+              14,
+              15,
+              566
+            ]
+          ]
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.19849,
+            "val_macro_f1": 0.8486,
+            "val_accuracy": 0.8457
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.10981,
+            "val_macro_f1": 0.8733,
+            "val_accuracy": 0.8708
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.08327,
+            "val_macro_f1": 0.8657,
+            "val_accuracy": 0.8642
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.06173,
+            "val_macro_f1": 0.8582,
+            "val_accuracy": 0.8571
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.04835,
+            "val_macro_f1": 0.8671,
+            "val_accuracy": 0.8665
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.03709,
+            "val_macro_f1": 0.8692,
+            "val_accuracy": 0.868
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.02897,
+            "val_macro_f1": 0.8641,
+            "val_accuracy": 0.8628
+          }
+        ]
+      }
+    }
+  },
+  "task_4_quality_classification": {
+    "task_name": "Exercise Movement-Quality Classification",
+    "task_mode": "classification",
+    "dataset": "PHYTMO",
+    "classes": [
+      "Correct Execution",
+      "Incorrect / Compensatory Execution"
+    ],
+    "subject_splits": {
+      "train": [
+        "A02",
+        "A04",
+        "A05",
+        "A06",
+        "A07",
+        "A08",
+        "A09",
+        "A10",
+        "B03",
+        "B04",
+        "B05",
+        "C03",
+        "C04",
+        "C05",
+        "D03",
+        "D04",
+        "D05",
+        "E03",
+        "E04",
+        "E05"
+      ],
+      "val": [
+        "A01",
+        "B01",
+        "C01",
+        "D01"
+      ],
+      "test": [
+        "A03",
+        "B02",
+        "C02",
+        "D02",
+        "E01",
+        "E02"
+      ]
+    },
+    "window_counts": {
+      "train": 13167,
+      "val": 2113,
+      "test": 2115,
+      "total": 17395
+    },
+    "models": {
+      "TCN": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_4_quality_classification_TCN_best.pt",
+        "efficiency": {
+          "num_parameters": 115418,
+          "inference_latency_ms_p50": 2.718,
+          "inference_latency_ms_p95": 2.909,
+          "checkpoint_size_kb": 476.57,
+          "training_duration_sec": 267.38,
+          "best_epoch": 4
+        },
+        "validation_metrics": {
+          "macro_f1": 0.7477,
+          "balanced_accuracy": 0.7557,
+          "overall_accuracy": 0.7572,
+          "per_class": {
+            "Correct Execution": {
+              "precision": 0.9084,
+              "recall": 0.5677,
+              "f1": 0.6988,
+              "support": 1048
+            },
+            "Incorrect / Compensatory Execution": {
+              "precision": 0.6893,
+              "recall": 0.9437,
+              "f1": 0.7967,
+              "support": 1065
+            }
+          },
+          "confusion_matrix": [
+            [
+              595,
+              453
+            ],
+            [
+              60,
+              1005
+            ]
+          ]
+        },
+        "held_out_test_metrics": {
+          "macro_f1": 0.8249,
+          "balanced_accuracy": 0.8285,
+          "overall_accuracy": 0.827,
+          "per_class": {
+            "Correct Execution": {
+              "precision": 0.9325,
+              "recall": 0.7096,
+              "f1": 0.8059,
+              "support": 1071
+            },
+            "Incorrect / Compensatory Execution": {
+              "precision": 0.7608,
+              "recall": 0.9473,
+              "f1": 0.8439,
+              "support": 1044
+            }
+          },
+          "confusion_matrix": [
+            [
+              760,
+              311
+            ],
+            [
+              55,
+              989
+            ]
+          ]
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.33576,
+            "val_macro_f1": 0.7247,
+            "val_accuracy": 0.7288
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.20391,
+            "val_macro_f1": 0.7087,
+            "val_accuracy": 0.7151
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.16618,
+            "val_macro_f1": 0.7301,
+            "val_accuracy": 0.7392
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.13312,
+            "val_macro_f1": 0.7477,
+            "val_accuracy": 0.7572
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.11233,
+            "val_macro_f1": 0.7304,
+            "val_accuracy": 0.7345
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.09809,
+            "val_macro_f1": 0.7267,
+            "val_accuracy": 0.7293
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.08316,
+            "val_macro_f1": 0.7139,
+            "val_accuracy": 0.7255
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.07006,
+            "val_macro_f1": 0.7335,
+            "val_accuracy": 0.7425
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.06035,
+            "val_macro_f1": 0.7236,
+            "val_accuracy": 0.734
+          }
+        ]
+      },
+      "1D_CNN": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_4_quality_classification_1D_CNN_best.pt",
+        "efficiency": {
+          "num_parameters": 85570,
+          "inference_latency_ms_p50": 0.735,
+          "inference_latency_ms_p95": 0.821,
+          "checkpoint_size_kb": 347.9,
+          "training_duration_sec": 147.06,
+          "best_epoch": 3
+        },
+        "validation_metrics": {
+          "macro_f1": 0.7932,
+          "balanced_accuracy": 0.7936,
+          "overall_accuracy": 0.7941,
+          "per_class": {
+            "Correct Execution": {
+              "precision": 0.8321,
+              "recall": 0.7328,
+              "f1": 0.7793,
+              "support": 1048
+            },
+            "Incorrect / Compensatory Execution": {
+              "precision": 0.7647,
+              "recall": 0.8545,
+              "f1": 0.8071,
+              "support": 1065
+            }
+          },
+          "confusion_matrix": [
+            [
+              768,
+              280
+            ],
+            [
+              155,
+              910
+            ]
+          ]
+        },
+        "held_out_test_metrics": {
+          "macro_f1": 0.8549,
+          "balanced_accuracy": 0.8561,
+          "overall_accuracy": 0.8553,
+          "per_class": {
+            "Correct Execution": {
+              "precision": 0.9082,
+              "recall": 0.7946,
+              "f1": 0.8476,
+              "support": 1071
+            },
+            "Incorrect / Compensatory Execution": {
+              "precision": 0.8132,
+              "recall": 0.9176,
+              "f1": 0.8623,
+              "support": 1044
+            }
+          },
+          "confusion_matrix": [
+            [
+              851,
+              220
+            ],
+            [
+              86,
+              958
+            ]
+          ]
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.30778,
+            "val_macro_f1": 0.7439,
+            "val_accuracy": 0.7444
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.21517,
+            "val_macro_f1": 0.7924,
+            "val_accuracy": 0.7941
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.18386,
+            "val_macro_f1": 0.7932,
+            "val_accuracy": 0.7941
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.15588,
+            "val_macro_f1": 0.7824,
+            "val_accuracy": 0.7837
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.13944,
+            "val_macro_f1": 0.7491,
+            "val_accuracy": 0.7539
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.11941,
+            "val_macro_f1": 0.7469,
+            "val_accuracy": 0.7549
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.10481,
+            "val_macro_f1": 0.77,
+            "val_accuracy": 0.7752
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.09204,
+            "val_macro_f1": 0.7476,
+            "val_accuracy": 0.7511
+          }
+        ]
+      },
+      "LSTM": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_4_quality_classification_LSTM_best.pt",
+        "efficiency": {
+          "num_parameters": 105202,
+          "inference_latency_ms_p50": 1.687,
+          "inference_latency_ms_p95": 1.903,
+          "checkpoint_size_kb": 417.08,
+          "training_duration_sec": 106.08,
+          "best_epoch": 2
+        },
+        "validation_metrics": {
+          "macro_f1": 0.7348,
+          "balanced_accuracy": 0.7359,
+          "overall_accuracy": 0.7354,
+          "per_class": {
+            "Correct Execution": {
+              "precision": 0.7084,
+              "recall": 0.7929,
+              "f1": 0.7483,
+              "support": 1048
+            },
+            "Incorrect / Compensatory Execution": {
+              "precision": 0.7691,
+              "recall": 0.6789,
+              "f1": 0.7212,
+              "support": 1065
+            }
+          },
+          "confusion_matrix": [
+            [
+              831,
+              217
+            ],
+            [
+              342,
+              723
+            ]
+          ]
+        },
+        "held_out_test_metrics": {
+          "macro_f1": 0.8977,
+          "balanced_accuracy": 0.8974,
+          "overall_accuracy": 0.8979,
+          "per_class": {
+            "Correct Execution": {
+              "precision": 0.8747,
+              "recall": 0.9318,
+              "f1": 0.9024,
+              "support": 1071
+            },
+            "Incorrect / Compensatory Execution": {
+              "precision": 0.9251,
+              "recall": 0.863,
+              "f1": 0.893,
+              "support": 1044
+            }
+          },
+          "confusion_matrix": [
+            [
+              998,
+              73
+            ],
+            [
+              143,
+              901
+            ]
+          ]
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.28451,
+            "val_macro_f1": 0.7136,
+            "val_accuracy": 0.7212
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.16948,
+            "val_macro_f1": 0.7348,
+            "val_accuracy": 0.7354
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.13314,
+            "val_macro_f1": 0.6862,
+            "val_accuracy": 0.6981
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.10931,
+            "val_macro_f1": 0.7177,
+            "val_accuracy": 0.7265
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.08041,
+            "val_macro_f1": 0.7261,
+            "val_accuracy": 0.7373
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.06679,
+            "val_macro_f1": 0.6718,
+            "val_accuracy": 0.6914
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.05531,
+            "val_macro_f1": 0.6989,
+            "val_accuracy": 0.7108
+          }
+        ]
+      },
+      "GRU": {
+        "checkpoint_path": "models\\unified_v2\\checkpoints\\unified_v2_task_4_quality_classification_GRU_best.pt",
+        "efficiency": {
+          "num_parameters": 104422,
+          "inference_latency_ms_p50": 11.779,
+          "inference_latency_ms_p95": 14.554,
+          "checkpoint_size_kb": 414.0,
+          "training_duration_sec": 586.51,
+          "best_epoch": 10
+        },
+        "validation_metrics": {
+          "macro_f1": 0.7742,
+          "balanced_accuracy": 0.7766,
+          "overall_accuracy": 0.7776,
+          "per_class": {
+            "Correct Execution": {
+              "precision": 0.8586,
+              "recall": 0.6603,
+              "f1": 0.7465,
+              "support": 1048
+            },
+            "Incorrect / Compensatory Execution": {
+              "precision": 0.7276,
+              "recall": 0.893,
+              "f1": 0.8019,
+              "support": 1065
+            }
+          },
+          "confusion_matrix": [
+            [
+              692,
+              356
+            ],
+            [
+              114,
+              951
+            ]
+          ]
+        },
+        "held_out_test_metrics": {
+          "macro_f1": 0.8581,
+          "balanced_accuracy": 0.8603,
+          "overall_accuracy": 0.8591,
+          "per_class": {
+            "Correct Execution": {
+              "precision": 0.9448,
+              "recall": 0.7666,
+              "f1": 0.8464,
+              "support": 1071
+            },
+            "Incorrect / Compensatory Execution": {
+              "precision": 0.7994,
+              "recall": 0.954,
+              "f1": 0.8699,
+              "support": 1044
+            }
+          },
+          "confusion_matrix": [
+            [
+              821,
+              250
+            ],
+            [
+              48,
+              996
+            ]
+          ]
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.31521,
+            "val_macro_f1": 0.679,
+            "val_accuracy": 0.6919
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.19501,
+            "val_macro_f1": 0.7026,
+            "val_accuracy": 0.7123
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.15649,
+            "val_macro_f1": 0.7267,
+            "val_accuracy": 0.7317
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.11934,
+            "val_macro_f1": 0.7171,
+            "val_accuracy": 0.726
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.09635,
+            "val_macro_f1": 0.7427,
+            "val_accuracy": 0.7515
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.07824,
+            "val_macro_f1": 0.7565,
+            "val_accuracy": 0.7586
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.0582,
+            "val_macro_f1": 0.7511,
+            "val_accuracy": 0.7563
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.04856,
+            "val_macro_f1": 0.7688,
+            "val_accuracy": 0.7733
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.03905,
+            "val_macro_f1": 0.7595,
+            "val_accuracy": 0.7638
+          },
+          {
+            "epoch": 10,
+            "train_loss": 0.0337,
+            "val_macro_f1": 0.7742,
+            "val_accuracy": 0.7776
+          },
+          {
+            "epoch": 11,
+            "train_loss": 0.03025,
+            "val_macro_f1": 0.7676,
+            "val_accuracy": 0.7709
+          },
+          {
+            "epoch": 12,
+            "train_loss": 0.02874,
+            "val_macro_f1": 0.7728,
+            "val_accuracy": 0.7761
+          }
+        ]
+      }
+    }
+  },
+  "task_3_7class_exercise": {
+    "task_name": "Harmonized 7-Class Upper-Limb Rehabilitation Exercise Classification",
+    "num_classes": 7,
+    "classes": [
+      "Elbow Flexion-Extension",
+      "Forearm Pronation-Supination",
+      "Shoulder Flexion / Overhead Reach",
+      "Shoulder Abduction / Scaption",
+      "Shoulder Internal-External Rotation",
+      "Crossbody Reach / Horizontal Adduction",
+      "Functional Drinking / Reach-to-Grasp"
+    ],
+    "best_model": "LSTM",
+    "models": {
+      "TCN": {
+        "model_name": "TCN",
+        "validation_metrics": {
+          "best_macro_f1": 0.8173
+        },
+        "held_out_test_metrics": {
+          "overall_accuracy": 0.9198,
+          "balanced_accuracy": 0.9092,
+          "macro_f1": 0.9015,
+          "per_class": {
+            "Elbow Flexion-Extension": {
+              "precision": 0.9765,
+              "recall": 0.9293,
+              "f1": 0.9523,
+              "support": 806
+            },
+            "Forearm Pronation-Supination": {
+              "precision": 0.9441,
+              "recall": 0.8636,
+              "f1": 0.9021,
+              "support": 176
+            },
+            "Shoulder Flexion / Overhead Reach": {
+              "precision": 0.9868,
+              "recall": 0.9278,
+              "f1": 0.9564,
+              "support": 887
+            },
+            "Shoulder Abduction / Scaption": {
+              "precision": 0.7548,
+              "recall": 0.9458,
+              "f1": 0.8396,
+              "support": 166
+            },
+            "Shoulder Internal-External Rotation": {
+              "precision": 0.7876,
+              "recall": 0.9253,
+              "f1": 0.8509,
+              "support": 509
+            },
+            "Crossbody Reach / Horizontal Adduction": {
+              "precision": 0.9486,
+              "recall": 0.9191,
+              "f1": 0.9336,
+              "support": 482
+            },
+            "Functional Drinking / Reach-to-Grasp": {
+              "precision": 0.8988,
+              "recall": 0.8531,
+              "f1": 0.8754,
+              "support": 177
+            }
+          },
+          "confusion_matrix": [
+            [
+              749,
+              0,
+              8,
+              2,
+              36,
+              3,
+              8
+            ],
+            [
+              0,
+              152,
+              0,
+              10,
+              2,
+              12,
+              0
+            ],
+            [
+              8,
+              0,
+              823,
+              19,
+              28,
+              0,
+              9
+            ],
+            [
+              9,
+              0,
+              0,
+              157,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              6,
+              3,
+              20,
+              471,
+              9,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              39,
+              443,
+              0
+            ],
+            [
+              1,
+              3,
+              0,
+              0,
+              22,
+              0,
+              151
+            ]
+          ]
+        },
+        "efficiency": {
+          "num_parameters": 115983,
+          "inference_latency_ms_p50": 0.303,
+          "training_time_sec": 471.48
+        }
+      },
+      "1D_CNN": {
+        "model_name": "1D_CNN",
+        "validation_metrics": {
+          "best_macro_f1": 0.8033
+        },
+        "held_out_test_metrics": {
+          "overall_accuracy": 0.9173,
+          "balanced_accuracy": 0.9032,
+          "macro_f1": 0.8948,
+          "per_class": {
+            "Elbow Flexion-Extension": {
+              "precision": 0.894,
+              "recall": 0.9628,
+              "f1": 0.9271,
+              "support": 806
+            },
+            "Forearm Pronation-Supination": {
+              "precision": 0.8882,
+              "recall": 0.858,
+              "f1": 0.8728,
+              "support": 176
+            },
+            "Shoulder Flexion / Overhead Reach": {
+              "precision": 0.953,
+              "recall": 0.9369,
+              "f1": 0.9449,
+              "support": 887
+            },
+            "Shoulder Abduction / Scaption": {
+              "precision": 0.7078,
+              "recall": 0.9337,
+              "f1": 0.8052,
+              "support": 166
+            },
+            "Shoulder Internal-External Rotation": {
+              "precision": 0.9574,
+              "recall": 0.8821,
+              "f1": 0.9182,
+              "support": 509
+            },
+            "Crossbody Reach / Horizontal Adduction": {
+              "precision": 0.9929,
+              "recall": 0.8734,
+              "f1": 0.9294,
+              "support": 482
+            },
+            "Functional Drinking / Reach-to-Grasp": {
+              "precision": 0.8564,
+              "recall": 0.8757,
+              "f1": 0.8659,
+              "support": 177
+            }
+          },
+          "confusion_matrix": [
+            [
+              776,
+              0,
+              11,
+              5,
+              0,
+              1,
+              13
+            ],
+            [
+              2,
+              151,
+              0,
+              20,
+              1,
+              0,
+              2
+            ],
+            [
+              35,
+              0,
+              831,
+              12,
+              0,
+              0,
+              9
+            ],
+            [
+              10,
+              0,
+              1,
+              155,
+              0,
+              0,
+              0
+            ],
+            [
+              25,
+              7,
+              4,
+              20,
+              449,
+              2,
+              2
+            ],
+            [
+              19,
+              0,
+              24,
+              1,
+              17,
+              421,
+              0
+            ],
+            [
+              1,
+              12,
+              1,
+              6,
+              2,
+              0,
+              155
+            ]
+          ]
+        },
+        "efficiency": {
+          "num_parameters": 86535,
+          "inference_latency_ms_p50": 0.143,
+          "training_time_sec": 305.88
+        }
+      },
+      "LSTM": {
+        "model_name": "LSTM",
+        "validation_metrics": {
+          "best_macro_f1": 0.8173
+        },
+        "held_out_test_metrics": {
+          "overall_accuracy": 0.9179,
+          "balanced_accuracy": 0.8946,
+          "macro_f1": 0.91,
+          "per_class": {
+            "Elbow Flexion-Extension": {
+              "precision": 0.8582,
+              "recall": 0.969,
+              "f1": 0.9103,
+              "support": 806
+            },
+            "Forearm Pronation-Supination": {
+              "precision": 0.9733,
+              "recall": 0.8295,
+              "f1": 0.8957,
+              "support": 176
+            },
+            "Shoulder Flexion / Overhead Reach": {
+              "precision": 0.9593,
+              "recall": 0.929,
+              "f1": 0.9439,
+              "support": 887
+            },
+            "Shoulder Abduction / Scaption": {
+              "precision": 0.872,
+              "recall": 0.8614,
+              "f1": 0.8667,
+              "support": 166
+            },
+            "Shoulder Internal-External Rotation": {
+              "precision": 0.8969,
+              "recall": 0.9057,
+              "f1": 0.9013,
+              "support": 509
+            },
+            "Crossbody Reach / Horizontal Adduction": {
+              "precision": 0.9577,
+              "recall": 0.8921,
+              "f1": 0.9237,
+              "support": 482
+            },
+            "Functional Drinking / Reach-to-Grasp": {
+              "precision": 0.9873,
+              "recall": 0.8757,
+              "f1": 0.9281,
+              "support": 177
+            }
+          },
+          "confusion_matrix": [
+            [
+              781,
+              3,
+              6,
+              0,
+              13,
+              3,
+              0
+            ],
+            [
+              20,
+              146,
+              3,
+              2,
+              2,
+              1,
+              2
+            ],
+            [
+              43,
+              0,
+              824,
+              16,
+              3,
+              1,
+              0
+            ],
+            [
+              19,
+              0,
+              4,
+              143,
+              0,
+              0,
+              0
+            ],
+            [
+              33,
+              1,
+              0,
+              0,
+              461,
+              14,
+              0
+            ],
+            [
+              12,
+              0,
+              22,
+              3,
+              15,
+              430,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              0,
+              20,
+              0,
+              155
+            ]
+          ]
+        },
+        "efficiency": {
+          "num_parameters": 106007,
+          "inference_latency_ms_p50": 0.239,
+          "training_time_sec": 260.49
+        }
+      },
+      "GRU": {
+        "model_name": "GRU",
+        "validation_metrics": {
+          "best_macro_f1": 0.8139
+        },
+        "held_out_test_metrics": {
+          "overall_accuracy": 0.9042,
+          "balanced_accuracy": 0.8869,
+          "macro_f1": 0.903,
+          "per_class": {
+            "Elbow Flexion-Extension": {
+              "precision": 0.9646,
+              "recall": 0.9454,
+              "f1": 0.9549,
+              "support": 806
+            },
+            "Forearm Pronation-Supination": {
+              "precision": 0.9494,
+              "recall": 0.8523,
+              "f1": 0.8982,
+              "support": 176
+            },
+            "Shoulder Flexion / Overhead Reach": {
+              "precision": 0.8687,
+              "recall": 0.9324,
+              "f1": 0.8994,
+              "support": 887
+            },
+            "Shoulder Abduction / Scaption": {
+              "precision": 0.9412,
+              "recall": 0.8675,
+              "f1": 0.9028,
+              "support": 166
+            },
+            "Shoulder Internal-External Rotation": {
+              "precision": 0.8055,
+              "recall": 0.8703,
+              "f1": 0.8366,
+              "support": 509
+            },
+            "Crossbody Reach / Horizontal Adduction": {
+              "precision": 0.9345,
+              "recall": 0.8589,
+              "f1": 0.8951,
+              "support": 482
+            },
+            "Functional Drinking / Reach-to-Grasp": {
+              "precision": 0.9936,
+              "recall": 0.8814,
+              "f1": 0.9341,
+              "support": 177
+            }
+          },
+          "confusion_matrix": [
+            [
+              762,
+              0,
+              6,
+              0,
+              29,
+              9,
+              0
+            ],
+            [
+              0,
+              150,
+              23,
+              1,
+              1,
+              1,
+              0
+            ],
+            [
+              16,
+              0,
+              827,
+              6,
+              28,
+              10,
+              0
+            ],
+            [
+              10,
+              0,
+              11,
+              144,
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              8,
+              55,
+              0,
+              443,
+              3,
+              0
+            ],
+            [
+              0,
+              0,
+              30,
+              2,
+              36,
+              414,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              0,
+              13,
+              6,
+              156
+            ]
+          ]
+        },
+        "efficiency": {
+          "num_parameters": 105347,
+          "inference_latency_ms_p50": 0.925,
+          "training_time_sec": 854.37
+        }
+      }
+    }
+  }
+}

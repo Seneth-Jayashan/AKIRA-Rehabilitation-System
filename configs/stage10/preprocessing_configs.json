@@ -1,0 +1,247 @@
+{
+  "schema_version": "10.2.0",
+  "project": "AI-Based Elbow Rehabilitation Assistance System After Olecranon Fracture ORIF",
+  "stage": "Stage 10.2 — Versioned Input & Preprocessing Pipeline Configurations",
+  "evaluation_of_100hz_200frame_12ch_standard": {
+    "proposed_standard": {
+      "sampling_rate_hz": 100.0,
+      "window_frames": 200,
+      "window_duration_sec": 2.0,
+      "num_channels": 12,
+      "channel_names": [
+        "ua_acc_x_ms2",
+        "ua_acc_y_ms2",
+        "ua_acc_z_ms2",
+        "ua_gyr_x_rads",
+        "ua_gyr_y_rads",
+        "ua_gyr_z_rads",
+        "fa_acc_x_ms2",
+        "fa_acc_y_ms2",
+        "fa_acc_z_ms2",
+        "fa_gyr_x_rads",
+        "fa_gyr_y_rads",
+        "fa_gyr_z_rads"
+      ]
+    },
+    "physical_compatibility_verdict": "PARTIALLY_COMPATIBLE_REQUIRES_DATASET_SPECIFIC_ADAPTERS",
+    "technical_justification": [
+      "1. Gravity Convention Mismatch (Free vs. Proper Acceleration): Optotrak vs DOT (Xsens DOT) records FREE acceleration (gravity vector already subtracted onboard, ||a|| ~ 0 m/s^2 at rest), whereas PHYTMO, ULTra-MoCap, JU-IMU, ULF_in_ADL, and standard 6-axis IMUs record PROPER acceleration (gravity included, ||a|| ~ 9.81 m/s^2 at rest). Therefore, raw-channel models trained on Optotrak vs DOT cannot be directly applied to proper-acceleration recordings without gravity removal or separate dataset adapters.",
+      "2. Local Sensor Coordinate Frame Differences: Each public dataset mounts Upper Arm and Forearm IMUs with different local axis alignments (e.g., X-distal vs Z-distal) and without a shared N-pose functional calibration matrix.",
+      "3. Sampling Rate & Receptive Field Calibration: Existing Stage 8 checkpoints for PHYTMO (1C, 2A, 2B) and ULTra-MoCap (3C, 5B) already operate natively at the 100 Hz, 200-frame, 12-channel standard. However, existing Stage 8 checkpoints for Optotrak vs DOT (1A, 3A) were trained at 120 Hz (240 frames = 2.0 s) and JU-IMU (1B, 4A) at 80 Hz (160 frames = 2.0 s). Resampling Optotrak (120->100 Hz) or JU-IMU (80->100 Hz) is only valid when paired with models trained at 100 Hz (such as Cross-Dataset Tracks 5A-1 and 5A-2 or future Stage 10.3 retrained models).",
+      "4. Quaternion-Only Exception: VIDIMU (Track 3E) provides 50 Hz 8-channel unit quaternions without raw linear acceleration or angular velocity and must retain a dedicated 8-channel pipeline."
+    ]
+  },
+  "pipelines": {
+    "preproc_v8_phytmo_100hz_raw12_properacc": {
+      "config_id": "preproc_v8_phytmo_100hz_raw12_properacc",
+      "version": "8.0.0",
+      "stage_lineage": "stage8_preserved",
+      "dataset": "PHYTMO",
+      "sampling_rate_hz": 100.0,
+      "source_sampling_rate_hz": 100.0,
+      "resampling_applied": false,
+      "window_frames": 200,
+      "window_duration_sec": 2.0,
+      "train_stride_frames": 75,
+      "eval_stride_frames": 100,
+      "num_channels": 12,
+      "channel_schema": "canonical_12ch_imu",
+      "units": {
+        "accelerometer": "m/s^2 (converted from g via * 9.80665)",
+        "gyroscope": "rad/s (converted from deg/s via * pi / 180)"
+      },
+      "sensor_placement": {
+        "imu_1_upper_arm": "Right Upper Arm lateral aspect (Rarm)",
+        "imu_2_forearm": "Right Forearm dorsal distal aspect (Rforearm)"
+      },
+      "gravity_convention": "proper_acceleration_includes_gravity",
+      "feature_transform": "identity_canonical_12ch",
+      "causal_streaming_compatible": true,
+      "normalization": "train_only_ChannelStandardScaler_bundled_in_checkpoint",
+      "compatible_tracks": [
+        "track_1c_phytmo_3class_exercise",
+        "track_2a_phytmo_efe_quality_binary",
+        "track_2b_phytmo_6class_exercise_quality"
+      ]
+    },
+    "preproc_v8_ultramocap_100hz_raw12_properacc": {
+      "config_id": "preproc_v8_ultramocap_100hz_raw12_properacc",
+      "version": "8.0.0",
+      "stage_lineage": "stage8_preserved",
+      "dataset": "ULTra-MoCap",
+      "sampling_rate_hz": 100.0,
+      "source_sampling_rate_hz": 2000.0,
+      "resampling_applied": true,
+      "resampling_justification": "Delsys Trigno raw IMU streams are sampled at 2,000 Hz while Vicon OpenSim Inverse Kinematics ground-truth angles are sampled at 100 Hz; anti-aliased decimation to 100 Hz aligns IMU frames 1:1 with optical IK frames.",
+      "window_frames": 200,
+      "window_duration_sec": 2.0,
+      "train_stride_frames": 50,
+      "eval_stride_frames": 100,
+      "dense_plot_stride_frames": 40,
+      "num_channels": 12,
+      "channel_schema": "canonical_12ch_imu",
+      "units": {
+        "accelerometer": "m/s^2 (converted from Vicon mm/s^2 via / 1000.0)",
+        "gyroscope": "rad/s (converted from deg/s via * pi / 180)"
+      },
+      "sensor_placement": {
+        "imu_1_upper_arm": "Right Upper Arm (IMU 4)",
+        "imu_2_forearm": "Right Forearm/Hand (IMU 1)"
+      },
+      "gravity_convention": "proper_acceleration_includes_gravity",
+      "feature_transform": "identity_canonical_12ch",
+      "causal_streaming_compatible": true,
+      "normalization": "train_only_ChannelStandardScaler_bundled_in_checkpoint",
+      "compatible_tracks": [
+        "track_3c_ultra_mocap_angle_regression",
+        "track_5b_ultra_mocap_cross_speed"
+      ]
+    },
+    "preproc_v8_optotrak_120hz_raw12_freeacc": {
+      "config_id": "preproc_v8_optotrak_120hz_raw12_freeacc",
+      "version": "8.0.0",
+      "stage_lineage": "stage8_preserved",
+      "dataset": "Optotrak vs DOT",
+      "sampling_rate_hz": 120.0,
+      "source_sampling_rate_hz": 120.0,
+      "resampling_applied": false,
+      "window_frames": 240,
+      "window_duration_sec": 2.0,
+      "train_stride_frames": 60,
+      "eval_stride_frames": 120,
+      "dense_plot_stride_frames": 48,
+      "num_channels": 12,
+      "channel_schema": "canonical_12ch_imu",
+      "units": {
+        "accelerometer": "m/s^2 (Xsens DOT free acceleration, clipped to [-100, 100] m/s^2)",
+        "gyroscope": "rad/s (converted from deg/s via * pi / 180)"
+      },
+      "sensor_placement": {
+        "imu_1_upper_arm": "Right Upper Arm (RUA, Sensor index 0 in B_dotComplete)",
+        "imu_2_forearm": "Right Lower Arm / Forearm (RLA, Sensor index 1 in B_dotComplete)"
+      },
+      "gravity_convention": "free_acceleration_gravity_subtracted",
+      "feature_transform": "identity_canonical_12ch",
+      "causal_streaming_compatible": true,
+      "normalization": "train_only_ChannelStandardScaler_bundled_in_checkpoint",
+      "compatible_tracks": [
+        "track_1a_optotrak_10class_exercise",
+        "track_3a_optotrak_elbow_prosup_regression"
+      ]
+    },
+    "preproc_v8_juimu_80hz_raw12_properacc": {
+      "config_id": "preproc_v8_juimu_80hz_raw12_properacc",
+      "version": "8.0.0",
+      "stage_lineage": "stage8_preserved",
+      "dataset": "JU-IMU",
+      "sampling_rate_hz": 80.0,
+      "source_sampling_rate_hz": 80.0,
+      "resampling_applied": false,
+      "window_frames": 160,
+      "window_duration_sec": 2.0,
+      "train_stride_frames": 80,
+      "eval_stride_frames": 80,
+      "num_channels": 12,
+      "channel_schema": "canonical_12ch_imu",
+      "units": {
+        "accelerometer": "m/s^2 (converted from mG via * 9.80665 / 1000)",
+        "gyroscope": "rad/s (converted from deg/s via * pi / 180)"
+      },
+      "sensor_placement": {
+        "imu_1_upper_arm": "Upper Arm (Arm_imu)",
+        "imu_2_forearm": "Forearm / Wrist (Wrist_imu)"
+      },
+      "gravity_convention": "proper_acceleration_includes_gravity",
+      "feature_transform": "identity_canonical_12ch",
+      "causal_streaming_compatible": true,
+      "normalization": "train_only_ChannelStandardScaler_bundled_in_checkpoint",
+      "compatible_tracks": [
+        "track_1b_ju_imu_14class_exercise",
+        "track_4a_ju_imu_stroke_vs_nd"
+      ]
+    },
+    "preproc_v8_cross_100hz_inv12_legacy_trialmean": {
+      "config_id": "preproc_v8_cross_100hz_inv12_legacy_trialmean",
+      "version": "8.0.0",
+      "stage_lineage": "stage8_legacy_traceable",
+      "dataset": "Cross-Dataset (JU-IMU / Optotrak vs DOT / PHYTMO)",
+      "sampling_rate_hz": 100.0,
+      "resampling_applied": true,
+      "resampling_justification": "Harmonizes 80 Hz JU-IMU and 120 Hz Optotrak vs DOT to 100 Hz (matching PHYTMO) for zero-shot cross-dataset evaluation.",
+      "window_frames": 200,
+      "window_duration_sec": 2.0,
+      "eval_stride_frames": 100,
+      "num_channels": 12,
+      "channel_schema": "orientation_invariant_12ch_legacy_trialmean",
+      "feature_transform": "compute_orientation_invariant_12ch(mode='legacy_full_trial')",
+      "causal_streaming_compatible": false,
+      "non_causal_note": "Subtracts full-trial mean acceleration before windowing; preserved strictly for reproducibility of Stage 8 checkpoints track_5a1 and track_5a2.",
+      "compatible_tracks": [
+        "track_5a1_cross_dataset_ju_to_optotrak_7class",
+        "track_5a2_cross_dataset_to_phytmo_2class"
+      ]
+    },
+    "preproc_v10_cross_100hz_inv12_causal_window": {
+      "config_id": "preproc_v10_cross_100hz_inv12_causal_window",
+      "version": "10.2.0",
+      "stage_lineage": "stage10_causal_standard",
+      "dataset": "Cross-Dataset / Real-Time Dual-IMU Stream",
+      "sampling_rate_hz": 100.0,
+      "resampling_applied": true,
+      "window_frames": 200,
+      "window_duration_sec": 2.0,
+      "eval_stride_frames": 100,
+      "num_channels": 12,
+      "channel_schema": "orientation_invariant_12ch_causal",
+      "feature_transform": "compute_orientation_invariant_windows_12ch(mode='causal_expanding')",
+      "causal_streaming_compatible": true,
+      "causal_verification": "Frame t inside each 2.0s window uses only samples 0..t via expanding running mean and backward first-difference jerk.",
+      "compatible_tracks": []
+    },
+    "preproc_v10_ulf_60hz_raw12_p28_guarded": {
+      "config_id": "preproc_v10_ulf_60hz_raw12_p28_guarded",
+      "version": "10.2.0",
+      "stage_lineage": "stage10_p28_guarded",
+      "dataset": "ULF_in_ADL",
+      "sampling_rate_hz": 60.0,
+      "source_sampling_rate_hz": 60.0,
+      "resampling_applied": false,
+      "window_frames": 120,
+      "window_duration_sec": 2.0,
+      "eval_stride_frames": 60,
+      "num_channels": 12,
+      "channel_schema": "canonical_12ch_imu",
+      "gravity_convention": "proper_acceleration_includes_gravity",
+      "safeguards": {
+        "enforce_p28_safeguard": true,
+        "max_allowed_mvnx_frames": 1500,
+        "max_allowed_duration_sec": 25.0
+      },
+      "causal_streaming_compatible": true,
+      "compatible_tracks": [
+        "track_3d_ulf_in_adl_stroke_angle_regression"
+      ]
+    },
+    "preproc_v8_vidimu_50hz_quat8": {
+      "config_id": "preproc_v8_vidimu_50hz_quat8",
+      "version": "8.0.0",
+      "stage_lineage": "stage8_preserved",
+      "dataset": "VIDIMU",
+      "sampling_rate_hz": 50.0,
+      "source_sampling_rate_hz": 50.0,
+      "resampling_applied": false,
+      "window_frames": 100,
+      "window_duration_sec": 2.0,
+      "eval_stride_frames": 50,
+      "num_channels": 8,
+      "channel_schema": "quaternion_8ch_imu",
+      "units": {
+        "quaternions": "unitless normalized [w, x, y, z] for humerus_r_imu and radius_r_imu"
+      },
+      "causal_streaming_compatible": true,
+      "compatible_tracks": [
+        "track_3e_vidimu_quaternion_angle_regression"
+      ]
+    }
+  }
+}

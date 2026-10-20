@@ -1,0 +1,288 @@
+{
+  "preprocessing": {
+    "sampling_rate_hz": 100.0,
+    "window_duration_sec": 2.0,
+    "window_frames": 200,
+    "train_stride_frames": 50,
+    "eval_stride_frames": 100,
+    "num_channels": 12,
+    "channel_order": [
+      "ua_acc_x_ms2",
+      "ua_acc_y_ms2",
+      "ua_acc_z_ms2",
+      "ua_gyr_x_rads",
+      "ua_gyr_y_rads",
+      "ua_gyr_z_rads",
+      "fa_acc_x_ms2",
+      "fa_acc_y_ms2",
+      "fa_acc_z_ms2",
+      "fa_gyr_x_rads",
+      "fa_gyr_y_rads",
+      "fa_gyr_z_rads"
+    ]
+  },
+  "channel_specification": {
+    "num_channels": 12,
+    "channel_order": [
+      "ua_acc_x_ms2",
+      "ua_acc_y_ms2",
+      "ua_acc_z_ms2",
+      "ua_gyr_x_rads",
+      "ua_gyr_y_rads",
+      "ua_gyr_z_rads",
+      "fa_acc_x_ms2",
+      "fa_acc_y_ms2",
+      "fa_acc_z_ms2",
+      "fa_gyr_x_rads",
+      "fa_gyr_y_rads",
+      "fa_gyr_z_rads"
+    ],
+    "channel_indices": {
+      "ua_acc_x_ms2": 0,
+      "ua_acc_y_ms2": 1,
+      "ua_acc_z_ms2": 2,
+      "ua_gyr_x_rads": 3,
+      "ua_gyr_y_rads": 4,
+      "ua_gyr_z_rads": 5,
+      "fa_acc_x_ms2": 6,
+      "fa_acc_y_ms2": 7,
+      "fa_acc_z_ms2": 8,
+      "fa_gyr_x_rads": 9,
+      "fa_gyr_y_rads": 10,
+      "fa_gyr_z_rads": 11
+    },
+    "sensors": {
+      "upper_arm_imu": {
+        "indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "accelerometer_channels": [
+          "ua_acc_x_ms2",
+          "ua_acc_y_ms2",
+          "ua_acc_z_ms2"
+        ],
+        "gyroscope_channels": [
+          "ua_gyr_x_rads",
+          "ua_gyr_y_rads",
+          "ua_gyr_z_rads"
+        ],
+        "acc_unit": "m/s^2",
+        "gyr_unit": "rad/s"
+      },
+      "forearm_imu": {
+        "indices": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "accelerometer_channels": [
+          "fa_acc_x_ms2",
+          "fa_acc_y_ms2",
+          "fa_acc_z_ms2"
+        ],
+        "gyroscope_channels": [
+          "fa_gyr_x_rads",
+          "fa_gyr_y_rads",
+          "fa_gyr_z_rads"
+        ],
+        "acc_unit": "m/s^2",
+        "gyr_unit": "rad/s"
+      }
+    },
+    "units": {
+      "acceleration": "m/s^2 (SI, standard gravity g = 9.80665 m/s^2)",
+      "angular_velocity": "rad/s (SI, deg/s * pi / 180)",
+      "joint_angle": "degrees (deg, 0 to 180 deg)"
+    }
+  },
+  "tasks": {
+    "task_1_elbow_flexion_angle": {
+      "task_id": "task_1_elbow_flexion_angle",
+      "task_name": "Continuous Elbow Flexion/Extension Angle Estimation (deg)",
+      "clinical_relevance": "Core recovery milestone after olecranon ORIF: tracking passive and active elbow flexion/extension range (target: 0\u00b0 full extension to 140\u00b0 flexion).",
+      "target_type": "continuous_regression",
+      "primary_target_index": 0,
+      "target_name": "elbow_flex_ext_deg",
+      "target_unit": "deg",
+      "primary_datasets": [
+        "ULTra-MoCap",
+        "Optotrak vs DOT"
+      ],
+      "sampling_rate_hz": 100.0,
+      "window_frames": 200,
+      "window_duration_sec": 2.0,
+      "channels": [
+        "ua_acc_x_ms2",
+        "ua_acc_y_ms2",
+        "ua_acc_z_ms2",
+        "ua_gyr_x_rads",
+        "ua_gyr_y_rads",
+        "ua_gyr_z_rads",
+        "fa_acc_x_ms2",
+        "fa_acc_y_ms2",
+        "fa_acc_z_ms2",
+        "fa_gyr_x_rads",
+        "fa_gyr_y_rads",
+        "fa_gyr_z_rads"
+      ],
+      "anatomical_zero_note": "Optotrak uses ISB anatomical landmarks (0\u00b0 = straight arm); ULTra-MoCap uses OpenSim IK coordinates (0\u00b0 = full extension). Datasets are modeled with task-specific heads to preserve anatomical fidelity."
+    },
+    "task_2_forearm_prosup_angle": {
+      "task_id": "task_2_forearm_prosup_angle",
+      "task_name": "Continuous Forearm Pronation/Supination Angle Estimation (deg)",
+      "clinical_relevance": "Critical functional recovery parameter after elbow ORIF: restoring daily ADL rotational mobility (target: 70\u00b0 pronation to 85\u00b0 supination).",
+      "target_type": "continuous_regression",
+      "primary_target_index": 1,
+      "target_name": "forearm_pro_sup_deg",
+      "target_unit": "deg",
+      "primary_datasets": [
+        "Optotrak vs DOT",
+        "ULTra-MoCap"
+      ],
+      "sampling_rate_hz": 100.0,
+      "window_frames": 200,
+      "window_duration_sec": 2.0,
+      "channels": [
+        "ua_acc_x_ms2",
+        "ua_acc_y_ms2",
+        "ua_acc_z_ms2",
+        "ua_gyr_x_rads",
+        "ua_gyr_y_rads",
+        "ua_gyr_z_rads",
+        "fa_acc_x_ms2",
+        "fa_acc_y_ms2",
+        "fa_acc_z_ms2",
+        "fa_gyr_x_rads",
+        "fa_gyr_y_rads",
+        "fa_gyr_z_rads"
+      ],
+      "biomechanical_constraint": "Reliable during elbow flexion ~90\u00b0; unobservable heading drift during 3D reaching when forearm shaft aligns with gravity vector."
+    },
+    "task_3_rom_estimation": {
+      "task_id": "task_3_rom_estimation",
+      "task_name": "Range of Motion (ROM) Estimation (deg)",
+      "clinical_relevance": "Measures total angular excursion per repetition cycle and per therapy session to monitor joint contracture and stiffness.",
+      "target_type": "derived_metric",
+      "tiers": {
+        "tier_1_window_rom": "Maximum minus minimum angle in a 2.0s sliding window (deg)",
+        "tier_2_trial_rom": "Global peak-to-trough range across an entire exercise trial (deg)",
+        "tier_3_repetition_rom": "Cycle-segmented peak-to-trough excursion identified by prominence-filtered extrema (deg)"
+      },
+      "primary_datasets": [
+        "Optotrak vs DOT",
+        "ULTra-MoCap"
+      ]
+    },
+    "task_4_rehabilitation_exercise_classification": {
+      "task_id": "task_4_rehabilitation_exercise_classification",
+      "task_name": "Rehabilitation Movement & Exercise Classification",
+      "clinical_relevance": "Automated logging and verification of prescribed home exercise execution.",
+      "target_type": "multiclass_classification",
+      "sub_benchmarks": {
+        "phytmo_3class": {
+          "dataset": "PHYTMO",
+          "classes": {
+            "0": "Elbow Flexion-Extension (EFE)",
+            "1": "Arms Overhead (EAH)",
+            "2": "Squeezing (SQZ)"
+          },
+          "num_classes": 3
+        },
+        "optotrak_10class": {
+          "dataset": "Optotrak vs DOT",
+          "classes": {
+            "0": "elbow_flex_ext",
+            "1": "forearm_pro_sup",
+            "2": "shoulder_flex",
+            "3": "shoulder_abd",
+            "4": "shoulder_int_ext_rot",
+            "5": "wrist_flex_ext",
+            "6": "wrist_rad_uln_dev",
+            "7": "drinking_cup",
+            "8": "box_off_shelf",
+            "9": "drawing_circles"
+          },
+          "num_classes": 10
+        },
+        "ju_imu_14class": {
+          "dataset": "JU-IMU",
+          "classes": {
+            "0": "ElbFlex",
+            "1": "SupPro",
+            "2": "FrontSupPro",
+            "3": "WrstFlex",
+            "4": "WrstExt",
+            "5": "FrontWrstFlex",
+            "6": "FrontWrstExt",
+            "7": "ShFlex90",
+            "8": "ShExt",
+            "9": "ShAbd90",
+            "10": "Scaption90",
+            "11": "ShHorAdd",
+            "12": "ShRot",
+            "13": "PickCup"
+          },
+          "num_classes": 14
+        },
+        "shared_7class_harmonized": {
+          "datasets": [
+            "Optotrak vs DOT",
+            "JU-IMU",
+            "PHYTMO"
+          ],
+          "classes": {
+            "0": "elbow_flex_ext",
+            "1": "forearm_pro_sup",
+            "2": "shoulder_flex",
+            "3": "shoulder_abd",
+            "4": "shoulder_rot",
+            "5": "wrist_flex_ext",
+            "6": "drinking_cup_adl"
+          },
+          "num_classes": 7,
+          "feature_representation": "orientation_invariant_12ch"
+        }
+      }
+    },
+    "task_5_exercise_quality_assessment": {
+      "task_id": "task_5_exercise_quality_assessment",
+      "task_name": "Rehabilitation Exercise Execution Quality Assessment",
+      "clinical_relevance": "Detects compensatory body posturing, shoulder hiking, and improper form during post-ORIF elbow rehabilitation.",
+      "target_type": "binary_and_multiclass_classification",
+      "primary_dataset": "PHYTMO",
+      "binary_efe": {
+        "num_classes": 2,
+        "classes": {
+          "0": "Correct Execution (EFE0)",
+          "1": "Incorrect / Compensatory Execution (EFE1)"
+        }
+      },
+      "joint_6class": {
+        "num_classes": 6,
+        "classes": {
+          "0": "EFE0",
+          "1": "EFE1",
+          "2": "EAH0",
+          "3": "EAH1",
+          "4": "SQZ0",
+          "5": "SQZ1"
+        }
+      }
+    }
+  },
+  "anti_leakage": {
+    "subject_isolation": "Strict pairwise disjoint subject sets. No subject appears in more than one partition.",
+    "validation_policy": "Validation subjects are drawn strictly from the ~80% training pool, never from the 20% holdout test pool.",
+    "window_isolation": "Sliding windows are extracted strictly within individual trials. No window ever crosses trial or subject boundaries.",
+    "normalization_isolation": "ChannelStandardScaler is fitted strictly on 'train' split windows. Validation and test arrays are transformed using frozen training parameters without updating running statistics.",
+    "unsegmented_p28_safeguard": "ULF_in_ADL trials longer than 1,500 frames (>5 MB, e.g. Subject P28 40,517 frames) are excluded from test window evaluation to prevent single-subject window domination (was 99.07% in Stage 8)."
+  }
+}

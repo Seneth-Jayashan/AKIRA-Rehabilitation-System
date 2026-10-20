@@ -1,0 +1,299 @@
+{
+  "schema_version": "10.2.0",
+  "project": "AI-Based Elbow Rehabilitation Assistance System After Olecranon Fracture ORIF",
+  "stage": "Stage 10.2 — Four-Model Candidate Preparation Across Five Core Rehabilitation Tasks",
+  "architectures": [
+    "TCN",
+    "1D_CNN",
+    "LSTM",
+    "GRU"
+  ],
+  "core_tasks": {
+    "elbow_flexion_angle": {
+      "task_id": "elbow_flexion_angle",
+      "task_number": 1,
+      "title": "Task 1: Continuous Elbow Flexion/Extension Angle Prediction (deg)",
+      "task_mode": "regression",
+      "primary_target_index": 0,
+      "target_name": "elbow_flex_ext_deg",
+      "target_unit": "deg",
+      "output_head_spec": "TaskOutputHead(task_mode='regression', num_reg_targets=2) -> slice [:, :, 0]",
+      "supports_all_four_architectures_on_same_input": true,
+      "primary_tracks": [
+        {
+          "track_id": "track_3c_ultra_mocap_angle_regression",
+          "dataset": "ULTra-MoCap",
+          "preprocessing_config_id": "preproc_v8_ultramocap_100hz_raw12_properacc",
+          "input_shape": [200, 12],
+          "sampling_rate_hz": 100.0,
+          "reusable_status": "REUSABLE_DIRECTLY_100HZ_STANDARD",
+          "recommended_architecture": "TCN",
+          "co_recommended_architecture": "GRU",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_3c_ultra_mocap_angle_regression_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_3c_ultra_mocap_angle_regression_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_3c_ultra_mocap_angle_regression_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_3c_ultra_mocap_angle_regression_GRU_best.pt"
+          }
+        },
+        {
+          "track_id": "track_3a_optotrak_elbow_prosup_regression",
+          "dataset": "Optotrak vs DOT",
+          "preprocessing_config_id": "preproc_v8_optotrak_120hz_raw12_freeacc",
+          "input_shape": [240, 12],
+          "sampling_rate_hz": 120.0,
+          "reusable_status": "REUSABLE_DIRECTLY_AT_120HZ",
+          "recommended_architecture": "GRU",
+          "co_recommended_architecture": "LSTM",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_GRU_best.pt"
+          }
+        }
+      ],
+      "auxiliary_tracks": [
+        "track_3e_vidimu_quaternion_angle_regression",
+        "track_3b_strokerehab_angle_regression"
+      ],
+      "requires_new_training": [
+        "Optional 100 Hz (W=200) Optotrak vs DOT angle regression checkpoints if resampling 120 Hz -> 100 Hz.",
+        "Cleaned ULF_in_ADL Track 3D checkpoints after excluding >1,500-frame P28 recordings (Auxiliary)."
+      ],
+      "requires_new_data": [
+        "Prospective clinical dual-IMU + optical/goniometer recordings on post-olecranon ORIF surgical patients."
+      ]
+    },
+    "forearm_prosup_angle": {
+      "task_id": "forearm_prosup_angle",
+      "task_number": 2,
+      "title": "Task 2: Continuous Forearm Pronation/Supination Angle Prediction (deg)",
+      "task_mode": "regression",
+      "primary_target_index": 1,
+      "target_name": "forearm_pro_sup_deg",
+      "target_unit": "deg",
+      "output_head_spec": "TaskOutputHead(task_mode='regression', num_reg_targets=2) -> slice [:, :, 1]",
+      "supports_all_four_architectures_on_same_input": true,
+      "biomechanical_constraint": "Reliable (8.48-10.19 deg MAE) during structured rehabilitation exercises with elbow flexed ~90 deg; unobservable heading drift (18-30 deg MAE) when forearm shaft aligns with gravity vector during 3D reaching.",
+      "primary_tracks": [
+        {
+          "track_id": "track_3c_ultra_mocap_angle_regression",
+          "dataset": "ULTra-MoCap",
+          "preprocessing_config_id": "preproc_v8_ultramocap_100hz_raw12_properacc",
+          "input_shape": [200, 12],
+          "sampling_rate_hz": 100.0,
+          "reusable_status": "REUSABLE_DIRECTLY_100HZ_STANDARD",
+          "recommended_architecture": "TCN",
+          "co_recommended_architecture": "GRU",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_3c_ultra_mocap_angle_regression_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_3c_ultra_mocap_angle_regression_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_3c_ultra_mocap_angle_regression_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_3c_ultra_mocap_angle_regression_GRU_best.pt"
+          }
+        },
+        {
+          "track_id": "track_3a_optotrak_elbow_prosup_regression",
+          "dataset": "Optotrak vs DOT",
+          "preprocessing_config_id": "preproc_v8_optotrak_120hz_raw12_freeacc",
+          "input_shape": [240, 12],
+          "sampling_rate_hz": 120.0,
+          "reusable_status": "REUSABLE_DIRECTLY_AT_120HZ",
+          "recommended_architecture": "GRU",
+          "co_recommended_architecture": "TCN",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_GRU_best.pt"
+          }
+        }
+      ],
+      "auxiliary_tracks": [
+        "track_3e_vidimu_quaternion_angle_regression"
+      ],
+      "requires_new_training": [
+        "Session-start N-pose + 90-deg elbow flexion functional heading calibration adapter for real IMU recordings."
+      ],
+      "requires_new_data": [
+        "Isolated forearm pronation/supination goniometer/optical reference trials with standardized forearm IMU mounting."
+      ]
+    },
+    "rom_estimation": {
+      "task_id": "rom_estimation",
+      "task_number": 3,
+      "title": "Task 3: Full-Repetition Range-of-Motion (ROM) Estimation (deg)",
+      "task_mode": "regression",
+      "primary_target_index": null,
+      "target_name": "three_tier_rom_deg",
+      "target_unit": "deg",
+      "output_head_spec": "Derived from continuous angle regression trajectories via src/evaluation/rom_segmentation.py (Tier 1: 2.0s Window ROM, Tier 2: Full-Trial ROM, Tier 3: Segmented Per-Repetition Cycle ROM)",
+      "supports_all_four_architectures_on_same_input": true,
+      "primary_tracks": [
+        {
+          "track_id": "track_3c_ultra_mocap_angle_regression",
+          "dataset": "ULTra-MoCap",
+          "preprocessing_config_id": "preproc_v8_ultramocap_100hz_raw12_properacc",
+          "input_shape": [200, 12],
+          "sampling_rate_hz": 100.0,
+          "reusable_status": "REUSABLE_DIRECTLY_WITH_STAGE10_CYCLE_SEGMENTER",
+          "recommended_architecture": "TCN",
+          "co_recommended_architecture": "GRU",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_3c_ultra_mocap_angle_regression_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_3c_ultra_mocap_angle_regression_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_3c_ultra_mocap_angle_regression_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_3c_ultra_mocap_angle_regression_GRU_best.pt"
+          }
+        },
+        {
+          "track_id": "track_3a_optotrak_elbow_prosup_regression",
+          "dataset": "Optotrak vs DOT",
+          "preprocessing_config_id": "preproc_v8_optotrak_120hz_raw12_freeacc",
+          "input_shape": [240, 12],
+          "sampling_rate_hz": 120.0,
+          "reusable_status": "REUSABLE_DIRECTLY_WITH_STAGE10_CYCLE_SEGMENTER",
+          "recommended_architecture": "GRU",
+          "co_recommended_architecture": "TCN",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_3a_optotrak_elbow_prosup_regression_GRU_best.pt"
+          }
+        }
+      ],
+      "auxiliary_tracks": [
+        "track_3e_vidimu_quaternion_angle_regression"
+      ],
+      "requires_new_training": [],
+      "requires_new_data": [
+        "Multi-repetition clinical ROM reference trials on post-ORIF patients."
+      ]
+    },
+    "exercise_classification": {
+      "task_id": "exercise_classification",
+      "task_number": 4,
+      "title": "Task 4: Rehabilitation Exercise Classification",
+      "task_mode": "classification",
+      "target_unit": "class_probability",
+      "output_head_spec": "TaskOutputHead(task_mode='classification', num_classes=C) with dataset-specific taxonomy C in {3, 7, 10, 14}",
+      "supports_all_four_architectures_on_same_input": true,
+      "primary_tracks": [
+        {
+          "track_id": "track_1c_phytmo_3class_exercise",
+          "dataset": "PHYTMO",
+          "preprocessing_config_id": "preproc_v8_phytmo_100hz_raw12_properacc",
+          "input_shape": [200, 12],
+          "sampling_rate_hz": 100.0,
+          "num_classes": 3,
+          "reusable_status": "REUSABLE_DIRECTLY_100HZ_STANDARD",
+          "recommended_architecture": "TCN",
+          "co_recommended_architecture": "1D_CNN",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_1c_phytmo_3class_exercise_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_1c_phytmo_3class_exercise_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_1c_phytmo_3class_exercise_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_1c_phytmo_3class_exercise_GRU_best.pt"
+          }
+        },
+        {
+          "track_id": "track_1a_optotrak_10class_exercise",
+          "dataset": "Optotrak vs DOT",
+          "preprocessing_config_id": "preproc_v8_optotrak_120hz_raw12_freeacc",
+          "input_shape": [240, 12],
+          "sampling_rate_hz": 120.0,
+          "num_classes": 10,
+          "reusable_status": "REUSABLE_DIRECTLY_AT_120HZ",
+          "recommended_architecture": "1D_CNN",
+          "co_recommended_architecture": "LSTM",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_1a_optotrak_10class_exercise_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_1a_optotrak_10class_exercise_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_1a_optotrak_10class_exercise_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_1a_optotrak_10class_exercise_GRU_best.pt"
+          }
+        },
+        {
+          "track_id": "track_1b_ju_imu_14class_exercise",
+          "dataset": "JU-IMU",
+          "preprocessing_config_id": "preproc_v8_juimu_80hz_raw12_properacc",
+          "input_shape": [160, 12],
+          "sampling_rate_hz": 80.0,
+          "num_classes": 14,
+          "reusable_status": "REUSABLE_DIRECTLY_AT_80HZ",
+          "recommended_architecture": "TCN",
+          "co_recommended_architecture": "GRU",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_1b_ju_imu_14class_exercise_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_1b_ju_imu_14class_exercise_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_1b_ju_imu_14class_exercise_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_1b_ju_imu_14class_exercise_GRU_best.pt"
+          }
+        }
+      ],
+      "auxiliary_tracks": [
+        "track_5a1_cross_dataset_ju_to_optotrak_7class",
+        "track_5a2_cross_dataset_to_phytmo_2class",
+        "track_5b_ultra_mocap_cross_speed"
+      ],
+      "requires_new_training": [
+        "Retraining Track 5A-1 and Track 5A-2 with causal window-level orientation-invariant features (`preproc_v10_cross_100hz_inv12_causal_window`) for real-time streaming.",
+        "Optional 100 Hz resampled checkpoints for Track 1A and Track 1B."
+      ],
+      "requires_new_data": []
+    },
+    "execution_quality": {
+      "task_id": "execution_quality",
+      "task_number": 5,
+      "title": "Task 5: Correct vs. Incorrect Movement Execution Classification",
+      "task_mode": "classification",
+      "target_unit": "class_probability",
+      "output_head_spec": "TaskOutputHead(task_mode='classification', num_classes=2 or 6) on PHYTMO",
+      "supports_all_four_architectures_on_same_input": true,
+      "clinical_scope_note": "Supported exclusively by PHYTMO (simulated compensatory errors by healthy volunteers). Never fabricate quality labels on Optotrak vs DOT, ULTra-MoCap, or JU-IMU.",
+      "primary_tracks": [
+        {
+          "track_id": "track_2a_phytmo_efe_quality_binary",
+          "dataset": "PHYTMO",
+          "preprocessing_config_id": "preproc_v8_phytmo_100hz_raw12_properacc",
+          "input_shape": [200, 12],
+          "sampling_rate_hz": 100.0,
+          "num_classes": 2,
+          "reusable_status": "REUSABLE_DIRECTLY_100HZ_STANDARD",
+          "recommended_architecture": "TCN",
+          "co_recommended_architecture": "LSTM",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_2a_phytmo_efe_quality_binary_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_2a_phytmo_efe_quality_binary_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_2a_phytmo_efe_quality_binary_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_2a_phytmo_efe_quality_binary_GRU_best.pt"
+          }
+        },
+        {
+          "track_id": "track_2b_phytmo_6class_exercise_quality",
+          "dataset": "PHYTMO",
+          "preprocessing_config_id": "preproc_v8_phytmo_100hz_raw12_properacc",
+          "input_shape": [200, 12],
+          "sampling_rate_hz": 100.0,
+          "num_classes": 6,
+          "reusable_status": "REUSABLE_DIRECTLY_100HZ_STANDARD",
+          "recommended_architecture": "LSTM",
+          "co_recommended_architecture": "1D_CNN",
+          "checkpoints": {
+            "TCN": "models/checkpoints/track_2b_phytmo_6class_exercise_quality_TCN_best.pt",
+            "1D_CNN": "models/checkpoints/track_2b_phytmo_6class_exercise_quality_1D_CNN_best.pt",
+            "LSTM": "models/checkpoints/track_2b_phytmo_6class_exercise_quality_LSTM_best.pt",
+            "GRU": "models/checkpoints/track_2b_phytmo_6class_exercise_quality_GRU_best.pt"
+          }
+        }
+      ],
+      "auxiliary_tracks": [],
+      "requires_new_training": [],
+      "requires_new_data": [
+        "Clinician-annotated correct vs. compensatory execution recordings for Forearm Pronation/Supination and post-olecranon ORIF patient exercises."
+      ]
+    }
+  }
+}

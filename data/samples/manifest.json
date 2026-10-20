@@ -1,0 +1,248 @@
+{
+  "version": "demo_samples_v2.0.0",
+  "date_created": "2026-10-20",
+  "sampling_rate_hz": 100.0,
+  "canonical_columns": [
+    "RUA_Ax",
+    "RUA_Ay",
+    "RUA_Az",
+    "RUA_Gx",
+    "RUA_Gy",
+    "RUA_Gz",
+    "RLA_Ax",
+    "RLA_Ay",
+    "RLA_Az",
+    "RLA_Gx",
+    "RLA_Gy",
+    "RLA_Gz"
+  ],
+  "samples": [
+    {
+      "sample_id": "ultra_mocap_p06_armswing_fast_test",
+      "filename": "ultra_mocap_p06_armswing_fast_test.csv",
+      "source_dataset": "ULTra-MoCap",
+      "subject_id": "P06",
+      "trial_id": "ULTra_p06_armswing_fast",
+      "exercise_name": "Arm Swing (Fast)",
+      "duration_sec": 10.0,
+      "sampling_rate_hz": 100.0,
+      "has_ground_truth": true,
+      "ground_truth_targets": {
+        "elbow_flex_ext_deg": {
+          "min": 19.14887493,
+          "max": 90.08965191,
+          "rom": 70.94077698
+        },
+        "forearm_pro_sup_deg": {
+          "min": 103.63288698,
+          "max": 135.7676114,
+          "rom": 32.13472442
+        }
+      },
+      "description": "Held-out test sample from Subject P06 (Arm Swing (Fast)) with genuine OpenSim IK angles."
+    },
+    {
+      "sample_id": "ultra_mocap_p12_elbowflex_normal_test",
+      "filename": "ultra_mocap_p12_elbowflex_normal_test.csv",
+      "source_dataset": "ULTra-MoCap",
+      "subject_id": "P12",
+      "trial_id": "ULTra_p12_elbowflexion_normal",
+      "exercise_name": "Elbow Flexion (Normal)",
+      "duration_sec": 10.0,
+      "sampling_rate_hz": 100.0,
+      "has_ground_truth": true,
+      "ground_truth_targets": {
+        "elbow_flex_ext_deg": {
+          "min": 19.46579172,
+          "max": 149.86179863,
+          "rom": 130.39600691
+        },
+        "forearm_pro_sup_deg": {
+          "min": 2.83649892,
+          "max": 122.65085447,
+          "rom": 119.81435555
+        }
+      },
+      "description": "Held-out test sample from Subject P12 (Elbow Flexion (Normal)) with genuine OpenSim IK angles."
+    },
+    {
+      "sample_id": "ultra_mocap_p13_crossbody_slow_test",
+      "filename": "ultra_mocap_p13_crossbody_slow_test.csv",
+      "source_dataset": "ULTra-MoCap",
+      "subject_id": "P13",
+      "trial_id": "ULTra_p13_crossbodyreach_slow",
+      "exercise_name": "Crossbody Reach (Slow)",
+      "duration_sec": 10.0,
+      "sampling_rate_hz": 100.0,
+      "has_ground_truth": true,
+      "ground_truth_targets": {
+        "elbow_flex_ext_deg": {
+          "min": 41.97985994,
+          "max": 62.73274512,
+          "rom": 20.75288518
+        },
+        "forearm_pro_sup_deg": {
+          "min": 85.33214365,
+          "max": 127.52041083,
+          "rom": 42.18826718
+        }
+      },
+      "description": "Held-out test sample from Subject P13 (Crossbody Reach (Slow)) with genuine OpenSim IK angles."
+    },
+    {
+      "sample_id": "phytmo_a03_efe0_correct_test",
+      "filename": "phytmo_a03_efe0_correct_test.csv",
+      "source_dataset": "PHYTMO",
+      "subject_id": "A03",
+      "trial_id": "PHYTMO_A03_EFE0_1",
+      "exercise_name": "Elbow Flexion-Extension (EFE)",
+      "duration_sec": 10.0,
+      "sampling_rate_hz": 100.0,
+      "has_ground_truth": true,
+      "ground_truth_targets": {
+        "exercise_class_idx": 0,
+        "exercise_name": "Elbow Flexion-Extension (EFE)",
+        "quality_class_idx": 0,
+        "quality_name": "Correct Execution"
+      },
+      "description": "Held-out test sample from Subject A03 (Elbow Flexion-Extension (EFE), Correct Execution) with genuine labels."
+    },
+    {
+      "sample_id": "phytmo_b02_efe1_incorrect_test",
+      "filename": "phytmo_b02_efe1_incorrect_test.csv",
+      "source_dataset": "PHYTMO",
+      "subject_id": "B02",
+      "trial_id": "PHYTMO_B02_EFE1_1",
+      "exercise_name": "Elbow Flexion-Extension (EFE)",
+      "duration_sec": 10.0,
+      "sampling_rate_hz": 100.0,
+      "has_ground_truth": true,
+      "ground_truth_targets": {
+        "exercise_class_idx": 0,
+        "exercise_name": "Elbow Flexion-Extension (EFE)",
+        "quality_class_idx": 1,
+        "quality_name": "Incorrect / Compensatory Execution"
+      },
+      "description": "Held-out test sample from Subject B02 (Elbow Flexion-Extension (EFE), Incorrect / Compensatory Execution) with genuine labels."
+    },
+    {
+      "sample_id": "phytmo_c02_eah0_correct_test",
+      "filename": "phytmo_c02_eah0_correct_test.csv",
+      "source_dataset": "PHYTMO",
+      "subject_id": "C02",
+      "trial_id": "PHYTMO_C02_EAH0_1",
+      "exercise_name": "Extension of Arms Overhead (EAH)",
+      "duration_sec": 10.0,
+      "sampling_rate_hz": 100.0,
+      "has_ground_truth": true,
+      "ground_truth_targets": {
+        "exercise_class_idx": 1,
+        "exercise_name": "Extension of Arms Overhead (EAH)",
+        "quality_class_idx": 0,
+        "quality_name": "Correct Execution"
+      },
+      "description": "Held-out test sample from Subject C02 (Extension of Arms Overhead (EAH), Correct Execution) with genuine labels."
+    },
+    {
+      "sample_id": "phytmo_d02_sqz0_correct_test",
+      "filename": "phytmo_d02_sqz0_correct_test.csv",
+      "source_dataset": "PHYTMO",
+      "subject_id": "D02",
+      "trial_id": "PHYTMO_D02_SQZ0_1",
+      "exercise_name": "Squeezing (SQZ)",
+      "duration_sec": 10.0,
+      "sampling_rate_hz": 100.0,
+      "has_ground_truth": true,
+      "ground_truth_targets": {
+        "exercise_class_idx": 2,
+        "exercise_name": "Squeezing (SQZ)",
+        "quality_class_idx": 0,
+        "quality_name": "Correct Execution"
+      },
+      "description": "Held-out test sample from Subject D02 (Squeezing (SQZ), Correct Execution) with genuine labels."
+    },
+    {
+      "sample_id": "sensor_only_unlabeled_recording",
+      "filename": "sensor_only_unlabeled_recording.csv",
+      "source_dataset": "Wearable Dual-IMU (Simulated Live Unlabeled)",
+      "subject_id": "Unlabeled_Patient",
+      "trial_id": "simulated_live_stream_01",
+      "exercise_name": "Free Movement (Unlabeled)",
+      "duration_sec": 8.0,
+      "sampling_rate_hz": 100.0,
+      "has_ground_truth": false,
+      "ground_truth_targets": null,
+      "description": "Sensor-only 12-channel IMU stream without ground-truth labels. Metrics and correctness cannot be computed; models output live predictions."
+    },
+    {
+      "sample_id": "dot_subj05_task12_prosup_test",
+      "filename": "dot_subj05_task12_prosup_test.csv",
+      "source_dataset": "Optotrak vs DOT",
+      "subject_id": "subject 5 (Held-Out Test)",
+      "exercise_class_idx": 1,
+      "exercise_name": "Forearm Pronation-Supination",
+      "duration_sec": 11.3,
+      "has_ground_truth": true,
+      "has_continuous_angles": true,
+      "description": "Held-out test subject 5 performing 5 reps of forearm pronation/supination (Task 12) with Optotrak ground-truth angles."
+    },
+    {
+      "sample_id": "dot_subj15_task14_shabd_test",
+      "filename": "dot_subj15_task14_shabd_test.csv",
+      "source_dataset": "Optotrak vs DOT",
+      "subject_id": "subject 15 (Held-Out Test)",
+      "exercise_class_idx": 3,
+      "exercise_name": "Shoulder Abduction / Scaption",
+      "duration_sec": 16.2,
+      "has_ground_truth": true,
+      "has_continuous_angles": false,
+      "description": "Held-out test subject 15 performing 5 reps of shoulder abduction (Task 14) at 120 Hz resampled to 100 Hz."
+    },
+    {
+      "sample_id": "ultra_mocap_p12_shoulderrot_normal_test",
+      "filename": "ultra_mocap_p12_shoulderrot_normal_test.csv",
+      "source_dataset": "ULTra-MoCap",
+      "subject_id": "P12 (Held-Out Test)",
+      "exercise_class_idx": 4,
+      "exercise_name": "Shoulder Internal-External Rotation",
+      "duration_sec": 50.6,
+      "has_ground_truth": true,
+      "has_continuous_angles": true,
+      "description": "Held-out test subject P12 performing shoulder rotation at normal speed with synchronized OpenSim IK angles."
+    },
+    {
+      "sample_id": "dot_subj05_task18_drinkcup_test",
+      "filename": "dot_subj05_task18_drinkcup_test.csv",
+      "source_dataset": "Optotrak vs DOT",
+      "subject_id": "subject 5 (Held-Out Test)",
+      "exercise_class_idx": 6,
+      "exercise_name": "Functional Drinking / Reach-to-Grasp",
+      "duration_sec": 23.4,
+      "has_ground_truth": true,
+      "has_continuous_angles": false,
+      "description": "Held-out test subject 5 performing functional drinking from a cup ADL task (Task 18)."
+    },
+    {
+      "sample_id": "ju_imu_stroke13_pickcup_test",
+      "filename": "ju_imu_stroke13_pickcup_test.csv",
+      "source_dataset": "JU-IMU",
+      "subject_id": "Stroke13 (Held-Out Test)",
+      "exercise_class_idx": 6,
+      "exercise_name": "Functional Drinking / Reach-to-Grasp",
+      "duration_sec": 16.6,
+      "has_ground_truth": true,
+      "has_continuous_angles": false,
+      "description": "Held-out test stroke patient Stroke13 performing PickCup task (80 Hz resampled to 100 Hz)."
+    }
+  ],
+  "total_samples": 13,
+  "supported_exercises": [
+    "0: Elbow Flexion-Extension",
+    "1: Forearm Pronation-Supination",
+    "2: Shoulder Flexion / Overhead Reach",
+    "3: Shoulder Abduction / Scaption",
+    "4: Shoulder Internal-External Rotation",
+    "5: Crossbody Reach / Horizontal Adduction",
+    "6: Functional Drinking / Reach-to-Grasp"
+  ]
+}
