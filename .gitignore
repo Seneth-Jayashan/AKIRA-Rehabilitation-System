@@ -1,21 +1,21 @@
 # ======================================================================
-# Dataset_Common_Analysis — only app/ (AKIRA Knee Rehab System) is the project
+# AKIRA Knee Rehabilitation System (.gitignore)
 # ======================================================================
 
-# ---- Old / research material kept on disk but NOT tracked -------------
-# raw public datasets (multi-GB)
+# ---- Raw external multi-GB archives (kept locally on disk) -----------
 /datasets/
-# research scripts, reports, intermediate data, plots
 /research/
-# superseded files (old monolithic root web app)
 /archive/
 
-# ---- AKIRA: generated / large data files -----------------------------
-# Trained models in api/models/ ARE committed so the app runs after cloning.
-app/api/datasets/*
-# ...except the small test split + catalog the dashboard needs at runtime
-!app/api/datasets/test_20percent_dataset.npz
-!app/api/datasets/test_20percent_catalog.csv
+# ---- AKIRA: Track all preprocessed training & test datasets ----------
+# Only ignore runtime-generated temporary files if any; keep all .npz/.csv
+# training and test splits tracked in git so training is 100% reproducible!
+app/api/datasets/recorded_trials/*.tmp
+
+# ---- Backup files ----------------------------------------------------
+*.backup.html
+*.backup.css
+*.bak
 
 # ---- Python ----------------------------------------------------------
 __pycache__/
@@ -30,7 +30,7 @@ venv/
 env/
 .env
 
-# ---- Node (if web/ ever gets a build step) ---------------------------
+# ---- Node ------------------------------------------------------------
 node_modules/
 dist/
 

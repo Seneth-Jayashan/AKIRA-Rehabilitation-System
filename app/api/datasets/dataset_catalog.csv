@@ -1,0 +1,1037 @@
+source_dataset,file_id,subject,exercise_name,class_id,quality_grade,rom_deg,duration_sec,orig_trial_duration_sec
+KneE-PAD,Subject_1_0_Trial_1,KP_Sub01,Mini Squat,2,0,40.58,2.0,3.03
+KneE-PAD,Subject_1_0_Trial_2,KP_Sub01,Mini Squat,2,0,37.34,2.0,3.35
+KneE-PAD,Subject_1_1_Trial_1,KP_Sub01,Mini Squat,2,1,45.1,2.0,3.28
+KneE-PAD,Subject_1_1_Trial_10,KP_Sub01,Mini Squat,2,1,46.44,2.0,3.16
+KneE-PAD,Subject_1_3_Trial_1,KP_Sub01,Seated Knee Extension,1,0,126.53,2.0,3.39
+KneE-PAD,Subject_1_3_Trial_10,KP_Sub01,Seated Knee Extension,1,0,100.79,2.0,3.35
+KneE-PAD,Subject_1_4_Trial_1,KP_Sub01,Seated Knee Extension,1,1,110.24,2.0,3.22
+KneE-PAD,Subject_1_4_Trial_10,KP_Sub01,Seated Knee Extension,1,1,101.03,2.0,3.24
+KneE-PAD,Subject_1_5_Trial_1,KP_Sub01,Seated Knee Extension,1,2,69.51,2.0,4.13
+KneE-PAD,Subject_1_5_Trial_10,KP_Sub01,Seated Knee Extension,1,2,84.77,2.0,3.27
+KneE-PAD,Subject_1_6_Trial_1_w1,KP_Sub01,Walking,0,0,65.36,2.0,7.52
+KneE-PAD,Subject_1_6_Trial_1_w2,KP_Sub01,Walking,0,0,62.97,2.0,7.52
+KneE-PAD,Subject_1_7_Trial_1_w1,KP_Sub01,Walking,0,1,65.55,2.0,8.43
+KneE-PAD,Subject_1_7_Trial_1_w2,KP_Sub01,Walking,0,1,47.26,2.0,8.43
+KneE-PAD,Subject_1_8_Trial_1_w1,KP_Sub01,Walking,0,2,42.05,2.0,9.72
+KneE-PAD,Subject_1_8_Trial_1_w2,KP_Sub01,Walking,0,2,56.73,2.0,9.72
+KneE-PAD,Subject_1_8_Trial_2_w1,KP_Sub01,Walking,0,2,43.66,2.0,10.2
+KneE-PAD,Subject_1_8_Trial_2_w2,KP_Sub01,Walking,0,2,45.32,2.0,10.2
+KneE-PAD,Subject_2_0_Trial_1,KP_Sub02,Mini Squat,2,0,27.96,2.0,4.11
+KneE-PAD,Subject_2_0_Trial_10,KP_Sub02,Mini Squat,2,0,24.18,2.0,4.46
+KneE-PAD,Subject_2_1_Trial_1,KP_Sub02,Mini Squat,2,1,48.16,2.0,5.08
+KneE-PAD,Subject_2_1_Trial_10,KP_Sub02,Mini Squat,2,1,26.09,2.0,5.01
+KneE-PAD,Subject_2_3_Trial_1,KP_Sub02,Seated Knee Extension,1,0,85.92,2.0,3.96
+KneE-PAD,Subject_2_3_Trial_10,KP_Sub02,Seated Knee Extension,1,0,86.86,2.0,3.89
+KneE-PAD,Subject_2_4_Trial_1,KP_Sub02,Seated Knee Extension,1,1,61.48,2.0,3.23
+KneE-PAD,Subject_2_4_Trial_10,KP_Sub02,Seated Knee Extension,1,1,57.17,2.0,3.68
+KneE-PAD,Subject_2_5_Trial_1,KP_Sub02,Seated Knee Extension,1,2,54.12,2.0,3.49
+KneE-PAD,Subject_2_5_Trial_10,KP_Sub02,Seated Knee Extension,1,2,67.03,2.0,3.95
+KneE-PAD,Subject_2_6_Trial_1_w1,KP_Sub02,Walking,0,0,56.51,2.0,11.45
+KneE-PAD,Subject_2_6_Trial_1_w2,KP_Sub02,Walking,0,0,45.65,2.0,11.45
+KneE-PAD,Subject_3_0_Trial_1,KP_Sub03,Mini Squat,2,0,40.61,2.0,3.5
+KneE-PAD,Subject_3_0_Trial_10,KP_Sub03,Mini Squat,2,0,40.39,2.0,3.39
+KneE-PAD,Subject_3_1_Trial_1,KP_Sub03,Mini Squat,2,1,46.96,2.0,3.9
+KneE-PAD,Subject_3_1_Trial_2,KP_Sub03,Mini Squat,2,1,47.41,2.0,3.85
+KneE-PAD,Subject_3_2_Trial_1,KP_Sub03,Mini Squat,2,2,49.58,2.0,3.8
+KneE-PAD,Subject_3_2_Trial_10,KP_Sub03,Mini Squat,2,2,48.02,2.0,4.12
+KneE-PAD,Subject_3_3_Trial_1,KP_Sub03,Seated Knee Extension,1,0,53.36,2.0,4.8
+KneE-PAD,Subject_3_3_Trial_10,KP_Sub03,Seated Knee Extension,1,0,46.27,2.0,4.22
+KneE-PAD,Subject_3_4_Trial_1,KP_Sub03,Seated Knee Extension,1,1,36.24,2.0,3.36
+KneE-PAD,Subject_3_4_Trial_10,KP_Sub03,Seated Knee Extension,1,1,21.79,2.0,3.97
+KneE-PAD,Subject_3_5_Trial_1,KP_Sub03,Seated Knee Extension,1,2,37.97,2.0,4.4
+KneE-PAD,Subject_3_5_Trial_10,KP_Sub03,Seated Knee Extension,1,2,27.12,2.0,4.34
+KneE-PAD,Subject_3_6_Trial_1_w1,KP_Sub03,Walking,0,0,45.25,2.0,11.92
+KneE-PAD,Subject_3_6_Trial_1_w2,KP_Sub03,Walking,0,0,45.64,2.0,11.92
+KneE-PAD,Subject_3_6_Trial_2_w1,KP_Sub03,Walking,0,0,52.01,2.0,11.1
+KneE-PAD,Subject_3_6_Trial_2_w2,KP_Sub03,Walking,0,0,62.0,2.0,11.1
+KneE-PAD,Subject_3_7_Trial_1_w1,KP_Sub03,Walking,0,1,35.07,2.0,27.72
+KneE-PAD,Subject_3_7_Trial_1_w2,KP_Sub03,Walking,0,1,35.15,2.0,27.72
+KneE-PAD,Subject_3_7_Trial_2_w1,KP_Sub03,Walking,0,1,25.2,2.0,31.2
+KneE-PAD,Subject_3_7_Trial_2_w2,KP_Sub03,Walking,0,1,29.75,2.0,31.2
+KneE-PAD,Subject_3_8_Trial_1_w1,KP_Sub03,Walking,0,2,34.11,2.0,25.75
+KneE-PAD,Subject_3_8_Trial_1_w2,KP_Sub03,Walking,0,2,48.41,2.0,25.75
+KneE-PAD,Subject_4_0_Trial_1,KP_Sub04,Mini Squat,2,0,30.59,2.0,3.76
+KneE-PAD,Subject_4_0_Trial_10,KP_Sub04,Mini Squat,2,0,32.4,2.0,3.26
+KneE-PAD,Subject_4_1_Trial_1,KP_Sub04,Mini Squat,2,1,22.93,2.0,4.36
+KneE-PAD,Subject_4_1_Trial_10,KP_Sub04,Mini Squat,2,1,44.67,2.0,3.78
+KneE-PAD,Subject_4_2_Trial_1,KP_Sub04,Mini Squat,2,2,40.75,2.0,3.42
+KneE-PAD,Subject_4_2_Trial_10,KP_Sub04,Mini Squat,2,2,38.69,2.0,4.24
+KneE-PAD,Subject_4_3_Trial_1,KP_Sub04,Seated Knee Extension,1,0,74.27,2.0,3.73
+KneE-PAD,Subject_4_3_Trial_10,KP_Sub04,Seated Knee Extension,1,0,81.67,2.0,3.31
+KneE-PAD,Subject_4_4_Trial_1,KP_Sub04,Seated Knee Extension,1,1,33.08,2.0,3.38
+KneE-PAD,Subject_4_4_Trial_10,KP_Sub04,Seated Knee Extension,1,1,43.75,2.0,3.23
+KneE-PAD,Subject_4_5_Trial_1,KP_Sub04,Seated Knee Extension,1,2,74.61,2.0,3.68
+KneE-PAD,Subject_4_5_Trial_10,KP_Sub04,Seated Knee Extension,1,2,73.2,2.0,3.18
+KneE-PAD,Subject_4_6_Trial_1_w1,KP_Sub04,Walking,0,0,53.98,2.0,9.72
+KneE-PAD,Subject_4_6_Trial_1_w2,KP_Sub04,Walking,0,0,43.36,2.0,9.72
+KneE-PAD,Subject_4_7_Trial_1_w1,KP_Sub04,Walking,0,1,43.81,2.0,15.31
+KneE-PAD,Subject_4_7_Trial_1_w2,KP_Sub04,Walking,0,1,46.33,2.0,15.31
+KneE-PAD,Subject_5_0_Trial_1,KP_Sub05,Mini Squat,2,0,35.14,2.0,3.09
+KneE-PAD,Subject_5_0_Trial_10,KP_Sub05,Mini Squat,2,0,39.65,2.0,3.68
+KneE-PAD,Subject_5_1_Trial_1,KP_Sub05,Mini Squat,2,1,43.83,2.0,3.15
+KneE-PAD,Subject_5_1_Trial_2,KP_Sub05,Mini Squat,2,1,45.34,2.0,3.16
+KneE-PAD,Subject_5_2_Trial_1,KP_Sub05,Mini Squat,2,2,42.32,2.0,2.97
+KneE-PAD,Subject_5_2_Trial_10,KP_Sub05,Mini Squat,2,2,43.19,2.0,3.61
+KneE-PAD,Subject_5_3_Trial_1,KP_Sub05,Seated Knee Extension,1,0,89.33,2.0,3.95
+KneE-PAD,Subject_5_3_Trial_2,KP_Sub05,Seated Knee Extension,1,0,89.2,2.0,3.65
+KneE-PAD,Subject_5_4_Trial_1,KP_Sub05,Seated Knee Extension,1,1,65.97,2.0,2.7
+KneE-PAD,Subject_5_4_Trial_10,KP_Sub05,Seated Knee Extension,1,1,75.86,2.0,3.26
+KneE-PAD,Subject_5_5_Trial_1,KP_Sub05,Seated Knee Extension,1,2,69.12,2.0,3.24
+KneE-PAD,Subject_5_5_Trial_10,KP_Sub05,Seated Knee Extension,1,2,54.61,2.0,5.2
+KneE-PAD,Subject_5_6_Trial_1_w1,KP_Sub05,Walking,0,0,75.06,2.0,11.03
+KneE-PAD,Subject_5_6_Trial_1_w2,KP_Sub05,Walking,0,0,52.12,2.0,11.03
+KneE-PAD,Subject_5_7_Trial_1_w1,KP_Sub05,Walking,0,1,50.9,2.0,17.57
+KneE-PAD,Subject_5_7_Trial_1_w2,KP_Sub05,Walking,0,1,40.76,2.0,17.57
+KneE-PAD,Subject_5_8_Trial_1_w1,KP_Sub05,Walking,0,2,41.7,2.0,15.58
+KneE-PAD,Subject_5_8_Trial_1_w2,KP_Sub05,Walking,0,2,45.98,2.0,15.58
+KneE-PAD,Subject_6_0_Trial_1,KP_Sub06,Mini Squat,2,0,32.03,2.0,2.81
+KneE-PAD,Subject_6_0_Trial_10,KP_Sub06,Mini Squat,2,0,42.74,2.0,2.95
+KneE-PAD,Subject_6_1_Trial_1,KP_Sub06,Mini Squat,2,1,39.57,2.0,3.27
+KneE-PAD,Subject_6_1_Trial_2,KP_Sub06,Mini Squat,2,1,43.73,2.0,3.28
+KneE-PAD,Subject_6_2_Trial_1,KP_Sub06,Mini Squat,2,2,37.41,2.0,2.5
+KneE-PAD,Subject_6_2_Trial_2,KP_Sub06,Mini Squat,2,2,41.56,2.0,3.01
+KneE-PAD,Subject_6_3_Trial_1,KP_Sub06,Seated Knee Extension,1,0,124.41,2.0,2.84
+KneE-PAD,Subject_6_3_Trial_10,KP_Sub06,Seated Knee Extension,1,0,120.93,2.0,3.24
+KneE-PAD,Subject_6_4_Trial_1,KP_Sub06,Seated Knee Extension,1,1,87.42,2.0,2.8
+KneE-PAD,Subject_6_4_Trial_10,KP_Sub06,Seated Knee Extension,1,1,118.46,2.0,3.54
+KneE-PAD,Subject_6_5_Trial_1,KP_Sub06,Seated Knee Extension,1,2,93.53,2.0,4.03
+KneE-PAD,Subject_6_5_Trial_10,KP_Sub06,Seated Knee Extension,1,2,93.17,2.0,3.95
+KneE-PAD,Subject_6_6_Trial_1_w1,KP_Sub06,Walking,0,0,52.83,2.0,8.43
+KneE-PAD,Subject_6_6_Trial_1_w2,KP_Sub06,Walking,0,0,62.29,2.0,8.43
+KneE-PAD,Subject_6_6_Trial_2_w1,KP_Sub06,Walking,0,0,53.4,2.0,8.67
+KneE-PAD,Subject_6_6_Trial_2_w2,KP_Sub06,Walking,0,0,57.27,2.0,8.67
+KneE-PAD,Subject_6_7_Trial_1_w1,KP_Sub06,Walking,0,1,51.28,2.0,13.73
+KneE-PAD,Subject_6_7_Trial_1_w2,KP_Sub06,Walking,0,1,41.66,2.0,13.73
+KneE-PAD,Subject_6_8_Trial_1_w1,KP_Sub06,Walking,0,2,58.93,2.0,13.06
+KneE-PAD,Subject_6_8_Trial_1_w2,KP_Sub06,Walking,0,2,44.88,2.0,13.06
+KneE-PAD,Subject_7_0_Trial_1,KP_Sub07,Mini Squat,2,0,42.32,2.0,4.4
+KneE-PAD,Subject_7_0_Trial_10,KP_Sub07,Mini Squat,2,0,42.14,2.0,4.76
+KneE-PAD,Subject_7_1_Trial_1,KP_Sub07,Mini Squat,2,1,49.39,2.0,4.46
+KneE-PAD,Subject_7_1_Trial_10,KP_Sub07,Mini Squat,2,1,52.08,2.0,5.03
+KneE-PAD,Subject_7_3_Trial_1,KP_Sub07,Seated Knee Extension,1,0,4.29,2.0,4.78
+KneE-PAD,Subject_7_3_Trial_10,KP_Sub07,Seated Knee Extension,1,0,6.35,2.0,3.95
+KneE-PAD,Subject_7_5_Trial_1,KP_Sub07,Seated Knee Extension,1,2,8.81,2.0,5.81
+KneE-PAD,Subject_7_6_Trial_1_w1,KP_Sub07,Walking,0,0,59.01,2.0,16.35
+KneE-PAD,Subject_7_6_Trial_1_w2,KP_Sub07,Walking,0,0,45.41,2.0,16.35
+KneE-PAD,Subject_7_7_Trial_1_w1,KP_Sub07,Walking,0,1,34.27,2.0,20.5
+KneE-PAD,Subject_7_7_Trial_1_w2,KP_Sub07,Walking,0,1,38.73,2.0,20.5
+KneE-PAD,Subject_7_8_Trial_1_w1,KP_Sub07,Walking,0,2,53.85,2.0,17.89
+KneE-PAD,Subject_7_8_Trial_1_w2,KP_Sub07,Walking,0,2,35.47,2.0,17.89
+KneE-PAD,Subject_8_0_Trial_1,KP_Sub08,Mini Squat,2,0,36.0,2.0,3.28
+KneE-PAD,Subject_8_0_Trial_10,KP_Sub08,Mini Squat,2,0,36.48,2.0,3.19
+KneE-PAD,Subject_8_1_Trial_1,KP_Sub08,Mini Squat,2,1,45.21,2.0,3.32
+KneE-PAD,Subject_8_1_Trial_2,KP_Sub08,Mini Squat,2,1,44.64,2.0,3.86
+KneE-PAD,Subject_8_2_Trial_1,KP_Sub08,Mini Squat,2,2,48.54,2.0,3.0
+KneE-PAD,Subject_8_2_Trial_10,KP_Sub08,Mini Squat,2,2,48.34,2.0,3.41
+KneE-PAD,Subject_8_3_Trial_1,KP_Sub08,Seated Knee Extension,1,0,105.11,2.0,3.73
+KneE-PAD,Subject_8_3_Trial_10,KP_Sub08,Seated Knee Extension,1,0,100.12,2.0,3.34
+KneE-PAD,Subject_8_4_Trial_1,KP_Sub08,Seated Knee Extension,1,1,77.81,2.0,3.95
+KneE-PAD,Subject_8_4_Trial_10,KP_Sub08,Seated Knee Extension,1,1,70.78,2.0,3.76
+KneE-PAD,Subject_8_5_Trial_1,KP_Sub08,Seated Knee Extension,1,2,75.84,2.0,3.82
+KneE-PAD,Subject_8_5_Trial_10,KP_Sub08,Seated Knee Extension,1,2,75.59,2.0,3.84
+KneE-PAD,Subject_8_6_Trial_1_w1,KP_Sub08,Walking,0,0,59.92,2.0,8.86
+KneE-PAD,Subject_8_6_Trial_1_w2,KP_Sub08,Walking,0,0,48.63,2.0,8.86
+KneE-PAD,Subject_8_6_Trial_2_w1,KP_Sub08,Walking,0,0,44.79,2.0,12.69
+KneE-PAD,Subject_8_6_Trial_2_w2,KP_Sub08,Walking,0,0,39.5,2.0,12.69
+KneE-PAD,Subject_8_7_Trial_1_w1,KP_Sub08,Walking,0,1,38.73,2.0,15.02
+KneE-PAD,Subject_8_7_Trial_1_w2,KP_Sub08,Walking,0,1,38.06,2.0,15.02
+KneE-PAD,Subject_8_8_Trial_1_w1,KP_Sub08,Walking,0,2,21.82,2.0,15.88
+KneE-PAD,Subject_8_8_Trial_1_w2,KP_Sub08,Walking,0,2,28.59,2.0,15.88
+KneE-PAD,Subject_8_8_Trial_2_w1,KP_Sub08,Walking,0,2,35.39,2.0,15.84
+KneE-PAD,Subject_8_8_Trial_2_w2,KP_Sub08,Walking,0,2,41.8,2.0,15.84
+KneE-PAD,Subject_9_0_Trial_1,KP_Sub09,Mini Squat,2,0,36.09,2.0,2.68
+KneE-PAD,Subject_9_0_Trial_10,KP_Sub09,Mini Squat,2,0,33.79,2.0,3.05
+KneE-PAD,Subject_9_1_Trial_1,KP_Sub09,Mini Squat,2,1,48.04,2.0,4.54
+KneE-PAD,Subject_9_1_Trial_10,KP_Sub09,Mini Squat,2,1,44.55,2.0,4.58
+KneE-PAD,Subject_9_2_Trial_1,KP_Sub09,Mini Squat,2,2,43.11,2.0,4.0
+KneE-PAD,Subject_9_2_Trial_10,KP_Sub09,Mini Squat,2,2,39.98,2.0,3.96
+KneE-PAD,Subject_9_3_Trial_1,KP_Sub09,Seated Knee Extension,1,0,111.8,2.0,3.35
+KneE-PAD,Subject_9_3_Trial_10,KP_Sub09,Seated Knee Extension,1,0,109.27,2.0,3.42
+KneE-PAD,Subject_9_4_Trial_1,KP_Sub09,Seated Knee Extension,1,1,92.5,2.0,3.22
+KneE-PAD,Subject_9_4_Trial_10,KP_Sub09,Seated Knee Extension,1,1,82.52,2.0,3.41
+KneE-PAD,Subject_9_5_Trial_1,KP_Sub09,Seated Knee Extension,1,2,51.88,2.0,3.24
+KneE-PAD,Subject_9_5_Trial_10,KP_Sub09,Seated Knee Extension,1,2,75.3,2.0,4.44
+KneE-PAD,Subject_9_6_Trial_1_w1,KP_Sub09,Walking,0,0,60.47,2.0,9.98
+KneE-PAD,Subject_9_6_Trial_1_w2,KP_Sub09,Walking,0,0,71.18,2.0,9.98
+KneE-PAD,Subject_9_7_Trial_1_w1,KP_Sub09,Walking,0,1,31.36,2.0,13.65
+KneE-PAD,Subject_9_7_Trial_1_w2,KP_Sub09,Walking,0,1,27.5,2.0,13.65
+KneE-PAD,Subject_9_8_Trial_1_w1,KP_Sub09,Walking,0,2,50.07,2.0,11.17
+KneE-PAD,Subject_9_8_Trial_1_w2,KP_Sub09,Walking,0,2,48.78,2.0,11.17
+KneE-PAD,Subject_10_0_Trial_1,KP_Sub10,Mini Squat,2,0,40.42,2.0,1.5
+KneE-PAD,Subject_10_0_Trial_10,KP_Sub10,Mini Squat,2,0,42.62,2.0,2.6
+KneE-PAD,Subject_10_1_Trial_1,KP_Sub10,Mini Squat,2,1,48.57,2.0,2.64
+KneE-PAD,Subject_10_1_Trial_2,KP_Sub10,Mini Squat,2,1,47.6,2.0,2.89
+KneE-PAD,Subject_10_2_Trial_1,KP_Sub10,Mini Squat,2,2,44.55,2.0,3.45
+KneE-PAD,Subject_10_2_Trial_10,KP_Sub10,Mini Squat,2,2,50.19,2.0,3.88
+KneE-PAD,Subject_10_3_Trial_1,KP_Sub10,Seated Knee Extension,1,0,127.46,2.0,2.19
+KneE-PAD,Subject_10_3_Trial_2,KP_Sub10,Seated Knee Extension,1,0,114.09,2.0,2.14
+KneE-PAD,Subject_10_4_Trial_1,KP_Sub10,Seated Knee Extension,1,1,108.86,2.0,2.12
+KneE-PAD,Subject_10_4_Trial_10,KP_Sub10,Seated Knee Extension,1,1,88.21,2.0,3.07
+KneE-PAD,Subject_10_5_Trial_1,KP_Sub10,Seated Knee Extension,1,2,88.34,2.0,2.53
+KneE-PAD,Subject_10_5_Trial_10,KP_Sub10,Seated Knee Extension,1,2,73.59,2.0,3.08
+KneE-PAD,Subject_10_6_Trial_1_w1,KP_Sub10,Walking,0,0,56.88,2.0,11.06
+KneE-PAD,Subject_10_6_Trial_1_w2,KP_Sub10,Walking,0,0,52.13,2.0,11.06
+KneE-PAD,Subject_10_7_Trial_1_w1,KP_Sub10,Walking,0,1,46.94,2.0,14.68
+KneE-PAD,Subject_10_7_Trial_1_w2,KP_Sub10,Walking,0,1,48.0,2.0,14.68
+KneE-PAD,Subject_10_8_Trial_1_w1,KP_Sub10,Walking,0,2,39.6,2.0,16.54
+KneE-PAD,Subject_10_8_Trial_1_w2,KP_Sub10,Walking,0,2,43.05,2.0,16.54
+KneE-PAD,Subject_10_8_Trial_2_w1,KP_Sub10,Walking,0,2,46.68,2.0,14.45
+KneE-PAD,Subject_10_8_Trial_2_w2,KP_Sub10,Walking,0,2,41.43,2.0,14.45
+KneE-PAD,Subject_11_0_Trial_1,KP_Sub11,Mini Squat,2,0,37.06,2.0,3.77
+KneE-PAD,Subject_11_0_Trial_10,KP_Sub11,Mini Squat,2,0,30.59,2.0,3.54
+KneE-PAD,Subject_11_1_Trial_1,KP_Sub11,Mini Squat,2,1,40.45,2.0,3.95
+KneE-PAD,Subject_11_1_Trial_2,KP_Sub11,Mini Squat,2,1,38.69,2.0,5.05
+KneE-PAD,Subject_11_2_Trial_1,KP_Sub11,Mini Squat,2,2,37.16,2.0,3.0
+KneE-PAD,Subject_11_2_Trial_10,KP_Sub11,Mini Squat,2,2,40.85,2.0,4.04
+KneE-PAD,Subject_11_3_Trial_1,KP_Sub11,Seated Knee Extension,1,0,41.1,2.0,3.86
+KneE-PAD,Subject_11_3_Trial_10,KP_Sub11,Seated Knee Extension,1,0,65.35,2.0,3.92
+KneE-PAD,Subject_11_4_Trial_1,KP_Sub11,Seated Knee Extension,1,1,59.43,2.0,4.08
+KneE-PAD,Subject_11_4_Trial_10,KP_Sub11,Seated Knee Extension,1,1,68.34,2.0,3.35
+KneE-PAD,Subject_11_5_Trial_1,KP_Sub11,Seated Knee Extension,1,2,50.34,2.0,5.17
+KneE-PAD,Subject_11_5_Trial_10,KP_Sub11,Seated Knee Extension,1,2,48.61,2.0,4.38
+KneE-PAD,Subject_11_6_Trial_1_w1,KP_Sub11,Walking,0,0,49.36,2.0,11.11
+KneE-PAD,Subject_11_6_Trial_1_w2,KP_Sub11,Walking,0,0,39.3,2.0,11.11
+KneE-PAD,Subject_11_7_Trial_1_w1,KP_Sub11,Walking,0,1,28.26,2.0,22.87
+KneE-PAD,Subject_11_7_Trial_1_w2,KP_Sub11,Walking,0,1,34.88,2.0,22.87
+KneE-PAD,Subject_11_8_Trial_1_w1,KP_Sub11,Walking,0,2,17.87,2.0,21.86
+KneE-PAD,Subject_11_8_Trial_1_w2,KP_Sub11,Walking,0,2,15.68,2.0,21.86
+KneE-PAD,Subject_12_0_Trial_1,KP_Sub12,Mini Squat,2,0,34.78,2.0,3.3
+KneE-PAD,Subject_12_0_Trial_2,KP_Sub12,Mini Squat,2,0,35.66,2.0,3.39
+KneE-PAD,Subject_12_1_Trial_1,KP_Sub12,Mini Squat,2,1,40.25,2.0,3.9
+KneE-PAD,Subject_12_1_Trial_2,KP_Sub12,Mini Squat,2,1,42.44,2.0,4.19
+KneE-PAD,Subject_12_2_Trial_1,KP_Sub12,Mini Squat,2,2,39.01,2.0,4.03
+KneE-PAD,Subject_12_2_Trial_10,KP_Sub12,Mini Squat,2,2,36.7,2.0,4.32
+KneE-PAD,Subject_13_0_Trial_1,KP_Sub13,Mini Squat,2,0,40.31,2.0,3.77
+KneE-PAD,Subject_13_0_Trial_10,KP_Sub13,Mini Squat,2,0,41.2,2.0,3.24
+KneE-PAD,Subject_13_1_Trial_1,KP_Sub13,Mini Squat,2,1,39.6,2.0,3.32
+KneE-PAD,Subject_13_1_Trial_2,KP_Sub13,Mini Squat,2,1,39.84,2.0,3.86
+KneE-PAD,Subject_13_2_Trial_1,KP_Sub13,Mini Squat,2,2,40.92,2.0,3.7
+KneE-PAD,Subject_13_2_Trial_10,KP_Sub13,Mini Squat,2,2,41.95,2.0,3.95
+KneE-PAD,Subject_13_3_Trial_1,KP_Sub13,Seated Knee Extension,1,0,111.0,2.0,3.42
+KneE-PAD,Subject_13_3_Trial_10,KP_Sub13,Seated Knee Extension,1,0,93.3,2.0,3.49
+KneE-PAD,Subject_13_4_Trial_1,KP_Sub13,Seated Knee Extension,1,1,53.32,2.0,3.81
+KneE-PAD,Subject_13_4_Trial_10,KP_Sub13,Seated Knee Extension,1,1,60.41,2.0,3.34
+KneE-PAD,Subject_13_5_Trial_1,KP_Sub13,Seated Knee Extension,1,2,78.87,2.0,3.49
+KneE-PAD,Subject_13_5_Trial_10,KP_Sub13,Seated Knee Extension,1,2,107.44,2.0,3.2
+KneE-PAD,Subject_13_6_Trial_1_w1,KP_Sub13,Walking,0,0,56.49,2.0,11.63
+KneE-PAD,Subject_13_6_Trial_1_w2,KP_Sub13,Walking,0,0,40.72,2.0,11.63
+KneE-PAD,Subject_13_7_Trial_1_w1,KP_Sub13,Walking,0,1,33.0,2.0,23.63
+KneE-PAD,Subject_13_7_Trial_1_w2,KP_Sub13,Walking,0,1,40.43,2.0,23.63
+KneE-PAD,Subject_13_8_Trial_1_w1,KP_Sub13,Walking,0,2,25.44,2.0,19.96
+KneE-PAD,Subject_13_8_Trial_1_w2,KP_Sub13,Walking,0,2,35.03,2.0,19.96
+KneE-PAD,Subject_13_8_Trial_2_w1,KP_Sub13,Walking,0,2,33.19,2.0,19.98
+KneE-PAD,Subject_13_8_Trial_2_w2,KP_Sub13,Walking,0,2,38.04,2.0,19.98
+KneE-PAD,Subject_14_0_Trial_1,KP_Sub14,Mini Squat,2,0,35.29,2.0,3.11
+KneE-PAD,Subject_14_0_Trial_10,KP_Sub14,Mini Squat,2,0,34.22,2.0,3.97
+KneE-PAD,Subject_14_1_Trial_1,KP_Sub14,Mini Squat,2,1,48.33,2.0,4.69
+KneE-PAD,Subject_14_1_Trial_10,KP_Sub14,Mini Squat,2,1,45.87,2.0,3.35
+KneE-PAD,Subject_14_2_Trial_1,KP_Sub14,Mini Squat,2,2,44.38,2.0,3.82
+KneE-PAD,Subject_14_2_Trial_10,KP_Sub14,Mini Squat,2,2,45.65,2.0,4.51
+KneE-PAD,Subject_14_3_Trial_1,KP_Sub14,Seated Knee Extension,1,0,79.9,2.0,3.38
+KneE-PAD,Subject_14_3_Trial_10,KP_Sub14,Seated Knee Extension,1,0,70.46,2.0,2.77
+KneE-PAD,Subject_14_4_Trial_1,KP_Sub14,Seated Knee Extension,1,1,48.64,2.0,4.05
+KneE-PAD,Subject_14_4_Trial_2,KP_Sub14,Seated Knee Extension,1,1,61.77,2.0,3.43
+KneE-PAD,Subject_14_5_Trial_1,KP_Sub14,Seated Knee Extension,1,2,41.29,2.0,3.73
+KneE-PAD,Subject_14_5_Trial_10,KP_Sub14,Seated Knee Extension,1,2,60.09,2.0,3.74
+KneE-PAD,Subject_15_0_Trial_1,KP_Sub15,Mini Squat,2,0,40.1,2.0,3.28
+KneE-PAD,Subject_15_0_Trial_10,KP_Sub15,Mini Squat,2,0,34.75,2.0,3.35
+KneE-PAD,Subject_15_1_Trial_1,KP_Sub15,Mini Squat,2,1,43.9,2.0,4.47
+KneE-PAD,Subject_15_1_Trial_10,KP_Sub15,Mini Squat,2,1,48.22,2.0,3.19
+KneE-PAD,Subject_15_2_Trial_1,KP_Sub15,Mini Squat,2,2,42.38,2.0,4.57
+KneE-PAD,Subject_15_2_Trial_10,KP_Sub15,Mini Squat,2,2,40.51,2.0,3.96
+KneE-PAD,Subject_15_3_Trial_1,KP_Sub15,Seated Knee Extension,1,0,92.8,2.0,3.27
+KneE-PAD,Subject_15_3_Trial_10,KP_Sub15,Seated Knee Extension,1,0,92.62,2.0,3.24
+KneE-PAD,Subject_15_4_Trial_1,KP_Sub15,Seated Knee Extension,1,1,71.81,2.0,2.68
+KneE-PAD,Subject_15_4_Trial_10,KP_Sub15,Seated Knee Extension,1,1,71.34,2.0,2.51
+KneE-PAD,Subject_15_5_Trial_1,KP_Sub15,Seated Knee Extension,1,2,54.18,2.0,3.24
+KneE-PAD,Subject_15_5_Trial_10,KP_Sub15,Seated Knee Extension,1,2,53.64,2.0,3.15
+KneE-PAD,Subject_15_6_Trial_1_w1,KP_Sub15,Walking,0,0,54.93,2.0,10.24
+KneE-PAD,Subject_15_6_Trial_1_w2,KP_Sub15,Walking,0,0,59.27,2.0,10.24
+KneE-PAD,Subject_15_6_Trial_2_w1,KP_Sub15,Walking,0,0,52.99,2.0,7.02
+KneE-PAD,Subject_15_6_Trial_2_w2,KP_Sub15,Walking,0,0,58.41,2.0,7.02
+KneE-PAD,Subject_15_7_Trial_1_w1,KP_Sub15,Walking,0,1,38.1,2.0,12.07
+KneE-PAD,Subject_15_7_Trial_1_w2,KP_Sub15,Walking,0,1,37.24,2.0,12.07
+KneE-PAD,Subject_15_8_Trial_1_w1,KP_Sub15,Walking,0,2,31.12,2.0,10.65
+KneE-PAD,Subject_15_8_Trial_1_w2,KP_Sub15,Walking,0,2,27.62,2.0,10.65
+KneE-PAD,Subject_16_0_Trial_1,KP_Sub16,Mini Squat,2,0,43.35,2.0,2.73
+KneE-PAD,Subject_16_0_Trial_10,KP_Sub16,Mini Squat,2,0,43.48,2.0,3.41
+KneE-PAD,Subject_16_1_Trial_1,KP_Sub16,Mini Squat,2,1,48.45,2.0,3.35
+KneE-PAD,Subject_16_1_Trial_10,KP_Sub16,Mini Squat,2,1,48.07,2.0,2.73
+KneE-PAD,Subject_16_2_Trial_1,KP_Sub16,Mini Squat,2,2,48.24,2.0,4.35
+KneE-PAD,Subject_16_2_Trial_10,KP_Sub16,Mini Squat,2,2,47.57,2.0,3.85
+KneE-PAD,Subject_16_3_Trial_1,KP_Sub16,Seated Knee Extension,1,0,37.47,2.0,5.82
+KneE-PAD,Subject_16_3_Trial_10,KP_Sub16,Seated Knee Extension,1,0,41.35,2.0,5.24
+KneE-PAD,Subject_16_5_Trial_1,KP_Sub16,Seated Knee Extension,1,2,46.52,2.0,4.01
+KneE-PAD,Subject_16_5_Trial_2,KP_Sub16,Seated Knee Extension,1,2,40.29,2.0,3.26
+KneE-PAD,Subject_16_6_Trial_1_w1,KP_Sub16,Walking,0,0,51.05,2.0,12.03
+KneE-PAD,Subject_16_6_Trial_1_w2,KP_Sub16,Walking,0,0,78.17,2.0,12.03
+KneE-PAD,Subject_16_7_Trial_1_w1,KP_Sub16,Walking,0,1,34.99,2.0,17.12
+KneE-PAD,Subject_16_7_Trial_1_w2,KP_Sub16,Walking,0,1,34.48,2.0,17.12
+KneE-PAD,Subject_16_8_Trial_1_w1,KP_Sub16,Walking,0,2,16.81,2.0,19.39
+KneE-PAD,Subject_16_8_Trial_1_w2,KP_Sub16,Walking,0,2,27.37,2.0,19.39
+KneE-PAD,Subject_17_0_Trial_1,KP_Sub17,Mini Squat,2,0,40.45,2.0,4.54
+KneE-PAD,Subject_17_0_Trial_10,KP_Sub17,Mini Squat,2,0,40.4,2.0,4.35
+KneE-PAD,Subject_17_2_Trial_1,KP_Sub17,Mini Squat,2,2,47.61,2.0,3.88
+KneE-PAD,Subject_17_2_Trial_10,KP_Sub17,Mini Squat,2,2,42.46,2.0,4.38
+KneE-PAD,Subject_17_3_Trial_1,KP_Sub17,Seated Knee Extension,1,0,65.7,2.0,2.73
+KneE-PAD,Subject_17_3_Trial_10,KP_Sub17,Seated Knee Extension,1,0,63.73,2.0,3.14
+KneE-PAD,Subject_17_4_Trial_1,KP_Sub17,Seated Knee Extension,1,1,44.87,2.0,4.36
+KneE-PAD,Subject_17_4_Trial_10,KP_Sub17,Seated Knee Extension,1,1,59.68,2.0,2.88
+KneE-PAD,Subject_17_5_Trial_1,KP_Sub17,Seated Knee Extension,1,2,48.9,2.0,4.19
+KneE-PAD,Subject_17_5_Trial_10,KP_Sub17,Seated Knee Extension,1,2,62.1,2.0,3.86
+KneE-PAD,Subject_17_6_Trial_1_w1,KP_Sub17,Walking,0,0,75.16,2.0,9.57
+KneE-PAD,Subject_17_6_Trial_1_w2,KP_Sub17,Walking,0,0,61.88,2.0,9.57
+KneE-PAD,Subject_17_6_Trial_2_w1,KP_Sub17,Walking,0,0,55.53,2.0,9.18
+KneE-PAD,Subject_17_6_Trial_2_w2,KP_Sub17,Walking,0,0,66.58,2.0,9.18
+KneE-PAD,Subject_17_7_Trial_1_w1,KP_Sub17,Walking,0,1,49.25,2.0,15.51
+KneE-PAD,Subject_17_7_Trial_1_w2,KP_Sub17,Walking,0,1,43.57,2.0,15.51
+KneE-PAD,Subject_17_7_Trial_2_w1,KP_Sub17,Walking,0,1,43.83,2.0,17.0
+KneE-PAD,Subject_17_7_Trial_2_w2,KP_Sub17,Walking,0,1,42.99,2.0,17.0
+KneE-PAD,Subject_17_8_Trial_1_w1,KP_Sub17,Walking,0,2,45.55,2.0,16.82
+KneE-PAD,Subject_17_8_Trial_1_w2,KP_Sub17,Walking,0,2,44.29,2.0,16.82
+KneE-PAD,Subject_17_8_Trial_2_w1,KP_Sub17,Walking,0,2,49.26,2.0,13.65
+KneE-PAD,Subject_17_8_Trial_2_w2,KP_Sub17,Walking,0,2,50.7,2.0,13.65
+KneE-PAD,Subject_18_0_Trial_1,KP_Sub18,Mini Squat,2,0,43.17,2.0,3.77
+KneE-PAD,Subject_18_0_Trial_10,KP_Sub18,Mini Squat,2,0,44.74,2.0,5.23
+KneE-PAD,Subject_18_1_Trial_1,KP_Sub18,Mini Squat,2,1,48.89,2.0,3.78
+KneE-PAD,Subject_18_2_Trial_1,KP_Sub18,Mini Squat,2,2,49.55,2.0,5.05
+KneE-PAD,Subject_18_2_Trial_10,KP_Sub18,Mini Squat,2,2,49.52,2.0,4.49
+KneE-PAD,Subject_18_3_Trial_1,KP_Sub18,Seated Knee Extension,1,0,89.49,2.0,3.8
+KneE-PAD,Subject_18_3_Trial_10,KP_Sub18,Seated Knee Extension,1,0,109.35,2.0,3.36
+KneE-PAD,Subject_18_4_Trial_1,KP_Sub18,Seated Knee Extension,1,1,84.68,2.0,3.39
+KneE-PAD,Subject_18_4_Trial_10,KP_Sub18,Seated Knee Extension,1,1,93.87,2.0,3.26
+KneE-PAD,Subject_18_5_Trial_1,KP_Sub18,Seated Knee Extension,1,2,53.15,2.0,3.99
+KneE-PAD,Subject_18_5_Trial_10,KP_Sub18,Seated Knee Extension,1,2,62.81,2.0,3.74
+KneE-PAD,Subject_18_6_Trial_2_w1,KP_Sub18,Walking,0,0,61.05,2.0,9.02
+KneE-PAD,Subject_18_6_Trial_2_w2,KP_Sub18,Walking,0,0,58.7,2.0,9.02
+KneE-PAD,Subject_18_7_Trial_1_w1,KP_Sub18,Walking,0,1,40.42,2.0,10.57
+KneE-PAD,Subject_18_7_Trial_1_w2,KP_Sub18,Walking,0,1,52.33,2.0,10.57
+KneE-PAD,Subject_18_8_Trial_1_w1,KP_Sub18,Walking,0,2,42.52,2.0,10.47
+KneE-PAD,Subject_18_8_Trial_1_w2,KP_Sub18,Walking,0,2,52.32,2.0,10.47
+KneE-PAD,Subject_19_0_Trial_1,KP_Sub19,Mini Squat,2,0,42.26,2.0,5.12
+KneE-PAD,Subject_19_0_Trial_10,KP_Sub19,Mini Squat,2,0,38.0,2.0,4.96
+KneE-PAD,Subject_19_1_Trial_1,KP_Sub19,Mini Squat,2,1,43.9,2.0,3.97
+KneE-PAD,Subject_19_1_Trial_10,KP_Sub19,Mini Squat,2,1,41.57,2.0,4.12
+KneE-PAD,Subject_19_2_Trial_1,KP_Sub19,Mini Squat,2,2,48.63,2.0,4.44
+KneE-PAD,Subject_19_2_Trial_10,KP_Sub19,Mini Squat,2,2,47.27,2.0,4.47
+KneE-PAD,Subject_19_3_Trial_1,KP_Sub19,Seated Knee Extension,1,0,74.65,2.0,3.18
+KneE-PAD,Subject_19_3_Trial_10,KP_Sub19,Seated Knee Extension,1,0,82.47,2.0,3.41
+KneE-PAD,Subject_19_4_Trial_1,KP_Sub19,Seated Knee Extension,1,1,59.88,2.0,3.15
+KneE-PAD,Subject_19_4_Trial_10,KP_Sub19,Seated Knee Extension,1,1,64.6,2.0,3.18
+KneE-PAD,Subject_19_5_Trial_1,KP_Sub19,Seated Knee Extension,1,2,72.55,2.0,3.8
+KneE-PAD,Subject_19_5_Trial_10,KP_Sub19,Seated Knee Extension,1,2,62.62,2.0,3.7
+KneE-PAD,Subject_19_6_Trial_1_w1,KP_Sub19,Walking,0,0,66.51,2.0,7.36
+KneE-PAD,Subject_19_6_Trial_1_w2,KP_Sub19,Walking,0,0,90.84,2.0,7.36
+KneE-PAD,Subject_20_0_Trial_1,KP_Sub20,Mini Squat,2,0,40.49,2.0,3.89
+KneE-PAD,Subject_20_0_Trial_2,KP_Sub20,Mini Squat,2,0,33.11,2.0,4.59
+KneE-PAD,Subject_20_1_Trial_1,KP_Sub20,Mini Squat,2,1,47.6,2.0,4.26
+KneE-PAD,Subject_20_1_Trial_10,KP_Sub20,Mini Squat,2,1,48.51,2.0,4.46
+KneE-PAD,Subject_20_2_Trial_1,KP_Sub20,Mini Squat,2,2,48.39,2.0,3.86
+KneE-PAD,Subject_20_2_Trial_10,KP_Sub20,Mini Squat,2,2,48.11,2.0,4.4
+KneE-PAD,Subject_20_3_Trial_1,KP_Sub20,Seated Knee Extension,1,0,75.85,2.0,3.93
+KneE-PAD,Subject_20_3_Trial_10,KP_Sub20,Seated Knee Extension,1,0,97.16,2.0,3.46
+KneE-PAD,Subject_20_4_Trial_1,KP_Sub20,Seated Knee Extension,1,1,66.07,2.0,3.26
+KneE-PAD,Subject_20_4_Trial_10,KP_Sub20,Seated Knee Extension,1,1,58.81,2.0,2.77
+KneE-PAD,Subject_20_5_Trial_1,KP_Sub20,Seated Knee Extension,1,2,39.92,2.0,3.26
+KneE-PAD,Subject_20_5_Trial_10,KP_Sub20,Seated Knee Extension,1,2,28.75,2.0,4.01
+KneE-PAD,Subject_20_6_Trial_1_w1,KP_Sub20,Walking,0,0,49.12,2.0,9.08
+KneE-PAD,Subject_20_6_Trial_1_w2,KP_Sub20,Walking,0,0,71.98,2.0,9.08
+KneE-PAD,Subject_20_7_Trial_1_w1,KP_Sub20,Walking,0,1,45.24,2.0,11.52
+KneE-PAD,Subject_20_7_Trial_1_w2,KP_Sub20,Walking,0,1,57.77,2.0,11.52
+KneE-PAD,Subject_20_8_Trial_1_w1,KP_Sub20,Walking,0,2,52.41,2.0,15.08
+KneE-PAD,Subject_20_8_Trial_1_w2,KP_Sub20,Walking,0,2,35.66,2.0,15.08
+KneE-PAD,Subject_20_8_Trial_2_w1,KP_Sub20,Walking,0,2,34.67,2.0,14.39
+KneE-PAD,Subject_20_8_Trial_2_w2,KP_Sub20,Walking,0,2,48.64,2.0,14.39
+KneE-PAD,Subject_21_0_Trial_1,KP_Sub21,Mini Squat,2,0,41.01,2.0,3.27
+KneE-PAD,Subject_21_0_Trial_10,KP_Sub21,Mini Squat,2,0,41.95,2.0,3.78
+KneE-PAD,Subject_21_1_Trial_1,KP_Sub21,Mini Squat,2,1,44.81,2.0,3.35
+KneE-PAD,Subject_21_1_Trial_2,KP_Sub21,Mini Squat,2,1,45.77,2.0,3.38
+KneE-PAD,Subject_21_2_Trial_1,KP_Sub21,Mini Squat,2,2,48.94,2.0,3.89
+KneE-PAD,Subject_21_2_Trial_10,KP_Sub21,Mini Squat,2,2,47.37,2.0,3.93
+KneE-PAD,Subject_21_3_Trial_1,KP_Sub21,Seated Knee Extension,1,0,99.96,2.0,2.72
+KneE-PAD,Subject_21_3_Trial_10,KP_Sub21,Seated Knee Extension,1,0,85.09,2.0,3.43
+KneE-PAD,Subject_21_4_Trial_1,KP_Sub21,Seated Knee Extension,1,1,79.44,2.0,2.6
+KneE-PAD,Subject_21_4_Trial_10,KP_Sub21,Seated Knee Extension,1,1,61.26,2.0,3.38
+KneE-PAD,Subject_21_5_Trial_1,KP_Sub21,Seated Knee Extension,1,2,49.64,2.0,3.39
+KneE-PAD,Subject_21_5_Trial_10,KP_Sub21,Seated Knee Extension,1,2,46.43,2.0,4.03
+KneE-PAD,Subject_21_6_Trial_1_w1,KP_Sub21,Walking,0,0,65.34,2.0,11.59
+KneE-PAD,Subject_21_6_Trial_1_w2,KP_Sub21,Walking,0,0,65.33,2.0,11.59
+KneE-PAD,Subject_21_6_Trial_2_w1,KP_Sub21,Walking,0,0,62.28,2.0,8.81
+KneE-PAD,Subject_21_6_Trial_2_w2,KP_Sub21,Walking,0,0,60.16,2.0,8.81
+KneE-PAD,Subject_21_7_Trial_1_w1,KP_Sub21,Walking,0,1,35.61,2.0,11.36
+KneE-PAD,Subject_21_7_Trial_1_w2,KP_Sub21,Walking,0,1,41.44,2.0,11.36
+KneE-PAD,Subject_21_7_Trial_2_w1,KP_Sub21,Walking,0,1,31.15,2.0,12.73
+KneE-PAD,Subject_21_7_Trial_2_w2,KP_Sub21,Walking,0,1,35.27,2.0,12.73
+KneE-PAD,Subject_21_8_Trial_1_w1,KP_Sub21,Walking,0,2,38.37,2.0,12.44
+KneE-PAD,Subject_21_8_Trial_1_w2,KP_Sub21,Walking,0,2,42.95,2.0,12.44
+KneE-PAD,Subject_22_0_Trial_1,KP_Sub22,Mini Squat,2,0,35.19,2.0,3.3
+KneE-PAD,Subject_22_0_Trial_10,KP_Sub22,Mini Squat,2,0,38.74,2.0,3.23
+KneE-PAD,Subject_22_1_Trial_1,KP_Sub22,Mini Squat,2,1,40.26,2.0,3.38
+KneE-PAD,Subject_22_1_Trial_10,KP_Sub22,Mini Squat,2,1,44.44,2.0,3.09
+KneE-PAD,Subject_22_2_Trial_1,KP_Sub22,Mini Squat,2,2,47.28,2.0,3.89
+KneE-PAD,Subject_22_2_Trial_10,KP_Sub22,Mini Squat,2,2,44.42,2.0,3.7
+KneE-PAD,Subject_22_3_Trial_1,KP_Sub22,Seated Knee Extension,1,0,81.56,2.0,3.36
+KneE-PAD,Subject_22_3_Trial_10,KP_Sub22,Seated Knee Extension,1,0,75.46,2.0,3.47
+KneE-PAD,Subject_22_4_Trial_1,KP_Sub22,Seated Knee Extension,1,1,57.43,2.0,2.61
+KneE-PAD,Subject_22_4_Trial_10,KP_Sub22,Seated Knee Extension,1,1,54.21,2.0,2.53
+KneE-PAD,Subject_22_5_Trial_1,KP_Sub22,Seated Knee Extension,1,2,39.44,2.0,2.68
+KneE-PAD,Subject_22_5_Trial_10,KP_Sub22,Seated Knee Extension,1,2,65.13,2.0,2.64
+KneE-PAD,Subject_22_6_Trial_1_w1,KP_Sub22,Walking,0,0,53.58,2.0,7.86
+KneE-PAD,Subject_22_6_Trial_1_w2,KP_Sub22,Walking,0,0,61.44,2.0,7.86
+KneE-PAD,Subject_22_6_Trial_2_w1,KP_Sub22,Walking,0,0,58.49,2.0,8.24
+KneE-PAD,Subject_22_6_Trial_2_w2,KP_Sub22,Walking,0,0,58.4,2.0,8.24
+KneE-PAD,Subject_22_7_Trial_1_w1,KP_Sub22,Walking,0,1,49.05,2.0,10.06
+KneE-PAD,Subject_22_7_Trial_1_w2,KP_Sub22,Walking,0,1,41.65,2.0,10.06
+KneE-PAD,Subject_22_7_Trial_2_w1,KP_Sub22,Walking,0,1,48.13,2.0,9.76
+KneE-PAD,Subject_22_7_Trial_2_w2,KP_Sub22,Walking,0,1,43.37,2.0,9.76
+KneE-PAD,Subject_22_8_Trial_1_w1,KP_Sub22,Walking,0,2,42.19,2.0,9.82
+KneE-PAD,Subject_22_8_Trial_1_w2,KP_Sub22,Walking,0,2,34.75,2.0,9.82
+KneE-PAD,Subject_23_0_Trial_1,KP_Sub23,Mini Squat,2,0,40.65,2.0,3.59
+KneE-PAD,Subject_23_0_Trial_2,KP_Sub23,Mini Squat,2,0,42.06,2.0,4.27
+KneE-PAD,Subject_23_1_Trial_1,KP_Sub23,Mini Squat,2,1,42.12,2.0,3.72
+KneE-PAD,Subject_23_1_Trial_10,KP_Sub23,Mini Squat,2,1,49.41,2.0,4.55
+KneE-PAD,Subject_23_2_Trial_1,KP_Sub23,Mini Squat,2,2,43.57,2.0,3.81
+KneE-PAD,Subject_23_2_Trial_2,KP_Sub23,Mini Squat,2,2,41.28,2.0,4.35
+KneE-PAD,Subject_23_3_Trial_1,KP_Sub23,Seated Knee Extension,1,0,6.59,2.0,3.77
+KneE-PAD,Subject_23_4_Trial_1,KP_Sub23,Seated Knee Extension,1,1,6.42,2.0,3.15
+KneE-PAD,Subject_23_4_Trial_10,KP_Sub23,Seated Knee Extension,1,1,4.93,2.0,3.41
+KneE-PAD,Subject_23_6_Trial_1_w1,KP_Sub23,Walking,0,0,46.51,2.0,11.3
+KneE-PAD,Subject_23_6_Trial_1_w2,KP_Sub23,Walking,0,0,47.68,2.0,11.3
+KneE-PAD,Subject_23_7_Trial_1_w1,KP_Sub23,Walking,0,1,40.15,2.0,19.08
+KneE-PAD,Subject_23_7_Trial_1_w2,KP_Sub23,Walking,0,1,50.24,2.0,19.08
+KneE-PAD,Subject_23_8_Trial_1_w1,KP_Sub23,Walking,0,2,36.33,2.0,19.24
+KneE-PAD,Subject_23_8_Trial_1_w2,KP_Sub23,Walking,0,2,40.16,2.0,19.24
+KneE-PAD,Subject_24_0_Trial_1,KP_Sub24,Mini Squat,2,0,41.04,2.0,2.8
+KneE-PAD,Subject_24_0_Trial_10,KP_Sub24,Mini Squat,2,0,35.59,2.0,3.76
+KneE-PAD,Subject_24_1_Trial_1,KP_Sub24,Mini Squat,2,1,47.5,2.0,3.0
+KneE-PAD,Subject_24_1_Trial_10,KP_Sub24,Mini Squat,2,1,47.35,2.0,3.39
+KneE-PAD,Subject_24_2_Trial_1,KP_Sub24,Mini Squat,2,2,42.24,2.0,3.34
+KneE-PAD,Subject_24_2_Trial_10,KP_Sub24,Mini Squat,2,2,43.63,2.0,3.36
+KneE-PAD,Subject_24_3_Trial_1,KP_Sub24,Seated Knee Extension,1,0,47.3,2.0,5.0
+KneE-PAD,Subject_24_3_Trial_10,KP_Sub24,Seated Knee Extension,1,0,47.69,2.0,4.36
+KneE-PAD,Subject_24_4_Trial_1,KP_Sub24,Seated Knee Extension,1,1,51.86,2.0,3.96
+KneE-PAD,Subject_24_4_Trial_10,KP_Sub24,Seated Knee Extension,1,1,51.37,2.0,3.99
+KneE-PAD,Subject_24_5_Trial_1,KP_Sub24,Seated Knee Extension,1,2,58.84,2.0,3.99
+KneE-PAD,Subject_24_5_Trial_10,KP_Sub24,Seated Knee Extension,1,2,51.78,2.0,4.62
+KneE-PAD,Subject_24_6_Trial_1_w1,KP_Sub24,Walking,0,0,69.8,2.0,12.83
+KneE-PAD,Subject_24_6_Trial_1_w2,KP_Sub24,Walking,0,0,63.25,2.0,12.83
+KneE-PAD,Subject_24_6_Trial_2_w1,KP_Sub24,Walking,0,0,63.14,2.0,11.17
+KneE-PAD,Subject_24_6_Trial_2_w2,KP_Sub24,Walking,0,0,61.14,2.0,11.17
+KneE-PAD,Subject_25_0_Trial_1,KP_Sub25,Mini Squat,2,0,42.94,2.0,3.78
+KneE-PAD,Subject_25_0_Trial_2,KP_Sub25,Mini Squat,2,0,41.53,2.0,4.49
+KneE-PAD,Subject_25_1_Trial_1,KP_Sub25,Mini Squat,2,1,47.97,2.0,4.97
+KneE-PAD,Subject_25_1_Trial_2,KP_Sub25,Mini Squat,2,1,46.52,2.0,4.32
+KneE-PAD,Subject_25_2_Trial_1,KP_Sub25,Mini Squat,2,2,48.03,2.0,3.78
+KneE-PAD,Subject_25_2_Trial_10,KP_Sub25,Mini Squat,2,2,47.86,2.0,3.82
+KneE-PAD,Subject_26_0_Trial_1,KP_Sub26,Mini Squat,2,0,38.28,2.0,3.18
+KneE-PAD,Subject_26_0_Trial_10,KP_Sub26,Mini Squat,2,0,42.47,2.0,4.53
+KneE-PAD,Subject_26_1_Trial_1,KP_Sub26,Mini Squat,2,1,44.24,2.0,3.24
+KneE-PAD,Subject_26_1_Trial_10,KP_Sub26,Mini Squat,2,1,44.32,2.0,3.34
+KneE-PAD,Subject_26_2_Trial_1,KP_Sub26,Mini Squat,2,2,47.99,2.0,4.09
+KneE-PAD,Subject_26_2_Trial_10,KP_Sub26,Mini Squat,2,2,47.76,2.0,4.94
+KneE-PAD,Subject_26_3_Trial_1,KP_Sub26,Seated Knee Extension,1,0,83.39,2.0,3.99
+KneE-PAD,Subject_26_3_Trial_10,KP_Sub26,Seated Knee Extension,1,0,97.61,2.0,3.38
+KneE-PAD,Subject_26_4_Trial_1,KP_Sub26,Seated Knee Extension,1,1,78.53,2.0,3.36
+KneE-PAD,Subject_26_4_Trial_10,KP_Sub26,Seated Knee Extension,1,1,88.19,2.0,3.41
+KneE-PAD,Subject_26_5_Trial_1,KP_Sub26,Seated Knee Extension,1,2,83.65,2.0,3.22
+KneE-PAD,Subject_26_5_Trial_10,KP_Sub26,Seated Knee Extension,1,2,71.13,2.0,4.22
+KneE-PAD,Subject_26_6_Trial_1_w1,KP_Sub26,Walking,0,0,61.3,2.0,7.82
+KneE-PAD,Subject_26_6_Trial_1_w2,KP_Sub26,Walking,0,0,64.32,2.0,7.82
+KneE-PAD,Subject_26_7_Trial_1_w1,KP_Sub26,Walking,0,1,33.57,2.0,15.06
+KneE-PAD,Subject_26_7_Trial_1_w2,KP_Sub26,Walking,0,1,38.77,2.0,15.06
+KneE-PAD,Subject_26_7_Trial_2_w1,KP_Sub26,Walking,0,1,29.69,2.0,17.36
+KneE-PAD,Subject_26_7_Trial_2_w2,KP_Sub26,Walking,0,1,35.3,2.0,17.36
+KneE-PAD,Subject_26_8_Trial_1_w1,KP_Sub26,Walking,0,2,17.02,2.0,16.03
+KneE-PAD,Subject_26_8_Trial_1_w2,KP_Sub26,Walking,0,2,20.41,2.0,16.03
+KneE-PAD,Subject_26_8_Trial_2_w1,KP_Sub26,Walking,0,2,15.82,2.0,15.39
+KneE-PAD,Subject_26_8_Trial_2_w2,KP_Sub26,Walking,0,2,9.47,2.0,15.39
+KneE-PAD,Subject_27_0_Trial_1,KP_Sub27,Mini Squat,2,0,27.8,2.0,3.36
+KneE-PAD,Subject_27_0_Trial_10,KP_Sub27,Mini Squat,2,0,27.29,2.0,3.8
+KneE-PAD,Subject_27_1_Trial_1,KP_Sub27,Mini Squat,2,1,24.56,2.0,4.03
+KneE-PAD,Subject_27_1_Trial_10,KP_Sub27,Mini Squat,2,1,46.96,2.0,3.76
+KneE-PAD,Subject_27_2_Trial_1,KP_Sub27,Mini Squat,2,2,41.08,2.0,2.72
+KneE-PAD,Subject_27_2_Trial_10,KP_Sub27,Mini Squat,2,2,41.58,2.0,3.72
+KneE-PAD,Subject_27_3_Trial_1,KP_Sub27,Seated Knee Extension,1,0,65.58,2.0,3.23
+KneE-PAD,Subject_27_3_Trial_10,KP_Sub27,Seated Knee Extension,1,0,68.81,2.0,3.36
+KneE-PAD,Subject_27_4_Trial_1,KP_Sub27,Seated Knee Extension,1,1,66.11,2.0,3.27
+KneE-PAD,Subject_27_4_Trial_2,KP_Sub27,Seated Knee Extension,1,1,63.57,2.0,3.22
+KneE-PAD,Subject_27_5_Trial_1,KP_Sub27,Seated Knee Extension,1,2,48.68,2.0,4.93
+KneE-PAD,Subject_27_5_Trial_10,KP_Sub27,Seated Knee Extension,1,2,80.23,2.0,3.96
+KneE-PAD,Subject_27_6_Trial_2_w1,KP_Sub27,Walking,0,0,63.16,2.0,11.63
+KneE-PAD,Subject_27_6_Trial_2_w2,KP_Sub27,Walking,0,0,57.19,2.0,11.63
+KneE-PAD,Subject_27_7_Trial_1_w1,KP_Sub27,Walking,0,1,53.52,2.0,14.04
+KneE-PAD,Subject_27_7_Trial_1_w2,KP_Sub27,Walking,0,1,52.26,2.0,14.04
+KneE-PAD,Subject_27_8_Trial_1_w1,KP_Sub27,Walking,0,2,46.95,2.0,13.65
+KneE-PAD,Subject_27_8_Trial_1_w2,KP_Sub27,Walking,0,2,38.05,2.0,13.65
+KneE-PAD,Subject_28_0_Trial_1,KP_Sub28,Mini Squat,2,0,44.25,2.0,3.81
+KneE-PAD,Subject_28_0_Trial_10,KP_Sub28,Mini Squat,2,0,41.53,2.0,3.82
+KneE-PAD,Subject_28_1_Trial_1,KP_Sub28,Mini Squat,2,1,49.04,2.0,3.77
+KneE-PAD,Subject_28_1_Trial_10,KP_Sub28,Mini Squat,2,1,43.68,2.0,4.59
+KneE-PAD,Subject_28_2_Trial_1,KP_Sub28,Mini Squat,2,2,48.16,2.0,4.08
+KneE-PAD,Subject_28_2_Trial_2,KP_Sub28,Mini Squat,2,2,45.92,2.0,3.85
+KneE-PAD,Subject_28_3_Trial_1,KP_Sub28,Seated Knee Extension,1,0,31.11,2.0,3.95
+KneE-PAD,Subject_28_3_Trial_10,KP_Sub28,Seated Knee Extension,1,0,58.26,2.0,4.24
+KneE-PAD,Subject_28_4_Trial_1,KP_Sub28,Seated Knee Extension,1,1,65.39,2.0,3.65
+KneE-PAD,Subject_28_4_Trial_10,KP_Sub28,Seated Knee Extension,1,1,41.98,2.0,4.54
+KneE-PAD,Subject_28_5_Trial_1,KP_Sub28,Seated Knee Extension,1,2,66.95,2.0,4.54
+KneE-PAD,Subject_28_5_Trial_10,KP_Sub28,Seated Knee Extension,1,2,67.06,2.0,4.35
+KneE-PAD,Subject_28_6_Trial_1_w1,KP_Sub28,Walking,0,0,75.42,2.0,12.32
+KneE-PAD,Subject_28_6_Trial_1_w2,KP_Sub28,Walking,0,0,55.87,2.0,12.32
+KneE-PAD,Subject_28_6_Trial_2_w1,KP_Sub28,Walking,0,0,67.55,2.0,9.84
+KneE-PAD,Subject_28_6_Trial_2_w2,KP_Sub28,Walking,0,0,83.2,2.0,9.84
+KneE-PAD,Subject_29_0_Trial_1,KP_Sub29,Mini Squat,2,0,42.95,2.0,4.47
+KneE-PAD,Subject_29_0_Trial_10,KP_Sub29,Mini Squat,2,0,35.13,2.0,4.38
+KneE-PAD,Subject_29_1_Trial_1,KP_Sub29,Mini Squat,2,1,44.22,2.0,4.32
+KneE-PAD,Subject_29_1_Trial_2,KP_Sub29,Mini Squat,2,1,41.75,2.0,4.35
+KneE-PAD,Subject_29_2_Trial_1,KP_Sub29,Mini Squat,2,2,42.64,2.0,3.84
+KneE-PAD,Subject_29_2_Trial_10,KP_Sub29,Mini Squat,2,2,43.51,2.0,4.63
+KneE-PAD,Subject_29_3_Trial_1,KP_Sub29,Seated Knee Extension,1,0,55.81,2.0,5.93
+KneE-PAD,Subject_29_3_Trial_2,KP_Sub29,Seated Knee Extension,1,0,75.81,2.0,4.53
+KneE-PAD,Subject_29_4_Trial_1,KP_Sub29,Seated Knee Extension,1,1,39.7,2.0,4.0
+KneE-PAD,Subject_29_4_Trial_2,KP_Sub29,Seated Knee Extension,1,1,48.41,2.0,3.76
+KneE-PAD,Subject_29_5_Trial_1,KP_Sub29,Seated Knee Extension,1,2,45.95,2.0,4.55
+KneE-PAD,Subject_29_5_Trial_10,KP_Sub29,Seated Knee Extension,1,2,47.39,2.0,5.58
+KneE-PAD,Subject_29_6_Trial_1_w1,KP_Sub29,Walking,0,0,60.4,2.0,12.67
+KneE-PAD,Subject_29_6_Trial_1_w2,KP_Sub29,Walking,0,0,87.69,2.0,12.67
+KneE-PAD,Subject_29_7_Trial_1_w1,KP_Sub29,Walking,0,1,32.36,2.0,16.95
+KneE-PAD,Subject_29_7_Trial_1_w2,KP_Sub29,Walking,0,1,37.69,2.0,16.95
+KneE-PAD,Subject_29_8_Trial_1_w1,KP_Sub29,Walking,0,2,42.06,2.0,15.2
+KneE-PAD,Subject_29_8_Trial_1_w2,KP_Sub29,Walking,0,2,43.12,2.0,15.2
+KneE-PAD,Subject_30_0_Trial_1,KP_Sub30,Mini Squat,2,0,32.73,2.0,3.28
+KneE-PAD,Subject_30_0_Trial_10,KP_Sub30,Mini Squat,2,0,41.66,2.0,3.62
+KneE-PAD,Subject_30_1_Trial_1,KP_Sub30,Mini Squat,2,1,30.38,2.0,4.59
+KneE-PAD,Subject_30_2_Trial_1,KP_Sub30,Mini Squat,2,2,43.49,2.0,3.32
+KneE-PAD,Subject_30_2_Trial_2,KP_Sub30,Mini Squat,2,2,45.33,2.0,3.73
+KneE-PAD,Subject_30_3_Trial_1,KP_Sub30,Seated Knee Extension,1,0,80.07,2.0,4.03
+KneE-PAD,Subject_30_3_Trial_10,KP_Sub30,Seated Knee Extension,1,0,111.81,2.0,3.43
+KneE-PAD,Subject_30_4_Trial_1,KP_Sub30,Seated Knee Extension,1,1,69.93,2.0,3.09
+KneE-PAD,Subject_30_4_Trial_10,KP_Sub30,Seated Knee Extension,1,1,79.67,2.0,3.58
+KneE-PAD,Subject_30_5_Trial_1,KP_Sub30,Seated Knee Extension,1,2,29.64,2.0,2.65
+KneE-PAD,Subject_30_5_Trial_10,KP_Sub30,Seated Knee Extension,1,2,59.19,2.0,2.18
+KneE-PAD,Subject_30_6_Trial_1_w1,KP_Sub30,Walking,0,0,70.15,2.0,7.51
+KneE-PAD,Subject_30_6_Trial_1_w2,KP_Sub30,Walking,0,0,69.51,2.0,7.51
+KneE-PAD,Subject_30_8_Trial_1_w1,KP_Sub30,Walking,0,2,48.97,2.0,12.45
+KneE-PAD,Subject_30_8_Trial_1_w2,KP_Sub30,Walking,0,2,46.87,2.0,12.45
+KneE-PAD,Subject_31_0_Trial_1,KP_Sub31,Mini Squat,2,0,42.88,2.0,3.92
+KneE-PAD,Subject_31_0_Trial_2,KP_Sub31,Mini Squat,2,0,31.34,2.0,3.86
+KneE-PAD,Subject_31_1_Trial_1,KP_Sub31,Mini Squat,2,1,47.98,2.0,4.17
+KneE-PAD,Subject_31_1_Trial_10,KP_Sub31,Mini Squat,2,1,35.66,2.0,4.34
+KneE-PAD,Subject_31_2_Trial_1,KP_Sub31,Mini Squat,2,2,48.03,2.0,4.04
+KneE-PAD,Subject_31_2_Trial_2,KP_Sub31,Mini Squat,2,2,41.81,2.0,4.46
+KneE-PAD,Subject_31_3_Trial_1,KP_Sub31,Seated Knee Extension,1,0,83.19,2.0,3.78
+KneE-PAD,Subject_31_3_Trial_10,KP_Sub31,Seated Knee Extension,1,0,94.07,2.0,2.68
+KneE-PAD,Subject_31_4_Trial_1,KP_Sub31,Seated Knee Extension,1,1,60.11,2.0,3.09
+KneE-PAD,Subject_31_4_Trial_10,KP_Sub31,Seated Knee Extension,1,1,80.59,2.0,2.66
+KneE-PAD,Subject_31_5_Trial_1,KP_Sub31,Seated Knee Extension,1,2,94.38,2.0,3.8
+KneE-PAD,Subject_31_5_Trial_10,KP_Sub31,Seated Knee Extension,1,2,110.55,2.0,3.72
+KneE-PAD,Subject_31_6_Trial_1_w1,KP_Sub31,Walking,0,0,48.64,2.0,11.45
+KneE-PAD,Subject_31_6_Trial_1_w2,KP_Sub31,Walking,0,0,43.64,2.0,11.45
+KneE-PAD,Subject_31_7_Trial_1_w1,KP_Sub31,Walking,0,1,35.7,2.0,20.24
+KneE-PAD,Subject_31_7_Trial_1_w2,KP_Sub31,Walking,0,1,32.03,2.0,20.24
+KneE-PAD,Subject_31_8_Trial_1_w1,KP_Sub31,Walking,0,2,19.71,2.0,18.31
+KneE-PAD,Subject_31_8_Trial_1_w2,KP_Sub31,Walking,0,2,28.12,2.0,18.31
+PHYTMO,A01GAT0_1.csv,PH_A01,Walking,0,0,97.8,2.0,40.63
+PHYTMO,A01GAT0_2.csv,PH_A01,Walking,0,0,78.97,2.0,39.78
+PHYTMO,A01GAT1_1.csv,PH_A01,Walking,0,1,93.89,2.0,37.93
+PHYTMO,A01GAT1_2.csv,PH_A01,Walking,0,2,55.17,2.0,44.08
+PHYTMO,A01GHT_1.csv,PH_A01,Step-Up,3,0,74.25,2.0,52.84
+PHYTMO,A01GHT_2.csv,PH_A01,Step-Up,3,0,53.98,2.0,53.24
+PHYTMO,A01KFER0_1.csv,PH_A01,Seated Knee Extension,1,0,91.92,2.0,42.9
+PHYTMO,A01KFER0_2.csv,PH_A01,Seated Knee Extension,1,0,89.25,2.0,41.99
+PHYTMO,A01KFER1_1.csv,PH_A01,Seated Knee Extension,1,1,93.11,2.0,43.67
+PHYTMO,A01KFER1_2.csv,PH_A01,Seated Knee Extension,1,2,97.21,2.0,43.74
+PHYTMO,A01SQT0_1.csv,PH_A01,Mini Squat,2,0,42.12,2.0,52.24
+PHYTMO,A01SQT0_2.csv,PH_A01,Mini Squat,2,0,41.54,2.0,50.32
+PHYTMO,A01SQT1_1.csv,PH_A01,Mini Squat,2,1,48.84,2.0,46.07
+PHYTMO,A01SQT1_2.csv,PH_A01,Mini Squat,2,2,49.92,2.0,47.91
+PHYTMO,A02GAT0_1.csv,PH_A02,Walking,0,0,71.25,2.0,31.9
+PHYTMO,A02GAT0_2.csv,PH_A02,Walking,0,0,96.18,2.0,32.26
+PHYTMO,A02SQT0_1.csv,PH_A02,Mini Squat,2,0,44.57,2.0,34.04
+PHYTMO,A02SQT0_2.csv,PH_A02,Mini Squat,2,0,37.67,2.0,36.78
+PHYTMO,A02SQT1_1.csv,PH_A02,Mini Squat,2,1,51.03,2.0,42.42
+PHYTMO,A02SQT1_2.csv,PH_A02,Mini Squat,2,2,50.34,2.0,49.84
+PHYTMO,A03GAT0_1.csv,PH_A03,Walking,0,0,57.99,2.0,43.69
+PHYTMO,A03GAT0_2.csv,PH_A03,Walking,0,0,67.36,2.0,45.15
+PHYTMO,A03GAT1_1.csv,PH_A03,Walking,0,1,90.29,2.0,47.0
+PHYTMO,A03GHT_1.csv,PH_A03,Step-Up,3,0,70.69,2.0,72.09
+PHYTMO,A03GHT_2.csv,PH_A03,Step-Up,3,0,61.72,2.0,67.33
+PHYTMO,A03KFER0_1.csv,PH_A03,Seated Knee Extension,1,0,118.99,2.0,42.36
+PHYTMO,A03KFER0_2.csv,PH_A03,Seated Knee Extension,1,0,119.35,2.0,40.87
+PHYTMO,A03KFER1_1.csv,PH_A03,Seated Knee Extension,1,1,121.63,2.0,30.88
+PHYTMO,A03KFER1_2.csv,PH_A03,Seated Knee Extension,1,2,104.97,2.0,34.23
+PHYTMO,A03SQT0_1.csv,PH_A03,Mini Squat,2,0,42.97,2.0,48.97
+PHYTMO,A03SQT0_2.csv,PH_A03,Mini Squat,2,0,47.54,2.0,45.55
+PHYTMO,A03SQT1_1.csv,PH_A03,Mini Squat,2,1,46.57,2.0,48.42
+PHYTMO,A03SQT1_2.csv,PH_A03,Mini Squat,2,2,49.52,2.0,57.55
+PHYTMO,A04GAT0_1.csv,PH_A04,Walking,0,0,60.53,2.0,38.25
+PHYTMO,A04GAT0_2.csv,PH_A04,Walking,0,0,60.32,2.0,39.44
+PHYTMO,A04GAT1_1.csv,PH_A04,Walking,0,1,29.36,2.0,52.32
+PHYTMO,A04GAT1_2.csv,PH_A04,Walking,0,2,102.07,2.0,49.17
+PHYTMO,A04GHT_1.csv,PH_A04,Step-Up,3,0,29.65,2.0,55.76
+PHYTMO,A04GHT_2.csv,PH_A04,Step-Up,3,0,99.74,2.0,50.02
+PHYTMO,A04KFER0_1.csv,PH_A04,Seated Knee Extension,1,0,116.05,2.0,43.59
+PHYTMO,A04KFER0_2.csv,PH_A04,Seated Knee Extension,1,0,119.79,2.0,42.19
+PHYTMO,A04KFER1_1.csv,PH_A04,Seated Knee Extension,1,1,106.87,2.0,39.62
+PHYTMO,A04KFER1_2.csv,PH_A04,Seated Knee Extension,1,2,105.45,2.0,39.08
+PHYTMO,A04SQT0_1.csv,PH_A04,Mini Squat,2,0,40.54,2.0,43.94
+PHYTMO,A04SQT0_2.csv,PH_A04,Mini Squat,2,0,51.4,2.0,37.75
+PHYTMO,A04SQT1_1.csv,PH_A04,Mini Squat,2,1,47.79,2.0,40.3
+PHYTMO,A04SQT1_2.csv,PH_A04,Mini Squat,2,2,54.9,2.0,39.38
+PHYTMO,A05GAT0_1.csv,PH_A05,Walking,0,0,70.52,2.0,37.1
+PHYTMO,A05GAT0_2.csv,PH_A05,Walking,0,0,69.76,2.0,43.07
+PHYTMO,A05GAT1_1.csv,PH_A05,Walking,0,1,31.81,2.0,52.75
+PHYTMO,A05GAT1_2.csv,PH_A05,Walking,0,2,39.38,2.0,50.33
+PHYTMO,A05GHT_1.csv,PH_A05,Step-Up,3,0,60.36,2.0,60.01
+PHYTMO,A05GHT_2.csv,PH_A05,Step-Up,3,0,72.99,2.0,55.64
+PHYTMO,A05KFER0_1.csv,PH_A05,Seated Knee Extension,1,0,86.17,2.0,40.56
+PHYTMO,A05KFER0_2.csv,PH_A05,Seated Knee Extension,1,0,81.26,2.0,48.91
+PHYTMO,A05KFER1_1.csv,PH_A05,Seated Knee Extension,1,1,65.9,2.0,47.1
+PHYTMO,A05KFER1_2.csv,PH_A05,Seated Knee Extension,1,2,99.21,2.0,45.32
+PHYTMO,A05SQT0_1.csv,PH_A05,Mini Squat,2,0,43.51,2.0,54.68
+PHYTMO,A05SQT0_2.csv,PH_A05,Mini Squat,2,0,43.06,2.0,48.07
+PHYTMO,A05SQT1_1.csv,PH_A05,Mini Squat,2,1,50.53,2.0,61.3
+PHYTMO,A05SQT1_2.csv,PH_A05,Mini Squat,2,2,50.22,2.0,59.68
+PHYTMO,A06GAT0_1.csv,PH_A06,Walking,0,0,69.93,2.0,37.04
+PHYTMO,A06GAT0_2.csv,PH_A06,Walking,0,0,65.3,2.0,37.29
+PHYTMO,A06GAT1_1.csv,PH_A06,Walking,0,1,36.65,2.0,68.48
+PHYTMO,A06GAT1_2.csv,PH_A06,Walking,0,2,48.81,2.0,50.05
+PHYTMO,A06GHT_1.csv,PH_A06,Step-Up,3,0,47.47,2.0,57.43
+PHYTMO,A06GHT_2.csv,PH_A06,Step-Up,3,0,92.31,2.0,56.05
+PHYTMO,A06KFER0_1.csv,PH_A06,Seated Knee Extension,1,0,106.89,2.0,35.92
+PHYTMO,A06KFER1_1.csv,PH_A06,Seated Knee Extension,1,1,80.55,2.0,41.8
+PHYTMO,A06KFER1_2.csv,PH_A06,Seated Knee Extension,1,2,85.15,2.0,53.45
+PHYTMO,A06SQT0_1.csv,PH_A06,Mini Squat,2,0,43.14,2.0,44.82
+PHYTMO,A06SQT0_2.csv,PH_A06,Mini Squat,2,0,43.07,2.0,40.56
+PHYTMO,A06SQT1_1.csv,PH_A06,Mini Squat,2,1,47.05,2.0,54.76
+PHYTMO,A06SQT1_2.csv,PH_A06,Mini Squat,2,2,51.92,2.0,46.0
+PHYTMO,A07GAT0_1.csv,PH_A07,Walking,0,0,68.2,2.0,45.66
+PHYTMO,A07GAT0_2.csv,PH_A07,Walking,0,0,53.34,2.0,44.89
+PHYTMO,A07GAT1_1.csv,PH_A07,Walking,0,1,78.07,2.0,23.8
+PHYTMO,A07GAT1_2.csv,PH_A07,Walking,0,2,22.98,2.0,54.57
+PHYTMO,A07GHT_1.csv,PH_A07,Step-Up,3,0,31.59,2.0,92.86
+PHYTMO,A07GHT_2.csv,PH_A07,Step-Up,3,0,29.92,2.0,99.4
+PHYTMO,A07KFER0_1.csv,PH_A07,Seated Knee Extension,1,0,68.22,2.0,44.25
+PHYTMO,A07KFER0_2.csv,PH_A07,Seated Knee Extension,1,0,107.43,2.0,42.91
+PHYTMO,A07KFER1_1.csv,PH_A07,Seated Knee Extension,1,1,88.82,2.0,42.84
+PHYTMO,A07KFER1_2.csv,PH_A07,Seated Knee Extension,1,2,86.55,2.0,42.99
+PHYTMO,A07SQT0_1.csv,PH_A07,Mini Squat,2,0,44.77,2.0,46.6
+PHYTMO,A07SQT0_2.csv,PH_A07,Mini Squat,2,0,43.02,2.0,43.84
+PHYTMO,A07SQT1_1.csv,PH_A07,Mini Squat,2,1,57.29,2.0,50.9
+PHYTMO,A07SQT1_2.csv,PH_A07,Mini Squat,2,2,50.22,2.0,44.08
+PHYTMO,A08GAT0_1.csv,PH_A08,Walking,0,0,92.91,2.0,39.88
+PHYTMO,A08GAT0_2.csv,PH_A08,Walking,0,0,65.91,2.0,36.06
+PHYTMO,A08GAT1_1.csv,PH_A08,Walking,0,1,70.71,2.0,41.09
+PHYTMO,A08GAT1_2.csv,PH_A08,Walking,0,2,57.29,2.0,48.5
+PHYTMO,A08GHT_1.csv,PH_A08,Step-Up,3,0,67.77,2.0,62.7
+PHYTMO,A08GHT_2.csv,PH_A08,Step-Up,3,0,92.65,2.0,53.05
+PHYTMO,A08KFER0_1.csv,PH_A08,Seated Knee Extension,1,0,122.88,2.0,45.78
+PHYTMO,A08KFER0_2.csv,PH_A08,Seated Knee Extension,1,0,99.23,2.0,48.23
+PHYTMO,A08KFER1_1.csv,PH_A08,Seated Knee Extension,1,1,77.5,2.0,43.72
+PHYTMO,A08KFER1_2.csv,PH_A08,Seated Knee Extension,1,2,69.24,2.0,50.27
+PHYTMO,A08SQT0_1.csv,PH_A08,Mini Squat,2,0,48.76,2.0,44.34
+PHYTMO,A08SQT0_2.csv,PH_A08,Mini Squat,2,0,48.01,2.0,40.24
+PHYTMO,A08SQT1_1.csv,PH_A08,Mini Squat,2,1,50.51,2.0,44.85
+PHYTMO,A08SQT1_2.csv,PH_A08,Mini Squat,2,2,51.63,2.0,50.67
+PHYTMO,A09GAT0_1.csv,PH_A09,Walking,0,0,72.45,2.0,48.29
+PHYTMO,A09GAT0_2.csv,PH_A09,Walking,0,0,77.16,2.0,44.26
+PHYTMO,A09GAT1_1.csv,PH_A09,Walking,0,1,60.17,2.0,61.75
+PHYTMO,A09GAT1_2.csv,PH_A09,Walking,0,2,39.74,2.0,49.61
+PHYTMO,A09GHT_1.csv,PH_A09,Step-Up,3,0,43.19,2.0,72.56
+PHYTMO,A09GHT_2.csv,PH_A09,Step-Up,3,0,47.6,2.0,70.96
+PHYTMO,A09KFER0_2.csv,PH_A09,Seated Knee Extension,1,0,109.02,2.0,45.35
+PHYTMO,A09KFER1_1.csv,PH_A09,Seated Knee Extension,1,1,60.56,2.0,49.94
+PHYTMO,A09KFER1_2.csv,PH_A09,Seated Knee Extension,1,2,71.12,2.0,37.06
+PHYTMO,A09SQT0_1.csv,PH_A09,Mini Squat,2,0,36.28,2.0,40.31
+PHYTMO,A09SQT0_2.csv,PH_A09,Mini Squat,2,0,40.66,2.0,46.0
+PHYTMO,A09SQT1_1.csv,PH_A09,Mini Squat,2,1,50.1,2.0,50.44
+PHYTMO,A09SQT1_2.csv,PH_A09,Mini Squat,2,2,54.17,2.0,45.77
+PHYTMO,A10GAT0_1.csv,PH_A10,Walking,0,0,57.45,2.0,39.77
+PHYTMO,A10GAT0_2.csv,PH_A10,Walking,0,0,50.12,2.0,40.71
+PHYTMO,A10GAT1_1.csv,PH_A10,Walking,0,1,114.15,2.0,47.38
+PHYTMO,A10GAT1_2.csv,PH_A10,Walking,0,2,34.83,2.0,44.45
+PHYTMO,A10GHT_1.csv,PH_A10,Step-Up,3,0,66.5,2.0,60.12
+PHYTMO,A10GHT_2.csv,PH_A10,Step-Up,3,0,81.84,2.0,52.06
+PHYTMO,A10KFER0_1.csv,PH_A10,Seated Knee Extension,1,0,134.46,2.0,41.46
+PHYTMO,A10KFER0_2.csv,PH_A10,Seated Knee Extension,1,0,106.02,2.0,48.42
+PHYTMO,A10KFER1_1.csv,PH_A10,Seated Knee Extension,1,1,96.36,2.0,39.62
+PHYTMO,A10KFER1_2.csv,PH_A10,Seated Knee Extension,1,2,96.69,2.0,39.57
+PHYTMO,A10SQT0_1.csv,PH_A10,Mini Squat,2,0,50.74,2.0,47.0
+PHYTMO,A10SQT0_2.csv,PH_A10,Mini Squat,2,0,52.13,2.0,49.4
+PHYTMO,A10SQT1_1.csv,PH_A10,Mini Squat,2,1,52.94,2.0,41.59
+PHYTMO,A10SQT1_2.csv,PH_A10,Mini Squat,2,2,51.2,2.0,39.29
+PHYTMO,B01GAT0_1.csv,PH_B01,Walking,0,0,60.95,2.0,43.51
+PHYTMO,B01GAT0_2.csv,PH_B01,Walking,0,0,61.48,2.0,36.88
+PHYTMO,B01GAT1_1.csv,PH_B01,Walking,0,1,47.46,2.0,56.41
+PHYTMO,B01GAT1_2.csv,PH_B01,Walking,0,2,44.31,2.0,42.96
+PHYTMO,B01GHT_1.csv,PH_B01,Step-Up,3,0,72.65,2.0,62.84
+PHYTMO,B01GHT_2.csv,PH_B01,Step-Up,3,0,60.38,2.0,32.36
+PHYTMO,B01KFER0_1.csv,PH_B01,Seated Knee Extension,1,0,99.46,2.0,48.19
+PHYTMO,B01KFER0_2.csv,PH_B01,Seated Knee Extension,1,0,109.26,2.0,45.69
+PHYTMO,B01KFER1_1.csv,PH_B01,Seated Knee Extension,1,1,111.94,2.0,48.96
+PHYTMO,B01KFER1_2.csv,PH_B01,Seated Knee Extension,1,2,59.5,2.0,47.38
+PHYTMO,B01SQT0_1.csv,PH_B01,Mini Squat,2,0,48.68,2.0,66.59
+PHYTMO,B01SQT0_2.csv,PH_B01,Mini Squat,2,0,51.4,2.0,51.18
+PHYTMO,B01SQT1_1.csv,PH_B01,Mini Squat,2,1,49.33,2.0,64.72
+PHYTMO,B01SQT1_2.csv,PH_B01,Mini Squat,2,2,49.97,2.0,69.37
+PHYTMO,B02GAT0_1.csv,PH_B02,Walking,0,0,75.98,2.0,42.06
+PHYTMO,B02GAT0_2.csv,PH_B02,Walking,0,0,60.3,2.0,44.83
+PHYTMO,B02GAT1_1.csv,PH_B02,Walking,0,1,62.58,2.0,48.2
+PHYTMO,B02GAT1_2.csv,PH_B02,Walking,0,2,48.04,2.0,41.83
+PHYTMO,B02KFER0_1.csv,PH_B02,Seated Knee Extension,1,0,73.98,2.0,51.49
+PHYTMO,B02KFER0_2.csv,PH_B02,Seated Knee Extension,1,0,65.32,2.0,50.72
+PHYTMO,B02KFER1_1.csv,PH_B02,Seated Knee Extension,1,1,93.28,2.0,56.32
+PHYTMO,B02KFER1_2.csv,PH_B02,Seated Knee Extension,1,2,70.65,2.0,53.92
+PHYTMO,B02SQT0_1.csv,PH_B02,Mini Squat,2,0,43.94,2.0,50.93
+PHYTMO,B02SQT0_2.csv,PH_B02,Mini Squat,2,0,32.33,2.0,53.15
+PHYTMO,B02SQT1_1.csv,PH_B02,Mini Squat,2,1,48.12,2.0,49.44
+PHYTMO,B02SQT1_2.csv,PH_B02,Mini Squat,2,2,32.31,2.0,52.48
+PHYTMO,B03GAT0_1.csv,PH_B03,Walking,0,0,66.82,2.0,27.09
+PHYTMO,B03GAT0_2.csv,PH_B03,Walking,0,0,97.14,2.0,29.53
+PHYTMO,B03GAT1_1.csv,PH_B03,Walking,0,1,55.44,2.0,38.39
+PHYTMO,B03GAT1_2.csv,PH_B03,Walking,0,2,58.47,2.0,35.65
+PHYTMO,B03GHT_1.csv,PH_B03,Step-Up,3,0,76.94,2.0,41.3
+PHYTMO,B03GHT_2.csv,PH_B03,Step-Up,3,0,75.21,2.0,46.93
+PHYTMO,B03KFER0_1.csv,PH_B03,Seated Knee Extension,1,0,86.79,2.0,22.59
+PHYTMO,B03KFER0_2.csv,PH_B03,Seated Knee Extension,1,0,78.02,2.0,21.55
+PHYTMO,B03KFER1_1.csv,PH_B03,Seated Knee Extension,1,1,129.98,2.0,17.51
+PHYTMO,B03KFER1_2.csv,PH_B03,Seated Knee Extension,1,2,123.69,2.0,20.85
+PHYTMO,B04GAT0_1.csv,PH_B04,Walking,0,0,87.73,2.0,28.46
+PHYTMO,B04GAT0_2.csv,PH_B04,Walking,0,0,80.6,2.0,27.58
+PHYTMO,B04GAT1_1.csv,PH_B04,Walking,0,1,77.77,2.0,37.59
+PHYTMO,B04GAT1_2.csv,PH_B04,Walking,0,2,75.38,2.0,38.39
+PHYTMO,B04GHT_1.csv,PH_B04,Step-Up,3,0,75.06,2.0,58.71
+PHYTMO,B04GHT_2.csv,PH_B04,Step-Up,3,0,46.31,2.0,60.01
+PHYTMO,B04KFER0_1.csv,PH_B04,Seated Knee Extension,1,0,88.33,2.0,22.59
+PHYTMO,B04KFER0_2.csv,PH_B04,Seated Knee Extension,1,0,93.32,2.0,25.96
+PHYTMO,B04KFER1_1.csv,PH_B04,Seated Knee Extension,1,1,111.59,2.0,14.36
+PHYTMO,B04KFER1_2.csv,PH_B04,Seated Knee Extension,1,2,128.62,2.0,14.68
+PHYTMO,B04SQT0_1.csv,PH_B04,Mini Squat,2,0,43.91,2.0,25.0
+PHYTMO,B04SQT0_2.csv,PH_B04,Mini Squat,2,0,43.02,2.0,25.65
+PHYTMO,B04SQT1_1.csv,PH_B04,Mini Squat,2,1,50.65,2.0,33.07
+PHYTMO,B04SQT1_2.csv,PH_B04,Mini Squat,2,2,50.99,2.0,32.91
+PHYTMO,B05GAT0_1.csv,PH_B05,Walking,0,0,61.48,2.0,30.26
+PHYTMO,B05GAT0_2.csv,PH_B05,Walking,0,0,74.98,2.0,32.91
+PHYTMO,B05GAT1_1.csv,PH_B05,Walking,0,1,60.58,2.0,49.52
+PHYTMO,B05GAT1_2.csv,PH_B05,Walking,0,2,64.75,2.0,38.55
+PHYTMO,B05GHT_1.csv,PH_B05,Step-Up,3,0,65.3,2.0,48.46
+PHYTMO,B05GHT_2.csv,PH_B05,Step-Up,3,0,50.27,2.0,39.52
+PHYTMO,B05KFER0_1.csv,PH_B05,Seated Knee Extension,1,0,94.48,2.0,20.42
+PHYTMO,B05KFER0_2.csv,PH_B05,Seated Knee Extension,1,0,72.81,2.0,15.39
+PHYTMO,B05KFER1_1.csv,PH_B05,Seated Knee Extension,1,1,137.59,2.0,16.38
+PHYTMO,B05SQT0_1.csv,PH_B05,Mini Squat,2,0,42.42,2.0,13.8
+PHYTMO,B05SQT0_2.csv,PH_B05,Mini Squat,2,0,43.04,2.0,14.74
+PHYTMO,B05SQT1_1.csv,PH_B05,Mini Squat,2,1,49.79,2.0,25.83
+PHYTMO,B05SQT1_2.csv,PH_B05,Mini Squat,2,2,47.49,2.0,24.76
+PHYTMO,C01GAT0_1.csv,PH_C01,Walking,0,0,65.73,2.0,46.59
+PHYTMO,C01GAT0_2.csv,PH_C01,Walking,0,0,63.24,2.0,39.09
+PHYTMO,C01GAT1_1.csv,PH_C01,Walking,0,1,39.45,2.0,43.04
+PHYTMO,C01GAT1_2.csv,PH_C01,Walking,0,2,44.79,2.0,44.36
+PHYTMO,C01GHT_1.csv,PH_C01,Step-Up,3,0,73.39,2.0,59.9
+PHYTMO,C01GHT_2.csv,PH_C01,Step-Up,3,0,46.53,2.0,61.56
+PHYTMO,C01KFER0_1.csv,PH_C01,Seated Knee Extension,1,0,98.02,2.0,38.2
+PHYTMO,C01KFER0_2.csv,PH_C01,Seated Knee Extension,1,0,86.15,2.0,37.15
+PHYTMO,C01KFER1_1.csv,PH_C01,Seated Knee Extension,1,1,92.43,2.0,36.72
+PHYTMO,C01KFER1_2.csv,PH_C01,Seated Knee Extension,1,2,83.8,2.0,35.85
+PHYTMO,C01SQT0_1.csv,PH_C01,Mini Squat,2,0,54.67,2.0,49.59
+PHYTMO,C02GAT0_1.csv,PH_C02,Walking,0,0,70.27,2.0,39.36
+PHYTMO,C02GAT0_2.csv,PH_C02,Walking,0,0,71.71,2.0,46.62
+PHYTMO,C02GAT1_1.csv,PH_C02,Walking,0,1,39.54,2.0,55.65
+PHYTMO,C02GAT1_2.csv,PH_C02,Walking,0,2,34.03,2.0,47.75
+PHYTMO,C02GHT_1.csv,PH_C02,Step-Up,3,0,38.66,2.0,49.3
+PHYTMO,C02GHT_2.csv,PH_C02,Step-Up,3,0,38.78,2.0,58.55
+PHYTMO,C02KFER0_1.csv,PH_C02,Seated Knee Extension,1,0,61.31,2.0,19.52
+PHYTMO,C02KFER0_2.csv,PH_C02,Seated Knee Extension,1,0,64.01,2.0,20.17
+PHYTMO,C02KFER1_1.csv,PH_C02,Seated Knee Extension,1,1,97.49,2.0,16.78
+PHYTMO,C02KFER1_2.csv,PH_C02,Seated Knee Extension,1,2,104.6,2.0,17.59
+PHYTMO,C02SQT0_1.csv,PH_C02,Mini Squat,2,0,43.15,2.0,20.65
+PHYTMO,C02SQT0_2.csv,PH_C02,Mini Squat,2,0,43.15,2.0,19.36
+PHYTMO,C02SQT1_1.csv,PH_C02,Mini Squat,2,1,50.64,2.0,29.04
+PHYTMO,C02SQT1_2.csv,PH_C02,Mini Squat,2,2,51.08,2.0,25.81
+PHYTMO,C03GAT0_1.csv,PH_C03,Walking,0,0,51.04,2.0,30.98
+PHYTMO,C03GAT0_2.csv,PH_C03,Walking,0,0,57.56,2.0,33.71
+PHYTMO,C03GAT1_1.csv,PH_C03,Walking,0,1,43.77,2.0,40.0
+PHYTMO,C03GAT1_2.csv,PH_C03,Walking,0,2,63.87,2.0,34.68
+PHYTMO,C03GHT_1.csv,PH_C03,Step-Up,3,0,70.18,2.0,36.3
+PHYTMO,C03GHT_2.csv,PH_C03,Step-Up,3,0,67.31,2.0,34.5
+PHYTMO,C03KFER0_1.csv,PH_C03,Seated Knee Extension,1,0,83.65,2.0,22.1
+PHYTMO,C03KFER0_2.csv,PH_C03,Seated Knee Extension,1,0,88.56,2.0,27.09
+PHYTMO,C03KFER1_1.csv,PH_C03,Seated Knee Extension,1,1,91.8,2.0,23.23
+PHYTMO,C03KFER1_2.csv,PH_C03,Seated Knee Extension,1,2,102.03,2.0,23.69
+PHYTMO,C03SQT0_1.csv,PH_C03,Mini Squat,2,0,43.52,2.0,28.55
+PHYTMO,C03SQT0_2.csv,PH_C03,Mini Squat,2,0,43.6,2.0,20.15
+PHYTMO,C03SQT1_1.csv,PH_C03,Mini Squat,2,1,50.57,2.0,26.14
+PHYTMO,C03SQT1_2.csv,PH_C03,Mini Squat,2,2,49.68,2.0,22.26
+PHYTMO,C04GAT0_1.csv,PH_C04,Walking,0,0,61.35,2.0,33.06
+PHYTMO,C04GAT0_2.csv,PH_C04,Walking,0,0,119.93,2.0,41.13
+PHYTMO,C04GAT1_1.csv,PH_C04,Walking,0,1,54.73,2.0,42.58
+PHYTMO,C04GAT1_2.csv,PH_C04,Walking,0,2,62.36,2.0,34.5
+PHYTMO,C04GHT_1.csv,PH_C04,Step-Up,3,0,48.96,2.0,42.89
+PHYTMO,C04GHT_2.csv,PH_C04,Step-Up,3,0,92.08,2.0,35.97
+PHYTMO,C04KFER0_1.csv,PH_C04,Seated Knee Extension,1,0,75.42,2.0,23.33
+PHYTMO,C04KFER0_2.csv,PH_C04,Seated Knee Extension,1,0,68.15,2.0,27.91
+PHYTMO,C04KFER1_1.csv,PH_C04,Seated Knee Extension,1,1,79.15,2.0,20.97
+PHYTMO,C04KFER1_2.csv,PH_C04,Seated Knee Extension,1,2,80.38,2.0,17.57
+PHYTMO,C04SQT0_1.csv,PH_C04,Mini Squat,2,0,42.76,2.0,17.58
+PHYTMO,C04SQT0_2.csv,PH_C04,Mini Squat,2,0,42.97,2.0,17.42
+PHYTMO,C04SQT1_1.csv,PH_C04,Mini Squat,2,1,50.18,2.0,27.69
+PHYTMO,C04SQT1_2.csv,PH_C04,Mini Squat,2,2,49.97,2.0,23.71
+PHYTMO,C05GAT0_1.csv,PH_C05,Walking,0,0,74.29,2.0,40.16
+PHYTMO,C05GAT0_2.csv,PH_C05,Walking,0,0,71.95,2.0,39.68
+PHYTMO,C05GAT1_1.csv,PH_C05,Walking,0,1,21.58,2.0,66.13
+PHYTMO,C05GAT1_2.csv,PH_C05,Walking,0,2,45.58,2.0,67.42
+PHYTMO,C05GHT_1.csv,PH_C05,Step-Up,3,0,60.66,2.0,60.65
+PHYTMO,C05GHT_2.csv,PH_C05,Step-Up,3,0,66.06,2.0,70.81
+PHYTMO,C05KFER0_1.csv,PH_C05,Seated Knee Extension,1,0,96.71,2.0,33.39
+PHYTMO,C05KFER0_2.csv,PH_C05,Seated Knee Extension,1,0,105.73,2.0,32.42
+PHYTMO,C05KFER1_1.csv,PH_C05,Seated Knee Extension,1,1,129.71,2.0,20.66
+PHYTMO,C05KFER1_2.csv,PH_C05,Seated Knee Extension,1,2,108.63,2.0,27.11
+PHYTMO,C05SQT0_1.csv,PH_C05,Mini Squat,2,0,42.54,2.0,33.39
+PHYTMO,C05SQT0_2.csv,PH_C05,Mini Squat,2,0,42.16,2.0,30.17
+PHYTMO,C05SQT1_1.csv,PH_C05,Mini Squat,2,1,50.05,2.0,30.16
+PHYTMO,C05SQT1_2.csv,PH_C05,Mini Squat,2,2,50.74,2.0,34.04
+StrengthSense,s10_a1(w)_t1_l.csv,SS_s10,Walking,0,0,73.04,2.0,13.38
+StrengthSense,s10_a1(w)_t2_l.csv,SS_s10,Walking,0,0,46.81,2.0,13.53
+StrengthSense,s10_a1(w)_t3_l.csv,SS_s10,Walking,0,0,54.11,2.0,12.61
+StrengthSense,s11_a1(w)_t1_l.csv,SS_s11,Walking,0,0,51.98,2.0,15.07
+StrengthSense,s11_a1(w)_t2_l.csv,SS_s11,Walking,0,0,49.69,2.0,15.68
+StrengthSense,s11_a1(w)_t3_l.csv,SS_s11,Walking,0,2,52.05,2.0,21.14
+StrengthSense,s11_a1(w)_t4_l.csv,SS_s11,Walking,0,1,50.45,2.0,18.07
+StrengthSense,s12_a1(w)_t1_l.csv,SS_s12,Walking,0,0,58.31,2.0,15.45
+StrengthSense,s12_a1(w)_t2_l.csv,SS_s12,Walking,0,0,57.09,2.0,16.22
+StrengthSense,s12_a1(w)_t3_l.csv,SS_s12,Walking,0,0,52.54,2.0,14.91
+StrengthSense,s13_a1(w)_t1_l.csv,SS_s13,Walking,0,0,61.49,2.0,17.99
+StrengthSense,s13_a1(w)_t2_l.csv,SS_s13,Walking,0,1,73.14,2.0,17.07
+StrengthSense,s13_a1(w)_t3_l.csv,SS_s13,Walking,0,0,65.7,2.0,17.84
+StrengthSense,s15_a1(w)_t1_l.csv,SS_s15,Walking,0,1,47.84,2.0,63.3
+StrengthSense,s15_a1(w)_t2_l.csv,SS_s15,Walking,0,0,60.93,2.0,20.91
+StrengthSense,s15_a1(w)_t3_l.csv,SS_s15,Walking,0,0,55.72,2.0,21.91
+StrengthSense,s17_a1(w)_t1_l.csv,SS_s17,Walking,0,1,56.64,2.0,16.45
+StrengthSense,s17_a1(w)_t2_l.csv,SS_s17,Walking,0,2,59.86,2.0,8.53
+StrengthSense,s17_a1(w)_t3_l.csv,SS_s17,Walking,0,1,63.25,2.0,16.99
+StrengthSense,s18_a1(w)_t1_l.csv,SS_s18,Walking,0,0,50.02,2.0,16.53
+StrengthSense,s18_a1(w)_t2_l.csv,SS_s18,Walking,0,0,56.11,2.0,16.91
+StrengthSense,s18_a1(w)_t3_l.csv,SS_s18,Walking,0,0,47.3,2.0,16.53
+StrengthSense,s19_a1(w)_t1_l.csv,SS_s19,Walking,0,2,55.35,2.0,15.22
+StrengthSense,s19_a1(w)_t2_l.csv,SS_s19,Walking,0,2,61.31,2.0,16.14
+StrengthSense,s19_a1(w)_t3_l.csv,SS_s19,Walking,0,2,54.46,2.0,13.99
+StrengthSense,s1_a1(w)_t1_l.csv,SS_s1,Walking,0,2,95.34,2.0,15.14
+StrengthSense,s1_a1(w)_t2_l.csv,SS_s1,Walking,0,1,64.12,2.0,15.68
+StrengthSense,s1_a1(w)_t3_l.csv,SS_s1,Walking,0,0,77.05,2.0,20.3
+StrengthSense,s1_a1(w)_t4_l.csv,SS_s1,Walking,0,0,55.3,2.0,11.68
+StrengthSense,s20_a1(w)_t1_l.csv,SS_s20,Walking,0,1,65.69,2.0,210.45
+StrengthSense,s20_a1(w)_t2_l.csv,SS_s20,Walking,0,1,62.23,2.0,227.38
+StrengthSense,s20_a1(w)_t3_l.csv,SS_s20,Walking,0,1,58.86,2.0,245.68
+StrengthSense,s21_a1(w)_t1_l.csv,SS_s21,Walking,0,2,64.19,2.0,12.68
+StrengthSense,s21_a1(w)_t2_l.csv,SS_s21,Walking,0,1,48.77,2.0,12.61
+StrengthSense,s21_a1(w)_t3_l.csv,SS_s21,Walking,0,0,63.61,2.0,12.99
+StrengthSense,s22_a1(w)_t1_l.csv,SS_s22,Walking,0,0,90.44,2.0,12.38
+StrengthSense,s22_a1(w)_t2_l.csv,SS_s22,Walking,0,2,58.04,2.0,13.14
+StrengthSense,s22_a1(w)_t3_l.csv,SS_s22,Walking,0,0,57.46,2.0,12.91
+StrengthSense,s23_a1(w)_t1_l.csv,SS_s23,Walking,0,2,71.12,2.0,13.14
+StrengthSense,s23_a1(w)_t2_l.csv,SS_s23,Walking,0,2,52.25,2.0,13.76
+StrengthSense,s23_a1(w)_t3_l.csv,SS_s23,Walking,0,0,67.68,2.0,13.99
+StrengthSense,s23_a1(w)_t4_l.csv,SS_s23,Walking,0,1,42.19,2.0,17.14
+StrengthSense,s10_a13_t1_l.csv,SS_s10,Mini Squat,2,0,43.13,2.0,6.07
+StrengthSense,s10_a13_t2_l.csv,SS_s10,Mini Squat,2,0,42.22,2.0,6.68
+StrengthSense,s10_a13_t3_l.csv,SS_s10,Mini Squat,2,0,44.36,2.0,6.3
+StrengthSense,s11_a13_t1_l.csv,SS_s11,Mini Squat,2,0,41.78,2.0,7.3
+StrengthSense,s11_a13_t2_l.csv,SS_s11,Mini Squat,2,0,41.35,2.0,7.14
+StrengthSense,s11_a13_t3_l.csv,SS_s11,Mini Squat,2,0,40.89,2.0,8.45
+StrengthSense,s12_a13_t1_l.csv,SS_s12,Mini Squat,2,0,42.4,2.0,6.22
+StrengthSense,s12_a13_t2_l.csv,SS_s12,Mini Squat,2,0,42.23,2.0,6.99
+StrengthSense,s12_a13_t3_l.csv,SS_s12,Mini Squat,2,0,43.52,2.0,6.61
+StrengthSense,s13_a13_t1_l.csv,SS_s13,Mini Squat,2,0,41.71,2.0,6.45
+StrengthSense,s13_a13_t2_l.csv,SS_s13,Mini Squat,2,0,41.78,2.0,7.68
+StrengthSense,s13_a13_t3_l.csv,SS_s13,Mini Squat,2,0,41.48,2.0,6.84
+StrengthSense,s15_a13_t1_l.csv,SS_s15,Mini Squat,2,0,40.96,2.0,8.3
+StrengthSense,s15_a13_t2_l.csv,SS_s15,Mini Squat,2,0,40.64,2.0,9.91
+StrengthSense,s15_a13_t3_l.csv,SS_s15,Mini Squat,2,0,41.87,2.0,9.14
+StrengthSense,s17_a13_t1_l.csv,SS_s17,Mini Squat,2,0,33.19,2.0,9.91
+StrengthSense,s17_a13_t2_l.csv,SS_s17,Mini Squat,2,0,40.67,2.0,7.99
+StrengthSense,s17_a13_t3_l.csv,SS_s17,Mini Squat,2,0,42.02,2.0,8.45
+StrengthSense,s18_a13_t1_l.csv,SS_s18,Mini Squat,2,0,41.26,2.0,6.07
+StrengthSense,s18_a13_t2_l.csv,SS_s18,Mini Squat,2,0,41.45,2.0,6.45
+StrengthSense,s18_a13_t3_l.csv,SS_s18,Mini Squat,2,0,41.63,2.0,6.45
+StrengthSense,s19_a13_t1_l.csv,SS_s19,Mini Squat,2,0,38.76,2.0,11.76
+StrengthSense,s19_a13_t2_l.csv,SS_s19,Mini Squat,2,0,39.87,2.0,10.45
+StrengthSense,s19_a13_t3_l.csv,SS_s19,Mini Squat,2,0,41.85,2.0,12.53
+StrengthSense,s1_a13_t1_l.csv,SS_s1,Mini Squat,2,2,37.82,2.0,5.22
+StrengthSense,s1_a13_t2_l.csv,SS_s1,Mini Squat,2,2,40.12,2.0,5.14
+StrengthSense,s1_a13_t3_l.csv,SS_s1,Mini Squat,2,2,41.41,2.0,5.07
+StrengthSense,s20_a13_t1_l.csv,SS_s20,Mini Squat,2,2,40.23,2.0,137.3
+StrengthSense,s20_a13_t2_l.csv,SS_s20,Mini Squat,2,2,40.83,2.0,145.76
+StrengthSense,s20_a13_t3_l.csv,SS_s20,Mini Squat,2,0,54.77,2.0,154.14
+StrengthSense,s22_a13_t1_l.csv,SS_s22,Mini Squat,2,0,41.49,2.0,5.91
+StrengthSense,s22_a13_t2_l.csv,SS_s22,Mini Squat,2,0,41.84,2.0,5.91
+StrengthSense,s22_a13_t3_l.csv,SS_s22,Mini Squat,2,0,42.22,2.0,6.22
+StrengthSense,s22_a13_t4_l.csv,SS_s22,Mini Squat,2,0,40.89,2.0,6.07
+StrengthSense,s23_a13_t1_l.csv,SS_s23,Mini Squat,2,0,42.04,2.0,6.84
+StrengthSense,s23_a13_t2_l.csv,SS_s23,Mini Squat,2,0,45.84,2.0,6.84
+StrengthSense,s23_a13_t3_l.csv,SS_s23,Mini Squat,2,0,44.29,2.0,6.61
+StrengthSense,s24_a13_t1_l.csv,SS_s24,Mini Squat,2,0,40.52,2.0,8.38
+StrengthSense,s24_a13_t2_l.csv,SS_s24,Mini Squat,2,0,37.24,2.0,6.91
+StrengthSense,s24_a13_t3_l.csv,SS_s24,Mini Squat,2,0,39.47,2.0,6.61
+StrengthSense,s25_a13_t1_l.csv,SS_s25,Mini Squat,2,0,37.99,2.0,8.07
+StrengthSense,s25_a13_t2_l.csv,SS_s25,Mini Squat,2,0,42.22,2.0,8.07
+StrengthSense,s25_a13_t3_l.csv,SS_s25,Mini Squat,2,0,40.76,2.0,8.14
+StrengthSense,s26_a13_t1_l.csv,SS_s26,Mini Squat,2,0,40.52,2.0,8.14
+StrengthSense,s26_a13_t2_l.csv,SS_s26,Mini Squat,2,0,45.26,2.0,7.91
+StrengthSense,s26_a13_t3_l.csv,SS_s26,Mini Squat,2,0,38.23,2.0,7.14
+StrengthSense,s27_a13_t1_l.csv,SS_s27,Mini Squat,2,0,43.6,2.0,7.53
+StrengthSense,s27_a13_t2_l.csv,SS_s27,Mini Squat,2,0,43.61,2.0,6.14
+StrengthSense,s27_a13_t3_l.csv,SS_s27,Mini Squat,2,0,44.47,2.0,5.84
+StrengthSense,s29_a13_t1_l.csv,SS_s29,Mini Squat,2,0,41.45,2.0,6.07
+StrengthSense,s29_a13_t2_l.csv,SS_s29,Mini Squat,2,0,40.94,2.0,5.84
+StrengthSense,s29_a13_t3_l.csv,SS_s29,Mini Squat,2,0,40.73,2.0,5.53
+StrengthSense,s10_a10_t2_l.csv,SS_s10,Step-Up,3,1,95.65,2.0,8.91
+StrengthSense,s10_a10_t3_l.csv,SS_s10,Step-Up,3,0,143.46,2.0,7.76
+StrengthSense,s10_a10_t4_l.csv,SS_s10,Step-Up,3,2,92.37,2.0,8.91
+StrengthSense,s10_a10_t5_l.csv,SS_s10,Step-Up,3,0,39.96,2.0,8.14
+StrengthSense,s10_a10_t6_l.csv,SS_s10,Step-Up,3,0,85.63,2.0,7.14
+StrengthSense,s11_a10_t1_l.csv,SS_s11,Step-Up,3,2,76.39,2.0,11.07
+StrengthSense,s11_a10_t2_l.csv,SS_s11,Step-Up,3,1,125.69,2.0,9.53
+StrengthSense,s11_a10_t3_l.csv,SS_s11,Step-Up,3,1,78.0,2.0,8.14
+StrengthSense,s11_a10_t4_l.csv,SS_s11,Step-Up,3,2,75.2,2.0,9.99
+StrengthSense,s11_a10_t5_l.csv,SS_s11,Step-Up,3,0,65.78,2.0,7.07
+StrengthSense,s11_a10_t6_l.csv,SS_s11,Step-Up,3,0,82.83,2.0,10.84
+StrengthSense,s12_a10_t2_l.csv,SS_s12,Step-Up,3,0,108.0,2.0,9.38
+StrengthSense,s12_a10_t3_l.csv,SS_s12,Step-Up,3,2,112.75,2.0,8.45
+StrengthSense,s12_a10_t4_l.csv,SS_s12,Step-Up,3,2,79.56,2.0,9.38
+StrengthSense,s12_a10_t5_l.csv,SS_s12,Step-Up,3,0,64.62,2.0,9.68
+StrengthSense,s12_a10_t6_l.csv,SS_s12,Step-Up,3,2,84.11,2.0,9.61
+StrengthSense,s13_a10_t1_l.csv,SS_s13,Step-Up,3,1,83.01,2.0,10.68
+StrengthSense,s13_a10_t2_l.csv,SS_s13,Step-Up,3,0,110.68,2.0,9.14
+StrengthSense,s13_a10_t3_l.csv,SS_s13,Step-Up,3,1,103.98,2.0,7.99
+StrengthSense,s13_a10_t4_l.csv,SS_s13,Step-Up,3,0,84.67,2.0,8.38
+StrengthSense,s13_a10_t5_l.csv,SS_s13,Step-Up,3,0,95.36,2.0,7.07
+StrengthSense,s13_a10_t6_l.csv,SS_s13,Step-Up,3,2,68.85,2.0,8.38
+StrengthSense,s15_a10_t1_l.csv,SS_s15,Step-Up,3,1,74.19,2.0,23.76
+StrengthSense,s15_a10_t2_l.csv,SS_s15,Step-Up,3,0,95.58,2.0,10.45
+StrengthSense,s15_a10_t3_l.csv,SS_s15,Step-Up,3,1,72.04,2.0,10.38
+StrengthSense,s15_a10_t4_l.csv,SS_s15,Step-Up,3,0,128.45,2.0,10.45
+StrengthSense,s15_a10_t5_l.csv,SS_s15,Step-Up,3,1,73.7,2.0,10.45
+StrengthSense,s15_a10_t6_l.csv,SS_s15,Step-Up,3,0,116.99,2.0,10.68
+StrengthSense,s17_a10_t1_l.csv,SS_s17,Step-Up,3,0,76.84,2.0,10.61
+StrengthSense,s17_a10_t2_l.csv,SS_s17,Step-Up,3,2,96.01,2.0,9.45
+StrengthSense,s17_a10_t3_l.csv,SS_s17,Step-Up,3,1,67.06,2.0,8.53
+StrengthSense,s17_a10_t4_l.csv,SS_s17,Step-Up,3,1,89.6,2.0,9.45
+StrengthSense,s17_a10_t5_l.csv,SS_s17,Step-Up,3,1,82.47,2.0,8.99
+StrengthSense,s17_a10_t6_l.csv,SS_s17,Step-Up,3,1,99.62,2.0,9.3
+StrengthSense,s18_a10_t1_l.csv,SS_s18,Step-Up,3,0,73.11,2.0,12.99
+StrengthSense,s18_a10_t2_l.csv,SS_s18,Step-Up,3,0,89.9,2.0,9.14
+StrengthSense,s18_a10_t3_l.csv,SS_s18,Step-Up,3,0,65.03,2.0,10.07
+StrengthSense,s18_a10_t4_l.csv,SS_s18,Step-Up,3,0,65.29,2.0,8.91
+StrengthSense,s18_a10_t5_l.csv,SS_s18,Step-Up,3,1,74.65,2.0,9.14
+StrengthSense,s18_a10_t6_l.csv,SS_s18,Step-Up,3,0,69.84,2.0,9.3
+StrengthSense,s19_a10_t1_l.csv,SS_s19,Step-Up,3,1,73.41,2.0,10.45
+StrengthSense,s19_a10_t2_l.csv,SS_s19,Step-Up,3,1,93.87,2.0,9.91
+StrengthSense,s19_a10_t3_l.csv,SS_s19,Step-Up,3,2,79.76,2.0,9.76
+StrengthSense,s19_a10_t4_l.csv,SS_s19,Step-Up,3,0,85.14,2.0,10.22
+StrengthSense,s19_a10_t5_l.csv,SS_s19,Step-Up,3,0,81.07,2.0,9.3
+StrengthSense,s19_a10_t6_l.csv,SS_s19,Step-Up,3,0,113.14,2.0,10.07
+StrengthSense,s1_a10_t2_l.csv,SS_s1,Step-Up,3,1,104.65,2.0,10.07
+StrengthSense,s1_a10_t3_l.csv,SS_s1,Step-Up,3,0,74.2,2.0,12.3
+StrengthSense,s1_a10_t4_l.csv,SS_s1,Step-Up,3,1,95.9,2.0,12.99
+StrengthSense,s1_a10_t5_l.csv,SS_s1,Step-Up,3,0,69.92,2.0,9.38
+StrengthSense,s1_a10_t6_l.csv,SS_s1,Step-Up,3,2,78.95,2.0,15.68
+StrengthSense,s20_a10_t1_l.csv,SS_s20,Step-Up,3,1,74.07,2.0,12.38
+StrengthSense,s20_a10_t2_l.csv,SS_s20,Step-Up,3,1,74.7,2.0,23.84
+StrengthSense,s20_a10_t3_l.csv,SS_s20,Step-Up,3,1,77.6,2.0,34.3
+StrengthSense,s20_a10_t4_l.csv,SS_s20,Step-Up,3,1,73.85,2.0,45.76
+StrengthSense,s20_a10_t5_l.csv,SS_s20,Step-Up,3,1,83.37,2.0,57.07
+StrengthSense,s20_a10_t6_l.csv,SS_s20,Step-Up,3,1,75.31,2.0,68.38
+StrengthSense,s21_a10_t1_l.csv,SS_s21,Step-Up,3,1,127.69,2.0,12.76
+StrengthSense,s21_a10_t2_l.csv,SS_s21,Step-Up,3,0,110.88,2.0,10.3
+StrengthSense,s21_a10_t3_l.csv,SS_s21,Step-Up,3,2,83.71,2.0,9.3
+StrengthSense,s21_a10_t4_l.csv,SS_s21,Step-Up,3,0,109.16,2.0,10.07
+StrengthSense,s21_a10_t5_l.csv,SS_s21,Step-Up,3,1,102.69,2.0,9.22
+StrengthSense,s21_a10_t6_l.csv,SS_s21,Step-Up,3,0,97.06,2.0,9.84
+StrengthSense,s22_a10_t1_l.csv,SS_s22,Step-Up,3,2,69.11,2.0,14.38
+StrengthSense,s22_a10_t2_l.csv,SS_s22,Step-Up,3,0,109.75,2.0,9.3
+StrengthSense,s22_a10_t3_l.csv,SS_s22,Step-Up,3,2,58.77,2.0,8.91
+StrengthSense,s22_a10_t4_l.csv,SS_s22,Step-Up,3,0,72.1,2.0,9.07
+StrengthSense,s22_a10_t5_l.csv,SS_s22,Step-Up,3,2,74.05,2.0,9.14
+StrengthSense,s22_a10_t6_l.csv,SS_s22,Step-Up,3,0,93.11,2.0,8.91
+StrengthSense,s23_a10_t1_l.csv,SS_s23,Step-Up,3,2,142.93,2.0,11.07
+StrengthSense,s23_a10_t2_l.csv,SS_s23,Step-Up,3,0,100.46,2.0,12.53
+StrengthSense,s23_a10_t3_l.csv,SS_s23,Step-Up,3,1,84.21,2.0,10.61
+StrengthSense,s23_a10_t4_l.csv,SS_s23,Step-Up,3,2,94.62,2.0,8.3
+StrengthSense,s23_a10_t5_l.csv,SS_s23,Step-Up,3,1,98.12,2.0,8.3
+StrengthSense,s23_a10_t6_l.csv,SS_s23,Step-Up,3,2,79.8,2.0,8.61
+StrengthSense,s24_a10_t1_l.csv,SS_s24,Step-Up,3,2,93.88,2.0,11.68
+StrengthSense,s24_a10_t2_l.csv,SS_s24,Step-Up,3,0,81.97,2.0,9.61
+StrengthSense,s24_a10_t3_l.csv,SS_s24,Step-Up,3,2,86.4,2.0,8.76
+StrengthSense,s24_a10_t4_l.csv,SS_s24,Step-Up,3,1,70.5,2.0,9.61
+StrengthSense,s24_a10_t5_l.csv,SS_s24,Step-Up,3,2,89.79,2.0,8.84
+StrengthSense,s24_a10_t6_l.csv,SS_s24,Step-Up,3,0,76.63,2.0,8.84
+StrengthSense,s25_a10_t1_l.csv,SS_s25,Step-Up,3,2,62.57,2.0,10.84
+HuGaDB,HuGaDB_v1_various_01_04.txt_seg415,HG_Sub01,Walking,0,0,65.57,2.0,3.31
+HuGaDB,HuGaDB_v1_various_01_05.txt_seg169,HG_Sub01,Step-Up,3,1,72.78,2.0,4.94
+HuGaDB,HuGaDB_v1_various_01_05.txt_seg448,HG_Sub01,Walking,0,0,47.08,2.0,3.65
+HuGaDB,HuGaDB_v1_various_01_06.txt_seg446,HG_Sub01,Walking,0,0,54.47,2.0,3.79
+HuGaDB,HuGaDB_v1_various_01_07.txt_seg215,HG_Sub01,Step-Up,3,1,76.38,2.0,5.1
+HuGaDB,HuGaDB_v1_various_01_07.txt_seg503,HG_Sub01,Walking,0,0,43.1,2.0,3.36
+HuGaDB,HuGaDB_v1_various_01_08.txt_seg208,HG_Sub01,Step-Up,3,0,76.91,2.0,5.16
+HuGaDB,HuGaDB_v1_various_01_08.txt_seg499,HG_Sub01,Walking,0,1,41.92,2.0,3.29
+HuGaDB,HuGaDB_v1_various_01_09.txt_seg388,HG_Sub01,Walking,0,0,65.87,2.0,3.65
+HuGaDB,HuGaDB_v1_various_01_10.txt_seg303,HG_Sub01,Step-Up,3,1,74.56,2.0,5.0
+HuGaDB,HuGaDB_v1_various_01_10.txt_seg585,HG_Sub01,Walking,0,0,44.49,2.0,13.37
+HuGaDB,HuGaDB_v1_various_01_11.txt_seg479,HG_Sub01,Walking,0,2,66.3,2.0,3.33
+HuGaDB,HuGaDB_v1_various_01_12.txt_seg524,HG_Sub01,Walking,0,1,63.58,2.0,3.12
+HuGaDB,HuGaDB_v1_various_01_13.txt_seg0,HG_Sub01,Walking,0,1,56.44,2.0,17.88
+HuGaDB,HuGaDB_v1_various_01_14.txt_seg0,HG_Sub01,Walking,0,0,69.97,2.0,11.88
+HuGaDB,HuGaDB_v1_various_01_15.txt_seg0,HG_Sub01,Walking,0,0,60.17,2.0,4.59
+HuGaDB,HuGaDB_v1_various_01_16.txt_seg0,HG_Sub01,Walking,0,0,49.39,2.0,17.44
+HuGaDB,HuGaDB_v1_various_02_00.txt_seg2470,HG_Sub02,Step-Up,3,0,75.82,2.0,15.96
+HuGaDB,HuGaDB_v1_various_02_00.txt_seg1030,HG_Sub02,Walking,0,0,55.61,2.0,25.55
+HuGaDB,HuGaDB_v1_various_02_01.txt_seg269,HG_Sub02,Walking,0,2,83.55,2.0,17.81
+HuGaDB,HuGaDB_v1_various_02_05.txt_seg698,HG_Sub02,Step-Up,3,2,70.14,2.0,5.3
+HuGaDB,HuGaDB_v1_various_02_05.txt_seg0,HG_Sub02,Walking,0,2,79.09,2.0,12.38
+HuGaDB,HuGaDB_v1_various_02_06.txt_seg506,HG_Sub02,Walking,0,1,80.94,2.0,4.18
+HuGaDB,HuGaDB_v1_various_06_04.txt_seg441,HG_Sub06,Walking,0,2,51.12,2.0,6.54
+HuGaDB,HuGaDB_v1_various_06_05.txt_seg464,HG_Sub06,Step-Up,3,0,77.84,2.0,4.06
+HuGaDB,HuGaDB_v1_various_06_05.txt_seg168,HG_Sub06,Walking,0,2,49.46,2.0,5.25
+HuGaDB,HuGaDB_v1_various_06_06.txt_seg171,HG_Sub06,Walking,0,2,50.74,2.0,6.84
+HuGaDB,HuGaDB_v1_various_06_07.txt_seg435,HG_Sub06,Step-Up,3,2,78.35,2.0,3.95
+HuGaDB,HuGaDB_v1_various_06_07.txt_seg128,HG_Sub06,Walking,0,2,49.63,2.0,5.44
+HuGaDB,HuGaDB_v1_various_06_08.txt_seg202,HG_Sub06,Walking,0,2,63.13,2.0,7.0
+HuGaDB,HuGaDB_v1_various_06_13.txt_seg168,HG_Sub06,Step-Up,3,0,80.5,2.0,4.96
+HuGaDB,HuGaDB_v1_various_06_14.txt_seg200,HG_Sub06,Step-Up,3,0,77.91,2.0,5.26
+HuGaDB,HuGaDB_v1_various_06_15.txt_seg208,HG_Sub06,Step-Up,3,0,84.23,2.0,4.85
+HuGaDB,HuGaDB_v1_various_06_16.txt_seg155,HG_Sub06,Step-Up,3,0,75.71,2.0,5.19
+HuGaDB,HuGaDB_v1_various_06_22.txt_seg353,HG_Sub06,Walking,0,2,49.67,2.0,41.25
+HuGaDB,HuGaDB_v1_various_06_23.txt_seg572,HG_Sub06,Walking,0,2,58.22,2.0,100.49
+HuGaDB,HuGaDB_v1_various_06_24.txt_seg148,HG_Sub06,Walking,0,1,66.56,2.0,35.72
+HuGaDB,HuGaDB_v1_various_06_25.txt_seg277,HG_Sub06,Walking,0,0,84.25,2.0,13.44
+HuGaDB,HuGaDB_v1_various_06_26.txt_seg0,HG_Sub06,Walking,0,0,82.47,2.0,11.74
+HuGaDB,HuGaDB_v1_various_06_27.txt_seg0,HG_Sub06,Walking,0,0,98.81,2.0,17.84
+HuGaDB,HuGaDB_v1_various_08_04.txt_seg163,HG_Sub08,Walking,0,1,53.19,2.0,16.51
+HuGaDB,HuGaDB_v1_various_08_05.txt_seg263,HG_Sub08,Step-Up,3,2,74.4,2.0,6.11
+HuGaDB,HuGaDB_v1_various_08_05.txt_seg608,HG_Sub08,Walking,0,0,43.7,2.0,4.23
+HuGaDB,HuGaDB_v1_various_08_06.txt_seg406,HG_Sub08,Step-Up,3,0,86.49,2.0,5.95
+HuGaDB,HuGaDB_v1_various_08_06.txt_seg742,HG_Sub08,Walking,0,0,57.61,2.0,4.29
+HuGaDB,HuGaDB_v1_various_08_07.txt_seg334,HG_Sub08,Walking,0,0,47.53,2.0,3.13
+HuGaDB,HuGaDB_v1_various_08_08.txt_seg558,HG_Sub08,Walking,0,0,48.37,2.0,3.95
+HuGaDB,HuGaDB_v1_various_08_09.txt_seg168,HG_Sub08,Step-Up,3,0,70.89,2.0,7.07
+HuGaDB,HuGaDB_v1_various_08_09.txt_seg567,HG_Sub08,Walking,0,0,53.57,2.0,4.27
+HuGaDB,HuGaDB_v1_various_08_10.txt_seg326,HG_Sub08,Step-Up,3,2,80.61,2.0,2.99
+HuGaDB,HuGaDB_v1_various_08_10.txt_seg495,HG_Sub08,Walking,0,0,55.93,2.0,2.65
+HuGaDB,HuGaDB_v1_various_08_11.txt_seg255,HG_Sub08,Step-Up,3,0,84.37,2.0,7.8
+HuGaDB,HuGaDB_v1_various_08_11.txt_seg695,HG_Sub08,Walking,0,0,49.1,2.0,5.17
+HuGaDB,HuGaDB_v1_various_08_12.txt_seg439,HG_Sub08,Walking,0,0,48.47,2.0,4.89
+HuGaDB,HuGaDB_v1_various_08_13.txt_seg596,HG_Sub08,Walking,0,0,53.22,2.0,3.2
+HuGaDB,HuGaDB_v1_various_08_14.txt_seg763,HG_Sub08,Walking,0,0,52.38,2.0,3.91
+HuGaDB,HuGaDB_v1_various_08_20.txt_seg0,HG_Sub08,Walking,0,0,54.77,2.0,6.79
+HuGaDB,HuGaDB_v1_various_08_25.txt_seg247,HG_Sub08,Step-Up,3,1,58.75,2.0,6.91
+HuGaDB,HuGaDB_v1_various_09_10.txt_seg303,HG_Sub09,Step-Up,3,2,77.77,2.0,6.27
+HuGaDB,HuGaDB_v1_various_10_06.txt_seg289,HG_Sub10,Step-Up,3,0,68.48,2.0,6.33
+HuGaDB,HuGaDB_v1_various_10_08.txt_seg225,HG_Sub10,Step-Up,3,0,71.93,2.0,6.43
+HuGaDB,HuGaDB_v1_various_10_09.txt_seg485,HG_Sub10,Step-Up,3,1,62.51,2.0,6.2
+HuGaDB,HuGaDB_v1_various_10_12.txt_seg215,HG_Sub10,Step-Up,3,0,58.59,2.0,6.88
+HuGaDB,HuGaDB_v1_various_11_08.txt_seg260,HG_Sub11,Step-Up,3,0,88.4,2.0,4.55
+HuGaDB,HuGaDB_v1_various_11_10.txt_seg172,HG_Sub11,Step-Up,3,0,81.1,2.0,6.08
+HuGaDB,HuGaDB_v1_various_11_12.txt_seg141,HG_Sub11,Step-Up,3,0,75.73,2.0,6.45
+HuGaDB,HuGaDB_v1_various_11_14.txt_seg152,HG_Sub11,Step-Up,3,0,99.21,2.0,6.29
+HuGaDB,HuGaDB_v1_various_11_16.txt_seg152,HG_Sub11,Step-Up,3,0,109.78,2.0,7.59
+HuGaDB,HuGaDB_v1_various_13_00.txt_seg191,HG_Sub13,Step-Up,3,0,89.6,2.0,6.7

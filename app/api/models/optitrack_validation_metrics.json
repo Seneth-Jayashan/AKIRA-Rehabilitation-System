@@ -1,0 +1,8 @@
+{
+  "trial_code": "A01KFER0_1",
+  "mae_deg": 0.91,
+  "rmse_deg": 1.12,
+  "pearson_r": 0.9988,
+  "rom_error_deg": 0.32,
+  "samples_compared": 4107
+}

@@ -1,0 +1,26 @@
+{
+  "Walking": {
+    "target_rom_deg": 60.0,
+    "max_safe_flexion_deg": 70.0,
+    "max_extensor_lag_deg": 5.0,
+    "sessions_per_week": 3.0
+  },
+  "Seated Knee Extension": {
+    "target_rom_deg": 90.0,
+    "max_safe_flexion_deg": 100.0,
+    "max_extensor_lag_deg": 5.0,
+    "sessions_per_week": 3.0
+  },
+  "Mini Squat": {
+    "target_rom_deg": 42.0,
+    "max_safe_flexion_deg": 45.0,
+    "max_extensor_lag_deg": 5.0,
+    "sessions_per_week": 3.0
+  },
+  "Step-Up": {
+    "target_rom_deg": 65.0,
+    "max_safe_flexion_deg": 75.0,
+    "max_extensor_lag_deg": 5.0,
+    "sessions_per_week": 2.0
+  }
+}

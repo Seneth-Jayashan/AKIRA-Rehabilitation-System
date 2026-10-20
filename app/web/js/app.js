@@ -163,28 +163,12 @@ function applyFilters() {
     return matchEx && matchQ;
   });
 
-  // Smart auto-coordination if 0 trials match:
   if (filtered.length === 0) {
-    if (q === 1) {
-      // Quality 1 only exists in Seated Knee Extension (14 trials)
-      document.getElementById('filter-exercise').value = 'Seated Knee Extension';
-      ex = 'Seated Knee Extension';
-      filtered = testSamplesList.filter(s => s.quality_grade === 1);
-      if (notice) {
-        notice.innerHTML = `ℹ️ <b>Clinical Note:</b> "Needs Improvement" (Quadriceps Extension Lag) is specifically measured during <b>Seated Knee Extension</b>. Filter automatically adjusted to show all 14 trials.`;
-        notice.classList.remove('hidden');
-      }
-    } else if (q === 2 && (ex === 'Step-Up' || ex === 'Walking')) {
-      // Quality 2 exists in Mini Squat and Seated Extension
-      document.getElementById('filter-exercise').value = 'all';
-      ex = 'all';
-      filtered = testSamplesList.filter(s => s.quality_grade === 2);
-      if (notice) {
-        notice.innerHTML = `ℹ️ <b>Clinical Note:</b> "Bad / Compensatory Fault" is available for <b>Mini Squat</b> and <b>Seated Knee Extension</b> (52 trials total). Filter adjusted to "All Exercises".`;
-        notice.classList.remove('hidden');
-      }
-    } else if (notice) {
-      notice.innerHTML = `⚠️ No trials found for this exact combination. Showing all matching trials for this quality tier.`;
+    document.getElementById('filter-exercise').value = 'all';
+    ex = 'all';
+    filtered = testSamplesList.filter(s => (q === -1 || s.quality_grade === q));
+    if (notice) {
+      notice.innerHTML = `ℹ️ Showing all exercises matching the selected quality tier (${filtered.length} trials).`;
       notice.classList.remove('hidden');
     }
   } else {
@@ -1100,10 +1084,14 @@ function renderLongitudinalUI(data) {
 
   // Update Milestone Countdown Badge
   const estEl = document.getElementById('long-est-time');
-  if (mp.sessions_to_milestone === 0) {
+  if (data.forecast_available === false) {
+    estEl.innerText = `Need ≥3 Sessions`;
+  } else if (mp.sessions_to_milestone === 0) {
     estEl.innerText = `🎉 Target (${mp.target_rom_deg}°) Achieved!`;
   } else if (mp.sessions_to_milestone > 0) {
     estEl.innerText = `~${mp.sessions_to_milestone} Sessions (~${mp.days_to_milestone} Days)`;
+  } else if (tr.rom_rate_per_session < -0.2) {
+    estEl.innerText = `⚠️ Declining Trend (${tr.rom_rate_per_session}°/sess)`;
   } else {
     estEl.innerText = `Plateau — Adjust Protocol`;
   }
@@ -1122,7 +1110,7 @@ function renderLongitudinalUI(data) {
 
     row.innerHTML = `
       <td class="py-2 px-2.5 font-bold text-slate-900">
-        ${s.session_id} <span class="text-[10px] font-normal text-slate-500 block">${s.exercise}</span>
+        ${s.session_id} <span class="text-[10px] font-normal text-slate-500 block">${s.exercise} ${s.session_date ? '(' + s.session_date + ')' : ''}</span>
       </td>
       <td class="py-2 px-2 text-right font-bold text-blue-700">${s.rom_deg}°</td>
       <td class="py-2 px-2 text-right text-[11px] ${deltaCls}">${deltaStr}</td>
@@ -1159,9 +1147,11 @@ function renderLongitudinalUI(data) {
   const totalLen = labels.length;
 
   const actualRomData = data.sessions.map(s => s.rom_deg).concat(Array(data.forecast_sessions.length).fill(null));
-  const forecastRomData = Array(nActual - 1).fill(null)
-    .concat([data.sessions[nActual - 1].rom_deg])
-    .concat(data.forecast_sessions.map(f => f.rom_deg));
+  const forecastRomData = data.forecast_sessions.length > 0
+    ? Array(nActual - 1).fill(null)
+        .concat([data.sessions[nActual - 1].rom_deg])
+        .concat(data.forecast_sessions.map(f => f.rom_deg))
+    : Array(totalLen).fill(null);
 
   const qualData = [
     ...data.sessions.map(s => s.quality_score),

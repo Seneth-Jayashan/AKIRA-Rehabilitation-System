@@ -6,9 +6,9 @@
  * Component: Knee Rehabilitation Following Tibial Plateau ORIF
  *
  * SUPPORTS BOTH:
- *   1. BLE (Bluetooth Low Energy) — Device Name: "AKIRA_Knee_BLE"
+ *   1. BLE (Bluetooth Low Energy) — Device Name: "ESP32-REHAB"
  *      - Service UUID       : 6e400001-b5a3-f393-e0a9-e50e24dcca9e
- *      - TX Characteristic  : 6e400003-b5a3-f393-e0a9-e50e24dcca9e (Notify @ 100 Hz)
+ *      - TX Characteristic  : 6e400002-b5a3-f393-e0a9-e50e24dcca9e (Notify @ 100 Hz)
  *   2. USB Serial (115200 baud)
  *
  * HARDWARE WIRING (Two MPU6050 6-DOF IMUs on a single ESP32 I2C Bus):
@@ -32,7 +32,7 @@
 
 // BLE UUIDs (Standard Nordic UART Service)
 #define SERVICE_UUID           "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
-#define CHARACTERISTIC_UUID_TX "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
+#define CHARACTERISTIC_UUID_TX "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
 BLEServer *pServer = NULL;
 BLECharacteristic *pTxCharacteristic = NULL;
@@ -44,7 +44,7 @@ class MyServerCallbacks: public BLEServerCallbacks {
   }
   void onDisconnect(BLEServer* pServer) {
     bleDeviceConnected = false;
-    pServer->getAdvertising()->start(); // Restart advertising if disconnected
+    pServer->getAdvertising()->start();
   }
 };
 
@@ -54,8 +54,10 @@ const uint8_t IMU_SHIN_ADDR  = 0x69; // AD0 connected to 3.3V
 
 // MPU6050 Register Map
 const uint8_t REG_PWR_MGMT_1   = 0x6B;
-const uint8_t REG_ACCEL_CONFIG = 0x1C;
+const uint8_t REG_SMPLRT_DIV   = 0x19;
+const uint8_t REG_CONFIG       = 0x1A; // Digital Low-Pass Filter (DLPF)
 const uint8_t REG_GYRO_CONFIG  = 0x1B;
+const uint8_t REG_ACCEL_CONFIG = 0x1C;
 const uint8_t REG_ACCEL_XOUT_H = 0x3B;
 
 // Scale Factors (+/- 4g and +/- 500 deg/s)
@@ -66,24 +68,40 @@ const float GYRO_SCALE  = 65.5f;   // LSB per deg/s
 const unsigned long SAMPLE_INTERVAL_US = 10000;
 unsigned long lastSampleMicros = 0;
 
-// Gyroscope Calibration Offsets
+// Gyroscope & Accelerometer Static Calibration Offsets
 float thighGyroBias[3] = {0.0f, 0.0f, 0.0f};
 float shinGyroBias[3]  = {0.0f, 0.0f, 0.0f};
 
 void configureIMU(uint8_t addr) {
+  // Wake up MPU6050 and select PLL with X-axis gyroscope reference
   Wire.beginTransmission(addr);
   Wire.write(REG_PWR_MGMT_1);
-  Wire.write(0x00);
+  Wire.write(0x01);
   Wire.endTransmission(true);
 
+  // Enable Hardware Digital Low-Pass Filter (DLPF_CFG = 4 -> 20 Hz bandwidth, 1 kHz internal rate)
+  // Prevents aliasing and eliminates high-frequency I2C register read glitches
+  Wire.beginTransmission(addr);
+  Wire.write(REG_CONFIG);
+  Wire.write(0x04);
+  Wire.endTransmission(true);
+
+  // Set sample rate divider: 1000 Hz / (1 + 9) = 100 Hz
+  Wire.beginTransmission(addr);
+  Wire.write(REG_SMPLRT_DIV);
+  Wire.write(0x09);
+  Wire.endTransmission(true);
+
+  // Configure Accelerometer range: +/- 4g (8192 LSB/g)
   Wire.beginTransmission(addr);
   Wire.write(REG_ACCEL_CONFIG);
-  Wire.write(0x08); // +/- 4g
+  Wire.write(0x08);
   Wire.endTransmission(true);
 
+  // Configure Gyroscope range: +/- 500 deg/s (65.5 LSB/deg/s)
   Wire.beginTransmission(addr);
   Wire.write(REG_GYRO_CONFIG);
-  Wire.write(0x08); // +/- 500 deg/s
+  Wire.write(0x08);
   Wire.endTransmission(true);
 }
 
@@ -91,7 +109,6 @@ bool readIMURaw(uint8_t addr, float &ax, float &ay, float &az, float &gx, float 
   Wire.beginTransmission(addr);
   Wire.write(REG_ACCEL_XOUT_H);
   if (Wire.endTransmission(false) != 0) {
-    // Sensor at this I2C address (0x68 or 0x69) is NOT connected! Output strict 0.0
     ax = ay = az = gx = gy = gz = 0.0f;
     return false;
   }
@@ -109,7 +126,7 @@ bool readIMURaw(uint8_t addr, float &ax, float &ay, float &az, float &gx, float 
   int16_t raw_gy = (Wire.read() << 8) | Wire.read();
   int16_t raw_gz = (Wire.read() << 8) | Wire.read();
 
-  // Detect all-0xFF or all-0x00 invalid bus reads
+  // Reject uninitialized or disconnected bus states
   if ((raw_ax == -1 && raw_ay == -1 && raw_az == -1) || (raw_ax == 0 && raw_ay == 0 && raw_az == 0)) {
     ax = ay = az = gx = gy = gz = 0.0f;
     return false;
@@ -148,13 +165,13 @@ void calibrateGyroscopes() {
 
 void setupBLE() {
   BLEDevice::init("ESP32-REHAB");
-  BLEDevice::setMTU(185); // Allow full 52-byte 12-channel packet in one BLE notification
+  BLEDevice::setMTU(185);
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
 
   BLEService *pService = pServer->createService(SERVICE_UUID);
   pTxCharacteristic = pService->createCharacteristic(
-    "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    CHARACTERISTIC_UUID_TX,
     BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_READ
   );
   pTxCharacteristic->addDescriptor(new BLE2902());
@@ -169,7 +186,8 @@ void setupBLE() {
 void setup() {
   Serial.begin(115200);
   Wire.begin(21, 22);    // SDA = GPIO 21, SCL = GPIO 22
-  Wire.setClock(400000); // 400 kHz Fast I2C
+  Wire.setClock(100000); // 100 kHz Standard-Mode I2C for high noise immunity over wearable straps
+  Wire.setTimeOut(5);    // 5 ms bus timeout recovery
 
   configureIMU(IMU_THIGH_ADDR);
   configureIMU(IMU_SHIN_ADDR);
