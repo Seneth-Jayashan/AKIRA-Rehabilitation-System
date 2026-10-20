@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AKIRA Rehabilitation System — AI Model Dashboard & Interactive Evaluation</title>
+  <meta name="description" content="Interactive AI model evaluation, live inference playground, clinical stability quantification, and architectural roadmap for the AKIRA Ankle Rehabilitation System.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Header & Brand Bar -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          <div class="pulse-dot"></div>
+        </div>
+        <div class="brand-text">
+          <h1>AKIRA AI SUITE</h1>
+          <span>Ankle Rehabilitation & Kinematic Analysis</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="overview" role="tab">
+          <span>📌</span> What We Did
+        </button>
+        <button class="tab-btn" data-tab="benchmarks" role="tab">
+          <span>📊</span> Model Benchmarks
+        </button>
+        <button class="tab-btn" data-tab="testing" role="tab">
+          <span>🧪</span> Live Testing
+        </button>
+        <button class="tab-btn" data-tab="batch" role="tab">
+          <span>📈</span> Batch Verification
+        </button>
+        <button class="tab-btn" data-tab="science" role="tab">
+          <span>🔬</span> Clinical Science
+        </button>
+      </nav>
+
+      <!-- System Status Indicator -->
+      <div class="header-status">
+        <div class="status-badge" id="server-status-pill">
+          <span class="status-indicator"></span> AI Online (Connecting...)
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Banner with High-Level KPI Summary -->
+    <section class="hero-banner">
+      <div class="hero-content">
+        <h2>Intelligent Ankle Rehabilitation <br><span class="highlight">Validation & Model Explorer</span></h2>
+        <p>
+          End-to-end evaluation suite for the AKIRA Rehabilitation System. Explore the engineered signal processing pipeline, inspect multi-model accuracy benchmarks, and test live predictions for exercise classification, postural stability, and kinematic smoothness.
+        </p>
+        <div class="hero-pills">
+          <div class="hero-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            100Hz 6-DOF IMU
+          </div>
+          <div class="hero-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            66 Kinematic Features
+          </div>
+          <div class="hero-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Dual-Track Modeling
+          </div>
+          <div class="hero-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            ONNX Mobile Ready
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-box">
+          <div class="stat-label">Best Macro-F1</div>
+          <div class="stat-value cyan">20.89%</div>
+          <div class="stat-sub">XGBoost (Class-Weighted)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Top Raw Accuracy</div>
+          <div class="stat-value emerald">64.59%</div>
+          <div class="stat-sub">Random Forest Baseline</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Edge Inference</div>
+          <div class="stat-value indigo">0.03 ms</div>
+          <div class="stat-sub">Zero Latency per Window</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Stability Regression</div>
+          <div class="stat-value amber">R² 1.00</div>
+          <div class="stat-sub">Force Plate CoP Correlation</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 1: WHAT WE DID (Architecture & Pipeline Journey)
+         ==================================================================== -->
+    <main id="tab-overview" class="tab-pane active" role="tabpanel">
+      <div class="section-header">
+        <span class="section-tag">Engineering Roadmap</span>
+        <h3>What We Built — Stage-by-Stage Architecture</h3>
+        <p>A rigorous walkthrough of our data ingestion, signal filtering, multi-architecture modeling, and clinical stability algorithms.</p>
+      </div>
+
+      <!-- Timeline Cards -->
+      <div class="timeline-flow" id="timeline-container">
+        <!-- Rendered via JavaScript -->
+      </div>
+
+      <!-- Dataset Roles & Mapping Table -->
+      <div class="data-table-card">
+        <h4 style="font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 16px;">
+          🗂️ Multi-Modal Dataset Roles & Clinical Utilization
+        </h4>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Dataset</th>
+              <th>Data Modality</th>
+              <th>Primary Role in AKIRA</th>
+              <th>Specific Clinical Use Cases</th>
+            </tr>
+          </thead>
+          <tbody id="dataset-table-body">
+            <!-- Populated via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         TAB 2: MODEL BENCHMARKS (Leaderboard, Accuracy & Visual Confusion Matrices)
+         ==================================================================== -->
+    <main id="tab-benchmarks" class="tab-pane" role="tabpanel">
+      <div class="section-header">
+        <span class="section-tag">Exhaustive Evaluation</span>
+        <h3>Model Comparison & Performance Leaderboard</h3>
+        <p>Comparing Track A (Engineered Features) vs Track B (Deep Learning Sequences) under strict subject-independent splitting.</p>
+      </div>
+
+      <!-- Charts & Champion Overview -->
+      <div class="benchmark-grid">
+        <div class="chart-card">
+          <h4>
+            <span>Accuracy (%) vs Macro-F1 (%)</span>
+            <span style="font-size:0.75rem; color:var(--text-dim); font-weight:400;">All 6 Evaluated Architectures</span>
+          </h4>
+          <div class="chart-container">
+            <canvas id="chart-accuracy-comparison"></canvas>
+          </div>
+        </div>
+
+        <!-- Selected Architecture Champion Card -->
+        <div class="model-winner-card">
+          <div class="winner-crown">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Deployment Champion
+          </div>
+          <h3>Optimized XGBoost</h3>
+          <p style="color:var(--text-muted); font-size:0.85rem;">
+            Selected for AKIRA Edge Deployment. Balanced sample weighting prevents majority-class overfitting, maximizing clinical detection of minority articulation classes.
+          </p>
+
+          <div class="winner-metric-row">
+            <div class="winner-metric">
+              <div class="val">20.89%</div>
+              <div class="lbl">Macro-F1 (Tuned)</div>
+            </div>
+            <div class="winner-metric">
+              <div class="val">0.033s</div>
+              <div class="lbl">Total Test Latency</div>
+            </div>
+          </div>
+
+          <div style="font-size:0.8rem; color:var(--text-dim);">
+            <strong>Mobile Footprint:</strong> 564 KB (rehab_xgb.onnx) for instantaneous offline execution on Android.
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Comparison Table -->
+      <div class="data-table-card" style="margin-bottom: 32px;">
+        <h4 style="font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 16px;">
+          📋 Comprehensive Model Leaderboard & Specifications
+        </h4>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>Pipeline Track</th>
+              <th>Accuracy</th>
+              <th>Macro-F1</th>
+              <th>Training Time</th>
+              <th>Inference Latency</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="benchmark-table-body">
+            <!-- Populated via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Interactive Confusion Matrix Viewer -->
+      <div class="cm-viewer-section">
+        <h4 style="font-family:var(--font-display); font-size: 1.2rem; margin-bottom: 8px;">
+          🔍 Interactive Confusion Matrix Inspector
+        </h4>
+        <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom: 18px;">
+          Inspect the genuine confusion matrix heatmaps generated during model evaluation across test patients.
+        </p>
+
+        <div class="cm-selector-tabs">
+          <button class="cm-select-btn active" data-model="xgboost">XGBoost (Optimized)</button>
+          <button class="cm-select-btn" data-model="random_forest">Random Forest (Baseline)</button>
+          <button class="cm-select-btn" data-model="1d_cnn">1D CNN (Deep)</button>
+          <button class="cm-select-btn" data-model="transformer">Transformer (Attention)</button>
+          <button class="cm-select-btn" data-model="cnn_lstm">CNN + LSTM Hybrid</button>
+          <button class="cm-select-btn" data-model="lstm">LSTM (Recurrent)</button>
+        </div>
+
+        <div class="cm-display-area">
+          <div class="cm-img-wrap">
+            <img id="cm-image" src="/results/confusion_matrix_xgboost.png" alt="Confusion Matrix Heatmap">
+          </div>
+          <div class="cm-details">
+            <h4 id="cm-title">XGBoost (Optimized & Balanced)</h4>
+            <p id="cm-description">
+              The optimized XGBoost model utilizes gradient-boosted decision trees with balanced class weights. It demonstrates superior recognition across minority classes (Squats, Knee Flexion) while maintaining a balanced Macro-F1 of 20.89%.
+            </p>
+            <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:16px;">
+              <h5 style="color:var(--cyan-primary); font-size:0.85rem; margin-bottom:6px;">Key Error Analysis:</h5>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+                Walking constitutes the vast majority of continuous gait records. Deep sequence models (Track B) suffered mode collapse toward Walking, while Track A trees maintained discrimination between Heel-Toe articulations and Squats.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Importance & Stability Regressors Row -->
+      <div class="benchmark-grid">
+        <div class="chart-card">
+          <h4>
+            <span>Top Features by Information Gain</span>
+            <span style="font-size:0.75rem; color:var(--text-dim); font-weight:400;">XGBoost Engineered Features</span>
+          </h4>
+          <div class="chart-container">
+            <canvas id="chart-feature-importance"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h4>
+            <span>Stability Regressors (CoP Mapping)</span>
+            <span style="font-size:0.75rem; color:var(--text-dim); font-weight:400;">IMU to Force Plate</span>
+          </h4>
+          <div id="stability-regressors-list">
+            <!-- Populated via JavaScript -->
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-dim); margin-top:14px; line-height:1.5;">
+            Non-linear Decision Trees achieved near-perfect correlation (R² = 1.0000) translating wearable IMU tremor metrics to clinical Center of Pressure (CoP) sway boundaries.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         TAB 3: LIVE MODEL TESTING & PLAYGROUND
+         ==================================================================== -->
+    <main id="tab-testing" class="tab-pane" role="tabpanel">
+      <div class="section-header">
+        <span class="section-tag">Interactive AI Lab</span>
+        <h3>Live Model Testing & Output Playground</h3>
+        <p>Test real patient sensor windows from the test set, tweak kinematic parameters in real time, and observe multi-class exercise classification, stability scoring, and clinical recommendations.</p>
+      </div>
+
+      <div class="testing-playground">
+        <!-- Control Panel (Left) -->
+        <div class="control-panel-card">
+          
+          <!-- Model Selection -->
+          <div class="form-group">
+            <label for="playground-model-select">1. Select AI Model Engine</label>
+            <select id="playground-model-select" class="custom-select">
+              <option value="xgboost_opt">XGBoost (Optimized & Balanced F1)</option>
+              <option value="random_forest_opt">Random Forest (Baseline High Accuracy)</option>
+              <option value="xgboost_transfer">Transfer-Learned XGBoost (Domain Adapted)</option>
+            </select>
+          </div>
+
+          <!-- Quick Load Activity Presets -->
+          <div class="form-group">
+            <label>2. Load Real Patient Test Window</label>
+            <div class="preset-grid">
+              <button class="preset-btn active" data-activity="Walking">
+                <span class="icon">🚶</span>
+                <span class="name">Walking</span>
+              </button>
+              <button class="preset-btn" data-activity="Heel-Toe Gait">
+                <span class="icon">👟</span>
+                <span class="name">Heel-Toe</span>
+              </button>
+              <button class="preset-btn" data-activity="Hip Abduction">
+                <span class="icon">🦵</span>
+                <span class="name">Hip Abduct</span>
+              </button>
+              <button class="preset-btn" data-activity="Knee Flexion">
+                <span class="icon">🦿</span>
+                <span class="name">Knee Flex</span>
+              </button>
+              <button class="preset-btn" data-activity="Squat">
+                <span class="icon">🏋️</span>
+                <span class="name">Squat</span>
+              </button>
+              <button class="preset-btn" data-activity="Abnormal Gait">
+                <span class="icon">⚠️</span>
+                <span class="name">Abnormal</span>
+              </button>
+            </div>
+
+            <div class="action-row">
+              <button id="btn-random-sample" class="btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                Random Test Sample
+              </button>
+            </div>
+          </div>
+
+          <!-- Feature Sliders (Fine-Tuning) -->
+          <div class="form-group">
+            <div class="sliders-header">
+              <label style="margin:0;">3. Kinematic Feature Parameters</label>
+              <span>Fine-Tune Values</span>
+            </div>
+
+            <div class="sliders-scroll">
+              <div class="slider-item">
+                <div class="slider-info">
+                  <span class="lbl">Vertical Spectral Entropy (az_freq_entropy)</span>
+                  <span class="val" id="val-az_freq_entropy">2.45</span>
+                </div>
+                <input type="range" class="range-slider" data-feature="az_freq_entropy" min="0" max="6" step="0.05" value="2.45">
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-info">
+                  <span class="lbl">Angular Velocity Variance (gx_var)</span>
+                  <span class="val" id="val-gx_var">1.12</span>
+                </div>
+                <input type="range" class="range-slider" data-feature="gx_var" min="0" max="10" step="0.05" value="1.12">
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-info">
+                  <span class="lbl">Gyro Rotational Energy (gx_spec_energy)</span>
+                  <span class="val" id="val-gx_spec_energy">85.4</span>
+                </div>
+                <input type="range" class="range-slider" data-feature="gx_spec_energy" min="0" max="500" step="1" value="85.4">
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-info">
+                  <span class="lbl">Lateral Acceleration StdDev (ay_std)</span>
+                  <span class="val" id="val-ay_std">1.80</span>
+                </div>
+                <input type="range" class="range-slider" data-feature="ay_std" min="0" max="10" step="0.05" value="1.80">
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-info">
+                  <span class="lbl">Zero-Crossing Rate (az_zcr)</span>
+                  <span class="val" id="val-az_zcr">0.15</span>
+                </div>
+                <input type="range" class="range-slider" data-feature="az_zcr" min="0" max="0.8" step="0.01" value="0.15">
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-info">
+                  <span class="lbl">Mediolateral Range (ay_range)</span>
+                  <span class="val" id="val-ay_range">6.20</span>
+                </div>
+                <input type="range" class="range-slider" data-feature="ay_range" min="0" max="30" step="0.2" value="6.20">
+              </div>
+            </div>
+          </div>
+
+          <button id="btn-run-inference" class="btn-primary-run">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Run Live AI Inference
+          </button>
+        </div>
+
+        <!-- Output Display Panel (Right) -->
+        <div class="output-display-card">
+          <div class="output-header">
+            <h4 style="font-family:var(--font-display); font-size:1.1rem; color:#ffffff;">AI Classification & Rehabilitation Telemetry</h4>
+            <div class="latency-pill" id="pred-latency">0.00 ms</div>
+          </div>
+
+          <!-- Primary Predicted Card -->
+          <div class="prediction-box">
+            <div class="pred-content-row">
+              <div class="pred-title-group">
+                <div class="pred-icon-circle" id="pred-icon">🚶</div>
+                <div>
+                  <div class="pred-name" id="pred-name">Walking</div>
+                  <div class="pred-conf" id="pred-conf">Confidence: <b>92.4%</b></div>
+                </div>
+              </div>
+              <div id="pred-ground-truth-badge" class="ground-truth-badge match">
+                ✓ Matches Ground Truth (Walking)
+              </div>
+            </div>
+          </div>
+
+          <!-- Probability Distribution Bars -->
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-size:0.78rem; text-transform:uppercase; font-weight:700; color:var(--text-dim); letter-spacing:1px;">Multi-Class Probability Distribution</span>
+              <span style="font-size:0.75rem; color:var(--text-dim);">6 Classes Evaluated</span>
+            </div>
+            <div class="probas-list" id="pred-probas-list">
+              <!-- Populated via JavaScript -->
+            </div>
+          </div>
+
+          <!-- Dual Telemetry: Stability & Kinematic Smoothness -->
+          <div class="metrics-dual-row">
+            <div class="metric-card-sm">
+              <div class="metric-sm-title">CoP Stability Index</div>
+              <div class="metric-sm-val" id="pred-stability-score" style="color:var(--emerald-primary);">88.4%</div>
+              <div class="metric-sm-status status-green" id="pred-stability-category">Excellent (Low Sway Area)</div>
+              <div style="font-size:0.72rem; color:var(--text-dim); margin-top:6px;" id="pred-stability-desc">
+                Minimal corrective ankle sway. Symmetric load distribution.
+              </div>
+            </div>
+
+            <div class="metric-card-sm">
+              <div class="metric-sm-title">Kinematic Smoothness</div>
+              <div class="metric-sm-val" id="pred-jerk-val" style="color:var(--cyan-primary);">3.42 m/s³</div>
+              <div class="metric-sm-status status-green" id="pred-smoothness-status">Fluid & Coordinated</div>
+              <div style="font-size:0.72rem; color:var(--text-dim); margin-top:6px;">
+                Low RMS Jerk & SPARC arc length confirms absence of spastic muscle tremor.
+              </div>
+            </div>
+          </div>
+
+          <!-- Clinical Rehabilitation Notes -->
+          <div class="clinical-box">
+            <h5>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+              Clinical Rehabilitation Guidance
+            </h5>
+            <p id="pred-clinical-notes" style="margin-bottom:6px;">
+              Regular symmetric gait cycle observed. Stride frequency consistent with functional mobility.
+            </p>
+            <p style="color:var(--text-main); font-weight:500;" id="pred-rehab-rec">
+              <strong>Action:</strong> Safe for progressive weight-bearing and unassisted dynamic gait exercises.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         TAB 4: BATCH TESTING & ACCURACY VERIFICATION
+         ==================================================================== -->
+    <main id="tab-batch" class="tab-pane" role="tabpanel">
+      <div class="section-header">
+        <span class="section-tag">Empirical Verification</span>
+        <h3>Batch Model Evaluation & Live Confusion Matrix</h3>
+        <p>Run immediate batch evaluations against unseen ground-truth patient windows from the test set to verify real-time accuracy and per-class precision/recall.</p>
+      </div>
+
+      <div class="batch-control-card">
+        <div class="batch-inputs-row">
+          <div class="form-group" style="margin:0;">
+            <label for="batch-model-select">Select Model to Evaluate</label>
+            <select id="batch-model-select" class="custom-select">
+              <option value="random_forest_opt">Random Forest (Baseline Champion)</option>
+              <option value="xgboost_opt">XGBoost (Optimized & Balanced)</option>
+              <option value="xgboost_transfer">Transfer-Learned XGBoost (Domain Adapted)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin:0;">
+            <label for="batch-sample-count">Number of Test Samples</label>
+            <select id="batch-sample-count" class="custom-select">
+              <option value="50">50 Windows (Quick Smoke Test)</option>
+              <option value="100" selected>100 Windows (Standard Validation)</option>
+              <option value="250">250 Windows (Thorough Audit)</option>
+              <option value="500">500 Windows (Deep Evaluation)</option>
+            </select>
+          </div>
+
+          <button id="btn-run-batch" class="btn-batch-run">
+            Run Live Evaluation
+          </button>
+        </div>
+      </div>
+
+      <div id="batch-results-container" class="batch-results-wrap" style="display:none;">
+        <!-- Left: Live Confusion Matrix Table -->
+        <div class="chart-card">
+          <h4>
+            <span>Live Confusion Matrix</span>
+            <span style="font-size:0.75rem; color:var(--text-dim); font-weight:400;">Predictions vs Ground Truth</span>
+          </h4>
+          <table class="matrix-grid-table" id="batch-matrix-table">
+            <!-- Populated via JavaScript -->
+          </table>
+
+          <div style="display:flex; justify-content:space-around; margin-top:20px; border-top:1px solid var(--border-color); padding-top:14px;">
+            <div style="text-align:center;">
+              <div style="font-size:0.72rem; color:var(--text-dim); text-transform:uppercase;">Evaluated Accuracy</div>
+              <div id="batch-acc-val" style="font-family:var(--font-display); font-size:1.6rem; font-weight:800; color:var(--emerald-primary);">0%</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.72rem; color:var(--text-dim); text-transform:uppercase;">Correct Windows</div>
+              <div id="batch-correct-val" style="font-family:var(--font-display); font-size:1.6rem; font-weight:800; color:var(--cyan-primary);">0 / 0</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.72rem; color:var(--text-dim); text-transform:uppercase;">Inference Latency</div>
+              <div id="batch-latency-val" style="font-family:var(--font-display); font-size:1.6rem; font-weight:800; color:#818cf8;">0 ms</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Per-Class Precision & Recall Table -->
+        <div class="chart-card">
+          <h4>
+            <span>Per-Class Classification Metrics</span>
+            <span style="font-size:0.75rem; color:var(--text-dim); font-weight:400;">Precision, Recall, F1</span>
+          </h4>
+          <table class="custom-table" style="font-size:0.8rem;">
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Support</th>
+                <th>Hits</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+              </tr>
+            </thead>
+            <tbody id="batch-class-stats-body">
+              <!-- Populated via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         TAB 5: CLINICAL SCIENCE & METHODOLOGY
+         ==================================================================== -->
+    <main id="tab-science" class="tab-pane" role="tabpanel">
+      <div class="section-header">
+        <span class="section-tag">Scientific Foundations</span>
+        <h3>Clinical Balance, Sway Geometry & Smoothness</h3>
+        <p>Mathematical principles behind our Center of Pressure (CoP) convex hull stability index, RMS Jerk derivatives, and edge mobile deployment.</p>
+      </div>
+
+      <div class="science-grid">
+        <!-- Science Card 1: CoP Convex Hull Sway -->
+        <div class="science-card">
+          <h4>1. Center of Pressure (CoP) Convex Hull Sway Area</h4>
+          <p>
+            The Center of Pressure (CoP) represents the focal point of the body's downward force vector on the ground plane. Using computational geometry, our pipeline computes the <strong>Convex Hull</strong> (the minimal bounding polygon enclosing all (cop_x, cop_y) coordinates over a 2.0s window) to derive the mathematical Sway Area in cm².
+          </p>
+          <div class="science-img-box">
+            <img src="/results/cop_sway_comparison.png" alt="CoP Sway Comparison">
+          </div>
+          <div style="margin-top:14px; font-size:0.82rem; color:var(--text-muted);">
+            <strong>Finding:</strong> Healthy stance exhibits a tight focal cluster (Sway Area &lt; 2.5 cm², Stability &gt; 90%). Post-ORIF ligament laxity produces wide multi-directional sway loops (Stability &lt; 35%).
+          </div>
+        </div>
+
+        <!-- Science Card 2: Kinematic Smoothness & Spasticity -->
+        <div class="science-card">
+          <h4>2. Kinematic Smoothness: RMS Jerk & SPARC</h4>
+          <p>
+            Knowing <em>what</em> exercise a patient is doing is only half the diagnosis; clinicians must measure <em>movement quality</em>. We calculate <strong>RMS Jerk</strong> (the 3rd derivative of position, m/s³) and <strong>SPARC</strong> (Spectral Arc Length) over the Fourier spectrum to detect spastic muscle tremors and hesitation during ankle flexion.
+          </p>
+          <div class="science-img-box">
+            <img src="/results/smoothness_comparison.png" alt="Kinematic Smoothness Comparison">
+          </div>
+          <div style="margin-top:14px; font-size:0.82rem; color:var(--text-muted);">
+            <strong>Metric Verification:</strong> Fluid coordinated gait yields RMS Jerk of 2.23 m/s³, whereas post-operative compensatory spasms spike above 18.2 m/s³.
+          </div>
+        </div>
+
+        <!-- Science Card 3: SHAP Global Explainability -->
+        <div class="science-card">
+          <h4>3. Explainable AI: SHAP Global Feature Attributions</h4>
+          <p>
+            To avoid black-box clinical decision making, we extracted SHapley Additive exPlanations (SHAP) across all exercise classes. The analysis confirms that vertical acceleration entropy (<code>az_freq_entropy</code>) and gyroscopic variance (<code>gx_var</code>) are the primary differentiators between rhythmic walking and static balance.
+          </p>
+          <div class="science-img-box">
+            <img src="/results/feature_importance_shap.png" alt="SHAP Feature Importance Plot">
+          </div>
+        </div>
+
+        <!-- Science Card 4: Mobile ONNX & Hardware Deployment -->
+        <div class="science-card">
+          <h4>4. Edge Deployment & Arduino Wearable Setup</h4>
+          <p>
+            For clinical and at-home adoption, the models cannot rely on cloud servers. We optimized and serialized the top models into ONNX format for native execution inside the AKIRA Android app using ONNX Runtime Mobile.
+          </p>
+          <ul class="stage-bullets" style="margin-top:16px;">
+            <li><strong>rehab_xgb.onnx (564 KB):</strong> Ultra-lightweight gradient boosting tree for battery-efficient mobile execution.</li>
+            <li><strong>rehab_rf.onnx (64.5 MB):</strong> High-capacity ensemble for clinical workstation evaluation.</li>
+            <li><strong>Hardware Sensor Stream (Phase 8):</strong> Arduino Nano 33 BLE / MPU6050 sampling at 100Hz synchronously over BLE, matching the PHYTMO calibration frame.</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div>
+        <strong>AKIRA Rehabilitation System</strong> — Ankle Recovery & Kinetic Intelligence Research
+      </div>
+      <div class="footer-links">
+        <a href="#overview">Project Roadmap</a>
+        <a href="#benchmarks">Model Benchmarks</a>
+        <a href="#testing">Live Playground</a>
+        <a href="#science">Clinical Science</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- CDN Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
