@@ -85,8 +85,9 @@ fun BleDeviceScreen(
         }
     }
 
-    // Automatically trigger a scan when opening this screen if disconnected
+    // Load bonded/paired devices and automatically trigger scan if disconnected
     LaunchedEffect(Unit) {
+        viewModel.loadBondedDevices()
         if (connectionState is BleConnectionState.Disconnected && discoveredDevices.isEmpty()) {
             viewModel.startScan()
         }
@@ -173,164 +174,201 @@ private fun DiscoveryView(
 ) {
     val isScanning = connectionState is BleConnectionState.Scanning
 
-    // 1. Location (GPS) Warning Card if location is off
-    if (!isLocationOn) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp)
-        ) {
-            Row(
-                modifier = Modifier.padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // 1. Location (GPS) Warning Card if location is off
+        if (!isLocationOn) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
             ) {
-                Icon(
-                    Icons.Default.LocationOff,
-                    contentDescription = "Location OFF",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(28.dp)
-                )
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        "Location (GPS) is Turned OFF",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onErrorContainer
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.LocationOff,
+                        contentDescription = "Location OFF",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(28.dp)
                     )
-                    Text(
-                        "Xiaomi/MIUI and Android suppress BLE scan results when Location is OFF.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Button(
-                        onClick = onOpenLocationSettings,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
+                    Spacer(Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Location (GPS) is Turned OFF",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onErrorContainer
                         )
-                    ) {
-                        Text("Turn On Location Settings", style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            "Xiaomi/MIUI and Android suppress BLE scan results when Location is OFF.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Button(
+                            onClick = onOpenLocationSettings,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("Turn On Location Settings", style = MaterialTheme.typography.labelMedium)
+                        }
                     }
                 }
             }
         }
-    }
 
-    // 2. Error banner if last scan or operation failed
-    if (connectionState is BleConnectionState.Error) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
-            ),
+        // 2. Error banner if last scan or operation failed
+        if (connectionState is BleConnectionState.Error) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Warning,
+                        contentDescription = "Error",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        connectionState.message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+
+        // 3. Scan Controls Header
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 12.dp)
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    if (isScanning) "Searching for Sensors..." else "Nearby BLE Devices",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    if (discoveredDevices.isEmpty()) {
+                        if (isScanning) "Listening for BLE advertisements..." else "0 devices found"
+                    } else {
+                        "${discoveredDevices.size} device(s) found"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (isScanning) {
+                OutlinedButton(onClick = onStopScan) {
+                    Text("Stop Scan")
+                }
+            } else {
+                Button(onClick = onStartScan) {
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text("Scan Again")
+                }
+            }
+        }
+
+        // 4. Linear progress indicator during scan
+        if (isScanning) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+        } else {
+            Spacer(Modifier.height(8.dp))
+        }
+
+        // 5. Device list or Empty State
+        if (discoveredDevices.isEmpty()) {
+            EmptyDiscoveryPlaceholder(isScanning = isScanning)
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                items(
+                    items = discoveredDevices,
+                    key = { it.address }
+                ) { device ->
+                    DiscoveredDeviceCard(
+                        device = device,
+                        onConnect = { onConnectDevice(device.address) }
+                    )
+                }
+            }
+        }
+
+        // 6. Direct Connect Option for known/saved ESP32 MAC (from nRF Connect)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            )
         ) {
             Row(
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Default.Warning,
-                    contentDescription = "Error",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    connectionState.message,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.weight(1f)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Direct Connect by MAC",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        "D4:E9:F4:68:63:9E (ESP32-REHAB)",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                OutlinedButton(onClick = { onConnectDevice("D4:E9:F4:68:63:9E") }) {
+                    Text("Direct Connect")
+                }
             }
         }
-    }
 
-    // 3. Scan Controls Header
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column {
-            Text(
-                if (isScanning) "Searching for Sensors..." else "Nearby BLE Devices",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                if (discoveredDevices.isEmpty()) {
-                    if (isScanning) "Listening for BLE advertisements..." else "0 devices found"
-                } else {
-                    "${discoveredDevices.size} device(s) found"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        if (isScanning) {
-            OutlinedButton(onClick = onStopScan) {
-                Text("Stop Scan")
-            }
-        } else {
-            Button(onClick = onStartScan) {
-                Icon(
-                    Icons.Default.Refresh,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(Modifier.width(4.dp))
-                Text("Scan Again")
-            }
-        }
-    }
-
-    // 4. Linear progress indicator during scan
-    if (isScanning) {
-        LinearProgressIndicator(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-    } else {
         Spacer(Modifier.height(8.dp))
-    }
-
-    // 5. Device list or Empty State
-    if (discoveredDevices.isEmpty()) {
-        EmptyDiscoveryPlaceholder(isScanning = isScanning)
-    } else {
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
+        OutlinedButton(
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            items(
-                items = discoveredDevices,
-                key = { it.address }
-            ) { device ->
-                DiscoveredDeviceCard(
-                    device = device,
-                    onConnect = { onConnectDevice(device.address) }
-                )
-            }
+            Text("Back to Dashboard")
         }
-    }
-
-    Spacer(Modifier.height(8.dp))
-    OutlinedButton(
-        onClick = onBack,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text("Back to Dashboard")
     }
 }
 
@@ -350,49 +388,79 @@ private fun DiscoveredDeviceCard(
                 containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
             )
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            device.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                "⭐ AKIRA SENSOR",
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                device.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
                             )
+                            Spacer(Modifier.width(8.dp))
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primary
+                            ) {
+                                Text(
+                                    "⭐ AKIRA SENSOR",
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                            if (device.isBonded) {
+                                Spacer(Modifier.width(6.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                ) {
+                                    Text(
+                                        "PAIRED",
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
                         }
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            device.address,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            "Signal: ${device.rssi} dBm",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = if (device.rssi > -70) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                        )
                     }
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        device.address,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        "Signal: ${device.rssi} dBm",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Medium,
-                        color = if (device.rssi > -70) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                    )
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = onConnect) {
+                        Text("Connect")
+                    }
                 }
-                Spacer(Modifier.width(8.dp))
-                Button(onClick = onConnect) {
-                    Text("Connect")
+
+                if (device.isConnectedElsewhere) {
+                    Spacer(Modifier.height(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.errorContainer
+                    ) {
+                        Text(
+                            "⚠️ Connected to another app (nRF Connect). Please tap DISCONNECT in nRF Connect so this app can stream.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
                 }
             }
         }
@@ -410,11 +478,26 @@ private fun DiscoveredDeviceCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        device.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            device.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium
+                        )
+                        if (device.isBonded) {
+                            Spacer(Modifier.width(6.dp))
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            ) {
+                                Text(
+                                    "PAIRED",
+                                    fontSize = 10.sp,
+                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                    }
                     Text(
                         device.address,
                         style = MaterialTheme.typography.bodySmall,
@@ -485,15 +568,18 @@ private fun EmptyDiscoveryPlaceholder(isScanning: Boolean) {
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
+                    "• IMPORTANT: If ESP32 is currently connected in nRF Connect, tap DISCONNECT in nRF Connect. (A connected ESP32 stops advertising and cannot accept a second connection!)",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
                     "• Check ESP32 is powered on (OLED shows 'Waiting for BLE...')",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
                     "• Check phone's Location (GPS) is turned ON in Quick Settings",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    "• Ensure no other phone or computer is currently paired to the ESP32",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(

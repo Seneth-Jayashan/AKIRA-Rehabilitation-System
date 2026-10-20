@@ -93,6 +93,63 @@ class BleManager @Inject constructor(
         }
     }
 
+    fun isTargetName(name: String?): Boolean {
+        if (name == null) return false
+        return name.startsWith(BleConstants.DEVICE_NAME_PREFIX, ignoreCase = true) ||
+               name.contains("ESP32", ignoreCase = true) ||
+               name.contains("REHAB", ignoreCase = true) ||
+               name.contains("AKIRA", ignoreCase = true)
+    }
+
+    /**
+     * Inspects paired/bonded Bluetooth devices in the Android OS and any devices
+     * currently connected to GATT profiles. This guarantees that if the ESP32 was
+     * paired in phone settings or connected in nRF Connect, it appears immediately.
+     */
+    fun loadBondedAndConnectedDevices() {
+        val currentAdapter = adapter ?: return
+        try {
+            val bonded = currentAdapter.bondedDevices ?: emptySet()
+            val connected = try {
+                bluetoothManager.getConnectedDevices(BluetoothProfile.GATT) ?: emptyList()
+            } catch (e: Exception) {
+                emptyList()
+            }
+
+            val allKnown = (bonded + connected).distinctBy { it.address }
+            if (allKnown.isNotEmpty()) {
+                val currentList = _discoveredDevices.value.toMutableList()
+                for (device in allKnown) {
+                    val name = runCatching { device.name }.getOrNull() ?: "Paired Device (${device.address.takeLast(5)})"
+                    val isTarget = isTargetName(name)
+                    val isConnectedElsewhere = connected.any { it.address == device.address }
+                    val existingIndex = currentList.indexOfFirst { it.address == device.address }
+                    val item = DiscoveredBleDevice(
+                        name = name,
+                        address = device.address,
+                        rssi = if (existingIndex >= 0) currentList[existingIndex].rssi else -55,
+                        isTarget = isTarget,
+                        isBonded = bonded.any { it.address == device.address },
+                        isConnectedElsewhere = isConnectedElsewhere
+                    )
+                    if (existingIndex >= 0) {
+                        currentList[existingIndex] = item
+                    } else {
+                        currentList.add(item)
+                    }
+                }
+                currentList.sortWith(
+                    compareByDescending<DiscoveredBleDevice> { it.isTarget }
+                        .thenByDescending { it.isBonded }
+                        .thenByDescending { it.rssi }
+                )
+                _discoveredDevices.value = currentList
+            }
+        } catch (e: SecurityException) {
+            Log.w(BleConstants.LOG_TAG, "SecurityException loading bonded devices", e)
+        }
+    }
+
     private val scanTimeoutRunnable = Runnable {
         if (_connectionState.value is BleConnectionState.Scanning) {
             Log.w(BleConstants.LOG_TAG, "Scan completed after ${BleConstants.SCAN_TIMEOUT_MILLIS}ms")
@@ -101,7 +158,7 @@ class BleManager @Inject constructor(
             if (foundCount == 0) {
                 val locHint = if (!isLocationEnabled()) " Note: Location (GPS) is currently OFF. Xiaomi/MIUI requires Location ON to discover BLE devices." else ""
                 _connectionState.value = BleConnectionState.Error(
-                    "No BLE devices found within range.$locHint Ensure the ESP32 sensor is powered on and advertising."
+                    "No BLE devices found within range.$locHint If ESP32 is connected in nRF Connect, please tap DISCONNECT in nRF Connect."
                 )
             } else {
                 _connectionState.value = BleConnectionState.Disconnected
@@ -129,8 +186,9 @@ class BleManager @Inject constructor(
         // Stop any previous scan session cleanly
         stopScan()
 
-        // Clear previous discoveries for a fresh scan
+        // Clear previous discoveries for a fresh scan and load bonded devices
         _discoveredDevices.value = emptyList()
+        loadBondedAndConnectedDevices()
 
         val bleScanner = currentAdapter.bluetoothLeScanner
         if (bleScanner == null) {
@@ -448,11 +506,13 @@ private object BluetoothGattDescriptorValue {
         android.bluetooth.BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
 }
 
-/** Represents a BLE peripheral discovered during scanning */
+/** Represents a BLE peripheral discovered during scanning or paired in system */
 data class DiscoveredBleDevice(
     val name: String,
     val address: String,
     val rssi: Int,
     val isTarget: Boolean,
+    val isBonded: Boolean = false,
+    val isConnectedElsewhere: Boolean = false,
     val lastSeenTimestamp: Long = System.currentTimeMillis()
 )

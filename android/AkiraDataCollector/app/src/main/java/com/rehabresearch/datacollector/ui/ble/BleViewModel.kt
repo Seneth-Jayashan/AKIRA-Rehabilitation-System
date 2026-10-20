@@ -38,6 +38,7 @@ class BleViewModel @Inject constructor(
 
     fun startScan() = bleManager.startScan()
     fun stopScan() = bleManager.stopScan()
+    fun loadBondedDevices() = bleManager.loadBondedAndConnectedDevices()
     fun connect(address: String) = bleManager.connect(address)
     fun disconnect() = bleManager.disconnect()
 }
