@@ -35,6 +35,9 @@
         <button class="tab-btn" data-tab="benchmarks" role="tab">
           <span>📊</span> Model Benchmarks
         </button>
+        <button class="tab-btn" data-tab="ble-stream" role="tab" id="nav-tab-ble">
+          <span>📡</span> Live BLE Sensor Hub
+        </button>
         <button class="tab-btn" data-tab="testing" role="tab">
           <span>🧪</span> Live Testing
         </button>
@@ -279,7 +282,304 @@
     </main>
 
     <!-- ====================================================================
-         TAB 3: LIVE MODEL TESTING & PLAYGROUND
+         TAB 3: LIVE BLE IMU SENSOR HUB & REAL-TIME MODEL CHECKER
+         ==================================================================== -->
+    <main id="tab-ble-stream" class="tab-pane" role="tabpanel">
+      <div class="section-header">
+        <span class="section-tag">Direct Hardware & Real-Time AI</span>
+        <h3>Real-Time BLE IMU Sensor Stream & Multi-Model Accuracy Checker</h3>
+        <p>Connect your physical ESP32 Dual-IMU sensor over Web Bluetooth (or run high-fidelity hardware simulation). Stream 100Hz 12-channel kinematics, calculate dynamic ankle Range of Motion (ROM), and evaluate exercise recognition and stability across all models in real time.</p>
+      </div>
+
+      <!-- BLE Connection & Stream Control Bar -->
+      <div class="ble-control-card">
+        <div class="ble-control-header">
+          <div class="ble-device-status-wrap">
+            <div class="ble-status-dot" id="ble-connection-dot"></div>
+            <div>
+              <div class="ble-status-title" id="ble-status-text">Disconnected (Ready to Pair)</div>
+              <div class="ble-status-sub" id="ble-status-details">Target Device: ESP32-REHAB | Nordic UART Service @ 100Hz</div>
+            </div>
+          </div>
+
+          <div class="ble-actions-group">
+            <button id="btn-ble-connect" class="btn-ble-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"></path></svg>
+              <span>Connect ESP32-REHAB (BLE)</span>
+            </button>
+            <button id="btn-ble-disconnect" class="btn-ble-secondary" style="display:none;">
+              Disconnect
+            </button>
+            <button id="btn-ble-simulate" class="btn-ble-sim">
+              <span id="sim-btn-icon">🎮</span> <span id="sim-btn-text">Simulate Real BLE Stream</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Telemetry Meters Bar -->
+        <div class="ble-telemetry-bar">
+          <div class="telemetry-pill">
+            <span class="tel-label">Sample Rate</span>
+            <span class="tel-val" id="tel-rate">0.0 Hz</span>
+          </div>
+          <div class="telemetry-pill">
+            <span class="tel-label">Packets In</span>
+            <span class="tel-val" id="tel-packets">0</span>
+          </div>
+          <div class="telemetry-pill">
+            <span class="tel-label">Window Buffer</span>
+            <span class="tel-val" id="tel-buffer">0 / 200</span>
+          </div>
+          <div class="telemetry-pill">
+            <span class="tel-label">Inference Interval</span>
+            <span class="tel-val" id="tel-interval">0.8 s</span>
+          </div>
+          <div class="telemetry-pill">
+            <span class="tel-label">Model Input Channel</span>
+            <select id="sensor-channel-select" class="channel-select-mini">
+              <option value="s1" selected>Sensor 1 (Proximal / Tibia 0x68)</option>
+              <option value="s2">Sensor 2 (Distal / Foot 0x69)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulation Mode Settings (Collapsible / Visible when simulation active) -->
+      <div id="sim-controls-panel" class="sim-panel" style="display:none;">
+        <div class="sim-panel-content">
+          <span style="font-size:0.85rem; font-weight:600; color:var(--cyan-primary);">Simulated Exercise Movement:</span>
+          <div class="sim-activities-row">
+            <button class="sim-act-btn active" data-act="Walking">🚶 Walking</button>
+            <button class="sim-act-btn" data-act="Heel-Toe Gait">👟 Heel-Toe Gait</button>
+            <button class="sim-act-btn" data-act="Squat">🏋️ Squats</button>
+            <button class="sim-act-btn" data-act="Knee Flexion">🦿 Knee Flexion</button>
+            <button class="sim-act-btn" data-act="Hip Abduction">🦵 Hip Abduction</button>
+            <button class="sim-act-btn" data-act="Abnormal Gait">⚠️ Abnormal Gait</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Kinematic Waveforms & Ankle ROM -->
+      <div class="ble-grid-two">
+        <!-- Live Waveform Oscilloscope -->
+        <div class="chart-card ble-scope-card">
+          <div class="scope-header">
+            <h4>
+              <span>📈 Real-Time Kinematic Waveforms (100 Hz Stream)</span>
+              <span id="scope-channel-label" style="font-size:0.75rem; color:var(--cyan-primary); font-weight:500;">Tibia (0x68) & Foot (0x69)</span>
+            </h4>
+            <div class="scope-legend">
+              <label class="legend-tag tag-ax"><input type="checkbox" id="chk-ax" checked> Ax</label>
+              <label class="legend-tag tag-ay"><input type="checkbox" id="chk-ay" checked> Ay</label>
+              <label class="legend-tag tag-az"><input type="checkbox" id="chk-az" checked> Az</label>
+              <label class="legend-tag tag-gx"><input type="checkbox" id="chk-gx" checked> Gx</label>
+              <label class="legend-tag tag-gy"><input type="checkbox" id="chk-gy" checked> Gy</label>
+              <label class="legend-tag tag-gz"><input type="checkbox" id="chk-gz" checked> Gz</label>
+            </div>
+          </div>
+          <div class="scope-canvas-wrap">
+            <canvas id="canvas-oscilloscope" width="700" height="220"></canvas>
+          </div>
+          <div class="scope-footer-telemetry">
+            <div>Ax: <span id="tel-ax">0.00</span> g | Ay: <span id="tel-ay">0.00</span> g | Az: <span id="tel-az">0.00</span> g</div>
+            <div>Gx: <span id="tel-gx">0.0</span> °/s | Gy: <span id="tel-gy">0.0</span> °/s | Gz: <span id="tel-gz">0.0</span> °/s</div>
+          </div>
+        </div>
+
+        <!-- Ankle Joint Range of Motion (ROM) & Kinematics -->
+        <div class="chart-card rom-card">
+          <h4>
+            <span>📐 Dynamic Ankle Kinematics & Range of Motion (ROM)</span>
+            <span style="font-size:0.75rem; color:var(--text-dim); font-weight:400;">Dual-IMU Relative Angle</span>
+          </h4>
+
+          <div class="rom-display-center">
+            <div class="rom-dial-wrap">
+              <svg class="rom-dial-svg" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10" />
+                <circle id="rom-dial-arc" cx="60" cy="60" r="48" fill="none" stroke="var(--cyan-primary)" stroke-width="10" stroke-dasharray="301.6" stroke-dashoffset="150" stroke-linecap="round" />
+              </svg>
+              <div class="rom-dial-value-box">
+                <div id="rom-angle-val" class="rom-angle-text">0.0°</div>
+                <div id="rom-motion-type" class="rom-motion-lbl">Neutral (0°)</div>
+              </div>
+            </div>
+
+            <div class="rom-stats-grid">
+              <div class="rom-stat-box">
+                <div class="lbl">Max Dorsiflexion</div>
+                <div class="val cyan" id="rom-max-df">0.0°</div>
+                <div class="sub">Norm: ≥ 20.0°</div>
+              </div>
+              <div class="rom-stat-box">
+                <div class="lbl">Max Plantarflexion</div>
+                <div class="val emerald" id="rom-max-pf">0.0°</div>
+                <div class="sub">Norm: ≥ 45.0°</div>
+              </div>
+              <div class="rom-stat-box">
+                <div class="lbl">Total Arc ROM</div>
+                <div class="val indigo" id="rom-total-arc">0.0°</div>
+                <div class="sub" id="rom-norm-badge">Normal Range</div>
+              </div>
+              <div class="rom-stat-box">
+                <div class="lbl">Repetitions</div>
+                <div class="val purple" id="live-rep-count">0</div>
+                <div class="sub" id="live-cadence">0 reps/min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Model Checking & Accuracy Verification Suite -->
+      <div class="model-check-section">
+        <div class="check-header-card">
+          <div class="check-title-group">
+            <span class="badge-pill">Clinical Verification Suite</span>
+            <h4>Verify AI Models in Real-Time & Check Accuracy</h4>
+            <p>Select what movement you are currently performing. As 200-sample windows stream in, all created models are evaluated simultaneously to check accuracy, consensus, and clinical metrics.</p>
+          </div>
+
+          <!-- Ground Truth Movement Selector -->
+          <div class="gt-selector-box">
+            <label>🎯 Current Active Movement (Ground Truth for Accuracy):</label>
+            <div class="gt-buttons-row">
+              <button class="gt-btn active" data-gt="Walking">🚶 Walking</button>
+              <button class="gt-btn" data-gt="Heel-Toe Gait">👟 Heel-Toe Gait</button>
+              <button class="gt-btn" data-gt="Squat">🏋️ Squat</button>
+              <button class="gt-btn" data-gt="Knee Flexion">🦿 Knee Flexion</button>
+              <button class="gt-btn" data-gt="Hip Abduction">🦵 Hip Abduction</button>
+              <button class="gt-btn" data-gt="Abnormal Gait">⚠️ Abnormal Gait</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Accuracy Scoreboard & Match Alert -->
+        <div class="live-scoreboard-grid">
+          <div class="score-card main-score">
+            <div class="score-lbl">Session Accuracy vs Ground Truth</div>
+            <div class="score-num" id="live-acc-percentage">--%</div>
+            <div class="score-sub" id="live-acc-tally">0 / 0 Windows Matched</div>
+          </div>
+
+          <div class="score-card match-card" id="live-match-banner">
+            <div class="match-icon" id="live-match-icon">⏳</div>
+            <div>
+              <div class="match-status" id="live-match-status">Waiting for Sensor Stream...</div>
+              <div class="match-desc" id="live-match-reason">Connect BLE sensor or enable simulation to start live verification.</div>
+            </div>
+          </div>
+
+          <div class="score-card consensus-score">
+            <div class="score-lbl">Model Ensemble Agreement</div>
+            <div class="score-num cyan" id="live-consensus-pct">--%</div>
+            <div class="score-sub" id="live-consensus-desc">Awaiting inference</div>
+          </div>
+        </div>
+
+        <!-- Simultaneous Multi-Model Comparison Cards -->
+        <div class="multi-model-grid">
+          
+          <!-- Model Card 1: Optimized XGBoost -->
+          <div class="model-eval-card" id="card-model-xgb">
+            <div class="model-eval-badge xgb-badge">Edge Champion</div>
+            <div class="model-eval-name">Optimized XGBoost</div>
+            <div class="model-eval-type">Gradient Boosted Decision Trees</div>
+            <div class="eval-pred-row">
+              <div class="eval-pred-icon" id="xgb-pred-icon">--</div>
+              <div>
+                <div class="eval-pred-label" id="xgb-pred-class">Awaiting Stream</div>
+                <div class="eval-pred-conf" id="xgb-pred-conf">Confidence: --%</div>
+              </div>
+            </div>
+            <div class="eval-match-indicator" id="xgb-match-indicator">Pending</div>
+            <div class="eval-probas-mini" id="xgb-probas-mini">
+              <!-- Dynamically generated mini probability bars -->
+            </div>
+            <div class="eval-footer-stat">Model Accuracy on Session: <strong id="xgb-session-acc">--%</strong></div>
+          </div>
+
+          <!-- Model Card 2: Random Forest Baseline -->
+          <div class="model-eval-card" id="card-model-rf">
+            <div class="model-eval-badge rf-badge">Baseline Champion</div>
+            <div class="model-eval-name">Random Forest</div>
+            <div class="model-eval-type">Ensemble Decision Forest (High Acc)</div>
+            <div class="eval-pred-row">
+              <div class="eval-pred-icon" id="rf-pred-icon">--</div>
+              <div>
+                <div class="eval-pred-label" id="rf-pred-class">Awaiting Stream</div>
+                <div class="eval-pred-conf" id="rf-pred-conf">Confidence: --%</div>
+              </div>
+            </div>
+            <div class="eval-match-indicator" id="rf-match-indicator">Pending</div>
+            <div class="eval-probas-mini" id="rf-probas-mini">
+              <!-- Dynamically generated mini probability bars -->
+            </div>
+            <div class="eval-footer-stat">Model Accuracy on Session: <strong id="rf-session-acc">--%</strong></div>
+          </div>
+
+          <!-- Model Card 3: Transfer-Learned XGBoost -->
+          <div class="model-eval-card" id="card-model-tl">
+            <div class="model-eval-badge tl-badge">Domain Adapted</div>
+            <div class="model-eval-name">Transfer XGBoost</div>
+            <div class="model-eval-type">Source-to-Target Calibrated Tree</div>
+            <div class="eval-pred-row">
+              <div class="eval-pred-icon" id="tl-pred-icon">--</div>
+              <div>
+                <div class="eval-pred-label" id="tl-pred-class">Awaiting Stream</div>
+                <div class="eval-pred-conf" id="tl-pred-conf">Confidence: --%</div>
+              </div>
+            </div>
+            <div class="eval-match-indicator" id="tl-match-indicator">Pending</div>
+            <div class="eval-probas-mini" id="tl-probas-mini">
+              <!-- Dynamically generated mini probability bars -->
+            </div>
+            <div class="eval-footer-stat">Model Accuracy on Session: <strong id="tl-session-acc">--%</strong></div>
+          </div>
+
+          <!-- Model Card 4: Postural Stability & Movement Quality -->
+          <div class="model-eval-card" id="card-model-stab">
+            <div class="model-eval-badge stab-badge">Clinical Quality</div>
+            <div class="model-eval-name">Stability & Smoothness</div>
+            <div class="model-eval-type">Force-Plate CoP Regressor (R²=1.0)</div>
+            <div class="stability-score-large" id="live-stab-score">--%</div>
+            <div class="stability-category-pill" id="live-stab-category">Pending Stream</div>
+            <div class="smoothness-row">
+              <div>RMS Jerk: <strong id="live-jerk-val">-- m/s³</strong></div>
+              <div>Status: <span id="live-smooth-status" class="smooth-status-text">--</span></div>
+            </div>
+            <div class="clinical-rec-mini" id="live-clinical-notes">
+              Sensor readings will provide real-time clinical sway and tremor telemetry.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Session Trial Recording & CSV Export Bar -->
+        <div class="recording-card">
+          <div class="recording-info">
+            <div class="rec-dot" id="rec-dot"></div>
+            <div>
+              <div class="rec-title" id="rec-status-title">Trial Recording: Idle</div>
+              <div class="rec-desc" id="rec-status-desc">Record real IMU packets with timestamps, predictions, and ground-truth labels for scientific audit.</div>
+            </div>
+          </div>
+          <div class="rec-actions">
+            <input type="text" id="rec-participant-id" class="rec-input" placeholder="Participant ID (e.g. P01)" value="P01">
+            <button id="btn-toggle-record" class="btn-rec">
+              <span id="rec-btn-icon">⏺️</span> <span id="rec-btn-text">Start Recording Trial</span>
+            </button>
+            <button id="btn-export-csv" class="btn-export" style="display:none;">
+              📥 Export CSV
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         TAB 4: LIVE MODEL TESTING & PLAYGROUND
          ==================================================================== -->
     <main id="tab-testing" class="tab-pane" role="tabpanel">
       <div class="section-header">
@@ -649,5 +949,6 @@
   <!-- CDN Dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/ble-controller.js"></script>
 </body>
 </html>

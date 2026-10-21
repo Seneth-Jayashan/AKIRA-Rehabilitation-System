@@ -24,10 +24,38 @@ import joblib
 # Paths setup
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AI_DIR = os.path.join(BASE_DIR, "aiModels")
-MODELS_DIR = os.path.join(AI_DIR, "models", "optimized")
+MODELS_BASE_DIR = os.path.join(AI_DIR, "models")
+RECOGNITION_DIR = os.path.join(MODELS_BASE_DIR, "recognition")
+STABILITY_DIR = os.path.join(MODELS_BASE_DIR, "stability")
+OPTIMIZED_DIR = os.path.join(MODELS_BASE_DIR, "optimized")
 DATA_DIR = os.path.join(AI_DIR, "datasets", "ml_ready")
 RESULTS_DIR = os.path.join(AI_DIR, "results")
 WEB_DIR = os.path.join(BASE_DIR, "web")
+
+def find_model_file(filename, preferred_folder):
+    """Finds a model file prioritizing its categorized folder, then falling back to optimized/ or base models/."""
+    candidates = [
+        os.path.join(preferred_folder, filename),
+        os.path.join(OPTIMIZED_DIR, filename),
+        os.path.join(MODELS_BASE_DIR, filename)
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return candidates[0]
+
+# Add AI_DIR to sys.path for direct module imports
+if AI_DIR not in sys.path:
+    sys.path.insert(0, AI_DIR)
+
+try:
+    from src.preprocessing.filters import SignalFilter
+    from src.feature_extraction.extractors import FeatureExtractor
+    DSP_AVAILABLE = True
+    print("[AI Server] ✓ Loaded DSP Butterworth Filters & FeatureExtractor")
+except Exception as e:
+    DSP_AVAILABLE = False
+    print(f"[AI Server] Warning: Could not import DSP/FeatureExtractor: {e}")
 
 # Global Cache for Models & Data
 MODELS = {}
@@ -36,50 +64,61 @@ LE = None
 CLASS_NAMES = []
 FEATURE_NAMES = []
 
+
 def load_ai_assets():
     global MODELS, DATA, LE
     print("[AI Server] Loading Label Encoder...")
-    le_path = os.path.join(MODELS_DIR, "label_encoder.pkl")
+    le_path = find_model_file("label_encoder.pkl", RECOGNITION_DIR)
     CLASS_NAMES.clear()
     if os.path.exists(le_path):
         LE = joblib.load(le_path)
         CLASS_NAMES.extend(list(LE.classes_))
     else:
         CLASS_NAMES.extend(['Abnormal Gait', 'Heel-Toe Gait', 'Hip Abduction', 'Knee Flexion', 'Squat', 'Walking'])
-    print(f"[AI Server] Loaded classes: {CLASS_NAMES}")
+    print(f"[AI Server] Loaded classes ({len(CLASS_NAMES)}): {CLASS_NAMES}")
 
-    print("[AI Server] Loading Optimized Machine Learning Models...")
+    print("[AI Server] Loading Categorized Machine Learning Models...")
+    # 1. Exercise Recognition Models
     try:
-        xgb_path = os.path.join(MODELS_DIR, "best_xgboost.pkl")
+        xgb_path = find_model_file("best_xgboost.pkl", RECOGNITION_DIR)
         if os.path.exists(xgb_path):
             MODELS['xgboost_opt'] = joblib.load(xgb_path)
-            print("  ✓ Loaded Optimized XGBoost (Tuned Macro-F1)")
+            print("  ✓ [Recognition] Loaded Optimized XGBoost (Tuned Macro-F1)")
     except Exception as e:
         print(f"  ✗ Failed to load XGBoost: {e}")
 
     try:
-        rf_path = os.path.join(MODELS_DIR, "best_random_forest.pkl")
+        rf_path = find_model_file("best_random_forest.pkl", RECOGNITION_DIR)
         if os.path.exists(rf_path):
             MODELS['random_forest_opt'] = joblib.load(rf_path)
-            print("  ✓ Loaded Optimized Random Forest (High Accuracy)")
+            print("  ✓ [Recognition] Loaded Optimized Random Forest (High Accuracy)")
     except Exception as e:
         print(f"  ✗ Failed to load Random Forest: {e}")
 
     try:
-        stab_path = os.path.join(MODELS_DIR, "best_stability_regressor.pkl")
+        tl_path = find_model_file("transfer_learned_xgboost.pkl", RECOGNITION_DIR)
+        if os.path.exists(tl_path):
+            MODELS['xgboost_transfer'] = joblib.load(tl_path)
+            print("  ✓ [Recognition] Loaded Transfer-Learned XGBoost (Domain Adapted)")
+    except Exception as e:
+        print(f"  ✗ Failed to load Transfer-Learned XGBoost: {e}")
+
+    # 2. Postural Stability & Movement Quality Models
+    try:
+        stab_path = find_model_file("best_stability_regressor.pkl", STABILITY_DIR)
         if os.path.exists(stab_path):
             MODELS['stability_rf'] = joblib.load(stab_path)
-            print("  ✓ Loaded Stability Regressor (RF, R²=1.000)")
+            print("  ✓ [Stability] Loaded Stability Regressor (RF, R²=1.000)")
     except Exception as e:
         print(f"  ✗ Failed to load Stability Regressor: {e}")
 
     try:
-        tl_path = os.path.join(MODELS_DIR, "transfer_learned_xgboost.pkl")
-        if os.path.exists(tl_path):
-            MODELS['xgboost_transfer'] = joblib.load(tl_path)
-            print("  ✓ Loaded Transfer-Learned XGBoost (Domain Adapted)")
+        stab_xgb_path = find_model_file("stability_regressor_xgb.pkl", STABILITY_DIR)
+        if os.path.exists(stab_xgb_path):
+            MODELS['stability_xgb'] = joblib.load(stab_xgb_path)
+            print("  ✓ [Stability] Loaded Stability Regressor (XGBoost)")
     except Exception as e:
-        print(f"  ✗ Failed to load Transfer-Learned XGBoost: {e}")
+        print(f"  ✗ Failed to load Stability XGB Regressor: {e}")
 
     print("[AI Server] Loading Test Dataset...")
     try:
@@ -242,6 +281,30 @@ class AkiraDashboardHandler(SimpleHTTPRequestHandler):
             self.send_json_response(self.get_feature_importance_data())
             return
 
+        elif path == "/api/simulation-stream":
+            activity = params.get('activity', ['Walking'])[0]
+            duration = float(params.get('duration', ['2.0'])[0])
+            self.send_json_response(self.get_simulation_stream(activity=activity, duration_sec=duration))
+            return
+
+        elif path == "/api/models-info":
+            self.send_json_response({
+                "models": list(MODELS.keys()),
+                "classes": CLASS_NAMES,
+                "features_count": len(FEATURE_NAMES),
+                "features": FEATURE_NAMES,
+                "hardware": {
+                    "device": "ESP32-REHAB",
+                    "service_uuid": "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
+                    "data_uuid": "6E400002-B5A3-F393-E0A9-E50E24DCCA9E",
+                    "status_uuid": "6E400003-B5A3-F393-E0A9-E50E24DCCA9E",
+                    "packet_size_bytes": 52,
+                    "sample_rate_hz": 100,
+                    "sensors": ["0x68 Proximal (Tibia)", "0x69 Distal (Foot)"]
+                }
+            })
+            return
+
         # Default static file serving
         return super().do_GET()
 
@@ -262,8 +325,18 @@ class AkiraDashboardHandler(SimpleHTTPRequestHandler):
             self.send_json_response(res)
             return
 
+        elif path == "/api/predict-raw-window":
+            res = self.handle_raw_window_prediction(req_data)
+            self.send_json_response(res)
+            return
+
         elif path == "/api/batch-test":
             res = self.handle_batch_test(req_data)
+            self.send_json_response(res)
+            return
+
+        elif path == "/api/export-session":
+            res = self.handle_export_session(req_data)
             self.send_json_response(res)
             return
 
@@ -369,6 +442,437 @@ class AkiraDashboardHandler(SimpleHTTPRequestHandler):
             "recommendation": clinical["recommendation"],
             "latency_ms": latency_ms
         }
+
+    def handle_raw_window_prediction(self, req_data):
+        """Processes real-time 100Hz raw IMU windows from BLE or simulator, extracts 66 features, and evaluates all models."""
+        from collections import Counter
+        raw_samples = req_data.get('window', [])
+        fs = float(req_data.get('fs', 100.0))
+        apply_filter = bool(req_data.get('apply_filter', True))
+        channel_mode = req_data.get('sensor_channel', 's1') # 's1' (Proximal), 's2' (Distal), or direct 'raw'
+        ground_truth = req_data.get('ground_truth', None)
+        active_model_name = req_data.get('active_model', 'all')
+
+        if not raw_samples or len(raw_samples) < 10:
+            return {"error": "Insufficient window samples (minimum 10 required, ideally 100-200)."}
+
+        start_total = time.perf_counter()
+        df_raw = pd.DataFrame(raw_samples)
+
+        # Ankle relative kinematics (if dual-sensor data is present)
+        ankle_rom_data = None
+        if 's1_ax' in df_raw.columns and 's2_ax' in df_raw.columns:
+            try:
+                # Calculate pitch angles for both proximal (tibia) and distal (foot)
+                s1_pitch = np.arctan2(-df_raw['s1_ax'].values, np.sqrt(df_raw['s1_ay'].values**2 + df_raw['s1_az'].values**2)) * 180.0 / np.pi
+                s2_pitch = np.arctan2(-df_raw['s2_ax'].values, np.sqrt(df_raw['s2_ay'].values**2 + df_raw['s2_az'].values**2)) * 180.0 / np.pi
+                rel_angle = s2_pitch - s1_pitch
+                current_deg = round(float(rel_angle[-1]), 1)
+                min_deg = round(float(np.min(rel_angle)), 1)
+                max_deg = round(float(np.max(rel_angle)), 1)
+                rom_arc = round(float(max_deg - min_deg), 1)
+                ankle_rom_data = {
+                    "current_angle_deg": current_deg,
+                    "max_dorsiflexion": max_deg if max_deg > 0 else 0.0,
+                    "max_plantarflexion": abs(min_deg) if min_deg < 0 else 0.0,
+                    "total_rom_arc_deg": rom_arc,
+                    "norm_status": "Normal Functional Range" if rom_arc >= 30.0 else "Restricted Joint Mobility"
+                }
+            except Exception as e:
+                ankle_rom_data = None
+
+        # Resolve motion channels for model evaluation (models expect ax, ay, az, gx, gy, gz)
+        cols_to_use = {}
+        for ch in ['ax', 'ay', 'az', 'gx', 'gy', 'gz']:
+            if ch in df_raw.columns:
+                cols_to_use[ch] = df_raw[ch].astype(float)
+            elif f"{channel_mode}_{ch}" in df_raw.columns:
+                cols_to_use[ch] = df_raw[f"{channel_mode}_{ch}"].astype(float)
+            elif f"s1_{ch}" in df_raw.columns:
+                cols_to_use[ch] = df_raw[f"s1_{ch}"].astype(float)
+            else:
+                cols_to_use[ch] = pd.Series([0.0] * len(df_raw))
+
+        df_imu = pd.DataFrame(cols_to_use).fillna(0)
+
+        # Kinematic Smoothness & RMS Jerk calculation (da/dt)
+        dt = 1.0 / fs if fs > 0 else 0.01
+        try:
+            ax_diff = np.diff(df_imu['ax'].values) / dt
+            ay_diff = np.diff(df_imu['ay'].values) / dt
+            az_diff = np.diff(df_imu['az'].values) / dt
+            jerk_mag = np.sqrt(ax_diff**2 + ay_diff**2 + az_diff**2)
+            rms_jerk = round(float(np.sqrt(np.mean(jerk_mag**2))), 2) if len(jerk_mag) > 0 else 2.5
+        except Exception:
+            rms_jerk = 3.2
+
+        gx_var = float(df_imu['gx'].var()) if len(df_imu) > 1 else 0.5
+        sparc_score = round(float(-1.2 - (gx_var * 0.02)), 2)
+        smoothness_status = "Fluid & Coordinated" if rms_jerk < 25.0 else ("Mild Tremor" if rms_jerk < 60.0 else "High Spastic Jerk")
+
+        # 1. Digital Signal Processing Filter (20Hz Low-pass Butterworth)
+        filter_start = time.perf_counter()
+        if DSP_AVAILABLE and apply_filter and len(df_imu) >= 15:
+            try:
+                filtered_df = SignalFilter.filter_imu(df_imu, fs=fs)
+            except Exception:
+                filtered_df = df_imu
+        else:
+            filtered_df = df_imu
+        filter_ms = round((time.perf_counter() - filter_start) * 1000, 2)
+
+        # 2. Extract 66 Kinematic Features (Time & Frequency Domain)
+        feat_start = time.perf_counter()
+        if DSP_AVAILABLE:
+            try:
+                feats = FeatureExtractor.extract_features_from_window(filtered_df, ['ax', 'ay', 'az', 'gx', 'gy', 'gz'], fs=fs)
+            except Exception:
+                feats = {}
+        else:
+            feats = {}
+
+        if not feats:
+            # Fallback feature dictionary if extractor failed
+            for col in ['ax', 'ay', 'az', 'gx', 'gy', 'gz']:
+                sig = filtered_df[col].values
+                feats[f"{col}_mean"] = float(np.mean(sig))
+                feats[f"{col}_std"] = float(np.std(sig))
+                feats[f"{col}_var"] = float(np.var(sig))
+                feats[f"{col}_max"] = float(np.max(sig))
+                feats[f"{col}_min"] = float(np.min(sig))
+                feats[f"{col}_range"] = float(np.ptp(sig))
+                feats[f"{col}_rms"] = float(np.sqrt(np.mean(sig**2)))
+                feats[f"{col}_zcr"] = float(len(np.where(np.diff(np.sign(sig)))[0]) / len(sig))
+                feats[f"{col}_dom_freq"] = 1.0
+                feats[f"{col}_spec_energy"] = float(np.sum(sig**2))
+                feats[f"{col}_freq_entropy"] = 2.0
+        feat_ms = round((time.perf_counter() - feat_start) * 1000, 2)
+
+        # Align columns with FEATURE_NAMES (66 features)
+        df_row = pd.DataFrame([feats])
+        for col in FEATURE_NAMES:
+            if col not in df_row.columns:
+                df_row[col] = 0.0
+        df_row = df_row[FEATURE_NAMES].fillna(0)
+
+        # 3. Multi-Model Simultaneous Evaluation
+        infer_start = time.perf_counter()
+        model_results = {}
+        predictions_list = []
+
+        # A. Optimized XGBoost
+        if 'xgboost_opt' in MODELS:
+            m_xgb = MODELS['xgboost_opt']
+            raw_p = m_xgb.predict(df_row)[0]
+            pred_cls = LE.inverse_transform([raw_p])[0] if LE and isinstance(raw_p, (int, np.integer)) else str(raw_p)
+            probas = {}
+            if hasattr(m_xgb, 'predict_proba'):
+                raw_probas = m_xgb.predict_proba(df_row)[0]
+                for idx, c in enumerate(getattr(m_xgb, 'classes_', range(len(raw_probas)))):
+                    c_name = LE.inverse_transform([c])[0] if (LE and isinstance(c, (int, np.integer))) else str(c)
+                    probas[c_name] = round(float(raw_probas[idx]) * 100, 2)
+            model_results['xgboost_opt'] = {
+                "name": "XGBoost (Optimized & Balanced)",
+                "predicted_class": pred_cls,
+                "confidence": probas.get(pred_cls, 50.0),
+                "probabilities": probas,
+                "type": "Gradient Boosted Trees (Class Weighted)"
+            }
+            predictions_list.append(pred_cls)
+
+        # B. Random Forest Champion
+        if 'random_forest_opt' in MODELS:
+            m_rf = MODELS['random_forest_opt']
+            raw_p = m_rf.predict(df_row)[0]
+            pred_cls = str(raw_p)
+            probas = {}
+            if hasattr(m_rf, 'predict_proba'):
+                raw_probas = m_rf.predict_proba(df_row)[0]
+                for idx, c in enumerate(getattr(m_rf, 'classes_', range(len(raw_probas)))):
+                    c_name = str(c)
+                    probas[c_name] = round(float(raw_probas[idx]) * 100, 2)
+            model_results['random_forest_opt'] = {
+                "name": "Random Forest (Baseline Champion)",
+                "predicted_class": pred_cls,
+                "confidence": probas.get(pred_cls, 50.0),
+                "probabilities": probas,
+                "type": "Ensemble Decision Trees (High Accuracy)"
+            }
+            predictions_list.append(pred_cls)
+
+        # C. Transfer-Learned XGBoost
+        if 'xgboost_transfer' in MODELS:
+            m_tl = MODELS['xgboost_transfer']
+            raw_p = m_tl.predict(df_row)[0]
+            pred_cls = LE.inverse_transform([raw_p])[0] if LE and isinstance(raw_p, (int, np.integer)) else str(raw_p)
+            probas = {}
+            if hasattr(m_tl, 'predict_proba'):
+                raw_probas = m_tl.predict_proba(df_row)[0]
+                for idx, c in enumerate(getattr(m_tl, 'classes_', range(len(raw_probas)))):
+                    c_name = LE.inverse_transform([c])[0] if (LE and isinstance(c, (int, np.integer))) else str(c)
+                    probas[c_name] = round(float(raw_probas[idx]) * 100, 2)
+            model_results['xgboost_transfer'] = {
+                "name": "Transfer-Learned XGBoost",
+                "predicted_class": pred_cls,
+                "confidence": probas.get(pred_cls, 50.0),
+                "probabilities": probas,
+                "type": "Domain-Adapted Transfer Tree"
+            }
+            predictions_list.append(pred_cls)
+
+        # D. Postural Stability Score
+        stability_model = MODELS.get('stability_rf')
+        if stability_model is not None:
+            try:
+                stability_score = round(float(stability_model.predict(df_row)[0]), 2)
+                stability_score = max(0.0, min(100.0, stability_score))
+            except Exception:
+                stability_score = 85.0
+        else:
+            az_var = float(feats.get('az_var', 0.2))
+            stability_score = round(max(10.0, min(95.0, 92.0 - (az_var * 15.0))), 2)
+
+        infer_ms = round((time.perf_counter() - infer_start) * 1000, 2)
+        total_ms = round((time.perf_counter() - start_total) * 1000, 2)
+
+        # Consensus determination
+        if predictions_list:
+            vote_counts = Counter(predictions_list)
+            consensus_class, max_votes = vote_counts.most_common(1)[0]
+            consensus_agreement = round((max_votes / len(predictions_list)) * 100, 1)
+        else:
+            consensus_class = "Unknown"
+            consensus_agreement = 0.0
+            vote_counts = {}
+
+        primary_key = active_model_name if active_model_name in model_results else ('xgboost_opt' if 'xgboost_opt' in model_results else list(model_results.keys())[0])
+        primary_res = model_results.get(primary_key, {})
+        primary_class = primary_res.get('predicted_class', consensus_class)
+        primary_conf = primary_res.get('confidence', 0.0)
+
+        # Accuracy verification against Ground Truth (if provided by user)
+        verification = {
+            "ground_truth": ground_truth,
+            "has_ground_truth": bool(ground_truth),
+            "consensus_matches": bool(ground_truth and (consensus_class.strip().lower() == ground_truth.strip().lower())),
+            "per_model_match": {}
+        }
+        if ground_truth:
+            gt_norm = ground_truth.strip().lower()
+            for m_key, m_info in model_results.items():
+                p_norm = m_info['predicted_class'].strip().lower()
+                verification["per_model_match"][m_key] = (p_norm == gt_norm)
+
+        clinical = get_clinical_interpretation(primary_class, stability_score)
+
+        return {
+            "primary_prediction": primary_class,
+            "primary_confidence": primary_conf,
+            "primary_model": primary_key,
+            "consensus": {
+                "class": consensus_class,
+                "agreement_pct": consensus_agreement,
+                "total_models": len(predictions_list),
+                "votes": dict(vote_counts)
+            },
+            "models": model_results,
+            "stability": {
+                "score": stability_score,
+                "category": clinical["stability_category"],
+                "description": clinical["stability_description"]
+            },
+            "smoothness": {
+                "rms_jerk": rms_jerk,
+                "sparc_score": sparc_score,
+                "status": smoothness_status
+            },
+            "ankle_rom": ankle_rom_data,
+            "verification": verification,
+            "clinical_notes": clinical["exercise_focus"],
+            "recommendation": clinical["recommendation"],
+            "features_summary": {
+                "az_freq_entropy": round(float(feats.get("az_freq_entropy", 0)), 3),
+                "gx_var": round(float(feats.get("gx_var", 0)), 3),
+                "gx_spec_energy": round(float(feats.get("gx_spec_energy", 0)), 1),
+                "ay_std": round(float(feats.get("ay_std", 0)), 3),
+                "az_zcr": round(float(feats.get("az_zcr", 0)), 3)
+            },
+            "latency": {
+                "filter_ms": filter_ms,
+                "feature_extraction_ms": feat_ms,
+                "inference_ms": infer_ms,
+                "total_ms": total_ms
+            }
+        }
+
+    def get_simulation_stream(self, activity="Walking", duration_sec=2.0, fs=100.0):
+        """Generates realistic synchronized 12-channel (52-byte dual IMU format) IMU streams for testing."""
+        N = int(duration_sec * fs)
+        t = np.linspace(0, duration_sec, N)
+
+        act = activity.strip().title()
+        if "Walk" in act:
+            freq = 1.4
+            s1_ax = 0.85 + 0.35 * np.sin(2 * np.pi * freq * t) + 0.15 * np.sin(4 * np.pi * freq * t)
+            s1_ay = -0.05 + 0.15 * np.cos(2 * np.pi * freq * t)
+            s1_az = 0.25 + 0.25 * np.sin(2 * np.pi * freq * t)
+            s1_gx = -15.0 + 35.0 * np.sin(2 * np.pi * freq * t)
+            s1_gy = -25.0 + 110.0 * np.cos(2 * np.pi * freq * t)
+            s1_gz = 10.0 * np.sin(2 * np.pi * freq * t)
+
+            s2_ax = 0.95 + 0.55 * np.sin(2 * np.pi * freq * t + 0.3)
+            s2_ay = -0.08 + 0.18 * np.cos(2 * np.pi * freq * t)
+            s2_az = 0.35 + 0.40 * np.sin(2 * np.pi * freq * t + 0.3)
+            s2_gx = -20.0 + 45.0 * np.sin(2 * np.pi * freq * t)
+            s2_gy = -40.0 + 160.0 * np.cos(2 * np.pi * freq * t)
+            s2_gz = 15.0 * np.sin(2 * np.pi * freq * t)
+        elif "Heel-Toe" in act:
+            freq = 1.0
+            s1_ax = 0.70 + 0.45 * np.sin(2 * np.pi * freq * t)
+            s1_ay = -0.02 + 0.10 * np.cos(2 * np.pi * freq * t)
+            s1_az = 0.40 + 0.35 * np.sin(2 * np.pi * freq * t)
+            s1_gx = 25.0 * np.sin(2 * np.pi * freq * t)
+            s1_gy = 140.0 * np.sin(2 * np.pi * freq * t)
+            s1_gz = 5.0 * np.cos(2 * np.pi * freq * t)
+
+            s2_ax = 0.80 + 0.60 * np.sin(2 * np.pi * freq * t + 0.2)
+            s2_ay = -0.04 + 0.12 * np.cos(2 * np.pi * freq * t)
+            s2_az = 0.50 + 0.50 * np.sin(2 * np.pi * freq * t + 0.2)
+            s2_gx = 30.0 * np.sin(2 * np.pi * freq * t)
+            s2_gy = 190.0 * np.sin(2 * np.pi * freq * t)
+            s2_gz = 8.0 * np.cos(2 * np.pi * freq * t)
+        elif "Squat" in act:
+            freq = 0.4
+            s1_ax = 0.50 + 0.60 * np.sin(2 * np.pi * freq * t)
+            s1_ay = 0.05 * np.sin(2 * np.pi * freq * t)
+            s1_az = 0.85 - 0.45 * np.cos(2 * np.pi * freq * t)
+            s1_gx = 5.0 * np.sin(2 * np.pi * freq * t)
+            s1_gy = 45.0 * np.sin(2 * np.pi * freq * t)
+            s1_gz = 4.0 * np.sin(2 * np.pi * freq * t)
+
+            s2_ax = 0.85 + 0.20 * np.sin(2 * np.pi * freq * t)
+            s2_ay = 0.02 * np.sin(2 * np.pi * freq * t)
+            s2_az = 0.45 - 0.25 * np.cos(2 * np.pi * freq * t)
+            s2_gx = 8.0 * np.sin(2 * np.pi * freq * t)
+            s2_gy = 65.0 * np.sin(2 * np.pi * freq * t)
+            s2_gz = 5.0 * np.sin(2 * np.pi * freq * t)
+        elif "Knee" in act:
+            freq = 0.8
+            s1_ax = 0.35 + 0.50 * np.sin(2 * np.pi * freq * t)
+            s1_ay = -0.10 + 0.20 * np.cos(2 * np.pi * freq * t)
+            s1_az = 0.70 + 0.30 * np.sin(2 * np.pi * freq * t)
+            s1_gx = -40.0 + 80.0 * np.sin(2 * np.pi * freq * t)
+            s1_gy = -15.0 + 50.0 * np.cos(2 * np.pi * freq * t)
+            s1_gz = 20.0 * np.sin(2 * np.pi * freq * t)
+
+            s2_ax = 0.40 + 0.70 * np.sin(2 * np.pi * freq * t)
+            s2_ay = -0.15 + 0.25 * np.cos(2 * np.pi * freq * t)
+            s2_az = 0.80 + 0.40 * np.sin(2 * np.pi * freq * t)
+            s2_gx = -60.0 + 120.0 * np.sin(2 * np.pi * freq * t)
+            s2_gy = -20.0 + 75.0 * np.cos(2 * np.pi * freq * t)
+            s2_gz = 30.0 * np.sin(2 * np.pi * freq * t)
+        elif "Hip" in act:
+            freq = 0.7
+            s1_ax = 0.60 + 0.25 * np.sin(2 * np.pi * freq * t)
+            s1_ay = 0.10 + 0.55 * np.sin(2 * np.pi * freq * t)
+            s1_az = 0.65 + 0.20 * np.cos(2 * np.pi * freq * t)
+            s1_gx = 45.0 * np.sin(2 * np.pi * freq * t)
+            s1_gy = 10.0 * np.cos(2 * np.pi * freq * t)
+            s1_gz = 35.0 * np.sin(2 * np.pi * freq * t)
+
+            s2_ax = 0.70 + 0.30 * np.sin(2 * np.pi * freq * t)
+            s2_ay = 0.15 + 0.70 * np.sin(2 * np.pi * freq * t)
+            s2_az = 0.70 + 0.25 * np.cos(2 * np.pi * freq * t)
+            s2_gx = 55.0 * np.sin(2 * np.pi * freq * t)
+            s2_gy = 15.0 * np.cos(2 * np.pi * freq * t)
+            s2_gz = 45.0 * np.sin(2 * np.pi * freq * t)
+        else: # Abnormal Gait / Tremor
+            freq = 1.1
+            noise_mult = 0.15
+            s1_ax = 0.75 + 0.30 * np.sin(2 * np.pi * freq * t) + np.random.normal(0, noise_mult, N)
+            s1_ay = -0.15 + 0.35 * np.cos(2 * np.pi * (freq * 1.6) * t) + np.random.normal(0, noise_mult, N)
+            s1_az = 0.40 + 0.45 * np.sin(2 * np.pi * freq * t) + np.random.normal(0, noise_mult, N)
+            s1_gx = 30.0 * np.sin(2 * np.pi * freq * t) + np.random.normal(0, 15.0, N)
+            s1_gy = -45.0 + 85.0 * np.cos(2 * np.pi * freq * t) + np.random.normal(0, 20.0, N)
+            s1_gz = 25.0 * np.sin(2 * np.pi * freq * t) + np.random.normal(0, 15.0, N)
+
+            s2_ax = 0.80 + 0.40 * np.sin(2 * np.pi * freq * t) + np.random.normal(0, noise_mult, N)
+            s2_ay = -0.20 + 0.45 * np.cos(2 * np.pi * (freq * 1.6) * t) + np.random.normal(0, noise_mult, N)
+            s2_az = 0.45 + 0.55 * np.sin(2 * np.pi * freq * t) + np.random.normal(0, noise_mult, N)
+            s2_gx = 40.0 * np.sin(2 * np.pi * freq * t) + np.random.normal(0, 20.0, N)
+            s2_gy = -60.0 + 110.0 * np.cos(2 * np.pi * freq * t) + np.random.normal(0, 25.0, N)
+            s2_gz = 35.0 * np.sin(2 * np.pi * freq * t) + np.random.normal(0, 20.0, N)
+
+        # Baseline electronic white noise
+        s1_ax += np.random.normal(0, 0.02, N)
+        s1_ay += np.random.normal(0, 0.02, N)
+        s1_az += np.random.normal(0, 0.02, N)
+        s1_gx += np.random.normal(0, 1.2, N)
+        s1_gy += np.random.normal(0, 1.2, N)
+        s1_gz += np.random.normal(0, 1.2, N)
+
+        s2_ax += np.random.normal(0, 0.02, N)
+        s2_ay += np.random.normal(0, 0.02, N)
+        s2_az += np.random.normal(0, 0.02, N)
+        s2_gx += np.random.normal(0, 1.2, N)
+        s2_gy += np.random.normal(0, 1.2, N)
+        s2_gz += np.random.normal(0, 1.2, N)
+
+        samples = []
+        base_time = int(time.time() * 1000)
+        for i in range(N):
+            samples.append({
+                "timestamp": base_time + int(i * (1000.0 / fs)),
+                "s1_ax": round(float(s1_ax[i]), 4),
+                "s1_ay": round(float(s1_ay[i]), 4),
+                "s1_az": round(float(s1_az[i]), 4),
+                "s1_gx": round(float(s1_gx[i]), 2),
+                "s1_gy": round(float(s1_gy[i]), 2),
+                "s1_gz": round(float(s1_gz[i]), 2),
+                "s2_ax": round(float(s2_ax[i]), 4),
+                "s2_ay": round(float(s2_ay[i]), 4),
+                "s2_az": round(float(s2_az[i]), 4),
+                "s2_gx": round(float(s2_gx[i]), 2),
+                "s2_gy": round(float(s2_gy[i]), 2),
+                "s2_gz": round(float(s2_gz[i]), 2),
+            })
+
+        return {
+            "activity": activity,
+            "sample_count": len(samples),
+            "fs": fs,
+            "duration_sec": duration_sec,
+            "samples": samples
+        }
+
+    def handle_export_session(self, req_data):
+        """Exports recorded session trials to CSV adhering to AkiraDatasetLoader format."""
+        participant_id = req_data.get('participant_id', 'P01')
+        component = req_data.get('component', 'ANKLE')
+        activity = req_data.get('activity', 'Walking')
+        records = req_data.get('records', [])
+
+        if not records:
+            return {"error": "No records to export."}
+
+        df_export = pd.DataFrame(records)
+        target_dir = os.path.join(AI_DIR, "datasets", "raw", "AKIRA")
+        os.makedirs(target_dir, exist_ok=True)
+        filename = f"{participant_id}_{component}_{activity}_{int(time.time())}.csv"
+        file_path = os.path.join(target_dir, filename)
+
+        try:
+            df_export.to_csv(file_path, index=False)
+            csv_preview = df_export.head(5).to_csv(index=False)
+            return {
+                "success": True,
+                "filename": filename,
+                "saved_path": file_path,
+                "row_count": len(df_export),
+                "preview": csv_preview
+            }
+        except Exception as e:
+            return {"error": f"Failed to save CSV: {str(e)}"}
 
     def handle_batch_test(self, req_data):
         model_name = req_data.get('model', 'random_forest_opt')

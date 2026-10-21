@@ -86,7 +86,7 @@ function setupNavigation() {
 
   // Handle URL Hash if present
   const hash = window.location.hash.replace('#', '');
-  if (['overview', 'benchmarks', 'testing', 'batch', 'science'].includes(hash)) {
+  if (['overview', 'benchmarks', 'ble-stream', 'testing', 'batch', 'science'].includes(hash)) {
     switchTab(hash);
   }
 }
@@ -107,6 +107,17 @@ function switchTab(tabId) {
   if (tabId === 'benchmarks') {
     setTimeout(() => {
       Object.values(appState.chartInstances).forEach(chart => chart && chart.resize());
+    }, 100);
+  }
+
+  // Trigger oscilloscope resize if entering ble-stream
+  if (tabId === 'ble-stream') {
+    setTimeout(() => {
+      const canvas = document.getElementById('canvas-oscilloscope');
+      if (canvas && canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight || 220;
+      }
     }, 100);
   }
 }
