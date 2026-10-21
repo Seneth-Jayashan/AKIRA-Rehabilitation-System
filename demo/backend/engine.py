@@ -649,7 +649,7 @@ class RehabilitationEngine:
             "task4_quality_classification": [],
         }
 
-        tasks_summary = summary.get("tasks", {})
+        tasks_summary = summary.get("tasks", summary)
 
         for m_name in MODEL_ORDER:
             if m_name not in model_results:
