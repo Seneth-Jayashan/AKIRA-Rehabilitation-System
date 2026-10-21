@@ -68,5 +68,61 @@
     "rep_count": 12,
     "duration_s": 2.4,
     "is_reference_baseline": true
+  },
+  {
+    "session_id": "S6",
+    "patient_pseudonym": "PT-09492B6B9FC8",
+    "session_date": "2026-10-21",
+    "week": "Session 6 (2026-10-21)",
+    "exercise": "Mini Squat",
+    "rom_deg": 16.8,
+    "depth_deg": 16.8,
+    "smoothness": 0.12,
+    "quality_score": 52,
+    "rep_count": 0,
+    "duration_s": 0.05,
+    "is_reference_baseline": false
+  },
+  {
+    "session_id": "S7",
+    "patient_pseudonym": "PT-09492B6B9FC8",
+    "session_date": "2026-10-21",
+    "week": "Session 7 (2026-10-21)",
+    "exercise": "Mini Squat",
+    "rom_deg": 19.2,
+    "depth_deg": 19.2,
+    "smoothness": 0.17,
+    "quality_score": 50,
+    "rep_count": 0,
+    "duration_s": 9.99,
+    "is_reference_baseline": false
+  },
+  {
+    "session_id": "S8",
+    "patient_pseudonym": "PT-09492B6B9FC8",
+    "session_date": "2026-10-21",
+    "week": "Session 8 (2026-10-21)",
+    "exercise": "Mini Squat",
+    "rom_deg": 16.9,
+    "depth_deg": 16.9,
+    "smoothness": 0.02,
+    "quality_score": 51,
+    "rep_count": 0,
+    "duration_s": 10.01,
+    "is_reference_baseline": false
+  },
+  {
+    "session_id": "S9",
+    "patient_pseudonym": "PT-09492B6B9FC8",
+    "session_date": "2026-10-21",
+    "week": "Session 9 (2026-10-21)",
+    "exercise": "Walking",
+    "rom_deg": 63.6,
+    "depth_deg": 42.9,
+    "smoothness": 0.5,
+    "quality_score": 18,
+    "rep_count": 1,
+    "duration_s": 1.66,
+    "is_reference_baseline": false
   }
 ]

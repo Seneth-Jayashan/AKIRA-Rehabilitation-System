@@ -45,9 +45,10 @@ TABLE OF CONTENTS:
 # ======================================================================================
 # SECTION 1: IMPORTS
 # ======================================================================================
+from typing import Any
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+keras: Any = tf.keras
+layers: Any = tf.keras.layers
 
 
 # ======================================================================================
@@ -58,11 +59,21 @@ def build_hybrid_1_cnn(seq_shape=(200, 12), feat_dim=16, num_classes=4, num_qual
     WHAT THIS MODEL IS:
       A lightweight 1D Convolutional Neural Network coupled with clinical feature fusion.
 
-    ARCHITECTURAL RATIONALE:
-      - 1D-CNN filters slide along the 200 temporal frames, detecting local acceleration
-        spikes, foot-strike impacts, and angular velocity reversals.
-      - Global Average Pooling collapses the temporal dimension without exploding parameter counts.
-      - Ideal for low-power edge microcontrollers and Android smartphones (~8 ms inference).
+    MATHEMATICAL FORMULATION:
+    -------------------------
+    1. 1D Temporal Convolution (Layer 1: 64 filters, Kernel K=5, Stride s=1):
+         y_k[t] = ReLU( sum_{c=1}^{12} sum_{m=-2}^{2} W_k[c, m] * x[c, t+m] + b_k )
+    2. Batch Normalization:
+         hat{y}_k = (y_k - mu_B) / sqrt( sigma_B^2 + epsilon )
+         z_k = gamma * hat{y}_k + beta
+    3. Temporal Max-Pooling (Factor of 2):
+         p_k[t] = max( z_k[2t], z_k[2t+1] ),   downsampling 200 -> 100 frames
+    4. Global Average Pooling (Temporal Dimensionality Reduction):
+         h_{temporal, k} = (1 / T) * sum_{t=1}^T y_k^{(2)}[t]   (T = 100, k in [1, 128])
+    5. Multi-Modal Late Concatenation & Multi-Task Softmax Output:
+         z_fused = [ h_temporal || h_clinical ] in R^{64 + 64} = R^{128}
+         P(Exercise = c | z_fused) = exp(w_c^T * z + b_c) / sum_{j=1}^4 exp(w_j^T * z + b_j)
+         P(Quality = k | z_fused)  = exp(v_k^T * z + d_k) / sum_{l=1}^3 exp(v_l^T * z + d_l)
 
     PARAMETERS:
       seq_shape (tuple): Shape of raw IMU sequence (default: (200, 12)).
@@ -114,6 +125,18 @@ def build_hybrid_2_bilstm(seq_shape=(200, 12), feat_dim=16, num_classes=4, num_q
     WHAT THIS MODEL IS:
       A Bidirectional Long Short-Term Memory (BiLSTM) network fused with 16 clinical features.
       Achieved the highest overall benchmark performance (98.2% accuracy).
+
+    MATHEMATICAL FORMULATION (Bidirectional LSTM Recurrence):
+    ----------------------------------------------------------
+    For each time step t = 1, ..., T (Forward Pass) and t = T, ..., 1 (Backward Pass):
+      1. Forget Gate:       f_t = sigmoid( W_f * x_t + U_f * h_{t-1} + b_f )
+      2. Input Gate:        i_t = sigmoid( W_i * x_t + U_i * h_{t-1} + b_i )
+      3. Candidate Memory:  c_tilde_t = tanh( W_c * x_t + U_c * h_{t-1} + b_c )
+      4. Cell State Update: c_t = f_t (elem_mult) c_{t-1} + i_t (elem_mult) c_tilde_t
+      5. Output Gate:       o_t = sigmoid( W_o * x_t + U_o * h_{t-1} + b_o )
+      6. Hidden State:      h_t = o_t (elem_mult) tanh(c_t)
+    Final Bidirectional Representation:
+      h_BiLSTM = [ h_forward_T || h_backward_1 ] in R^{64 + 64} = R^{128}
 
     ARCHITECTURAL RATIONALE:
       - BiLSTM processes the movement sequence both forwards and backwards in time,
@@ -203,6 +226,17 @@ def build_hybrid_4_resnet(seq_shape=(200, 12), feat_dim=16, num_classes=4, num_q
     WHAT THIS MODEL IS:
       A 1D Deep Residual Network (ResNet) with identity skip-connections and clinical fusion.
 
+    MATHEMATICAL FORMULATION (Residual Skip Connection):
+    ----------------------------------------------------
+    1. Residual Mapping F(x, {W_i}):
+         F(x) = Conv1D_2( ReLU( Conv1D_1(x) ) )
+    2. Identity Shortcut Addition:
+         y = ReLU( x + F(x, {W_i}) )   [Block 1: Identity]
+         y = ReLU( W_proj * x + F(x, {W_i}) )  [Block 2: 1x1 Conv Linear Projection]
+    Gradient Highway (Preserves Backpropagation across Deep Layers):
+         d Loss / d x = (d Loss / d y) * (I + d F / d x)
+         Even if d F / d x vanishes, gradient flows unimpeded through identity I.
+
     ARCHITECTURAL RATIONALE:
       - Uses shortcut skip-connections (x + F(x)) to preserve raw high-frequency acceleration
         impulses across deep convolutional layers without gradient vanishing.
@@ -260,6 +294,17 @@ def build_hybrid_5_self_attention(seq_shape=(200, 12), feat_dim=16, num_classes=
     WHAT THIS MODEL IS:
       A Transformer-style Multi-Head Self-Attention network fused with clinical kinematics.
 
+    MATHEMATICAL FORMULATION (Scaled Dot-Product Multi-Head Self-Attention):
+    ------------------------------------------------------------------------
+    1. Linear Projections for Queries (Q), Keys (K), Values (V) (d_k = 16, h = 4 heads):
+         Q_i = X * W_i^Q,   K_i = X * W_i^K,   V_i = X * W_i^V   in R^{200 x 16}
+    2. Scaled Dot-Product Attention:
+         head_i = softmax( (Q_i * K_i^T) / sqrt(d_k) ) * V_i   in R^{200 x 16}
+    3. Multi-Head Concatenation & Output Projection:
+         MultiHead(X) = [ head_1 || head_2 || head_3 || head_4 ] * W^O   in R^{200 x 64}
+    4. Residual Connection & Layer Normalization:
+         Z = LayerNorm( X_proj + MultiHead(X) )
+
     ARCHITECTURAL RATIONALE:
       - Uses 4 parallel attention heads to dynamically compute attention weights across
         all 200 time steps.
@@ -309,6 +354,15 @@ def build_hybrid_6_gated_attention(seq_shape=(200, 12), feat_dim=16, num_classes
     """
     WHAT THIS MODEL IS:
       A Cross-Modal Co-Attention Dynamic Gating network.
+
+    MATHEMATICAL FORMULATION (Cross-Modal Dynamic Feature Gating):
+    -------------------------------------------------------------
+    1. Clinical Orthopedic Gating Vector:
+         g = sigmoid( W_gate * x_clinical + b_gate ) in [0.0, 1.0]^{64}
+    2. Channel-Wise Hadamard Gating Modulation:
+         x_gated = x_temporal (elem_mult) g
+    3. Fused Multi-Modal Representation:
+         z_fused = [ x_gated || x_clinical ] in R^{64 + 64} = R^{128}
 
     ARCHITECTURAL RATIONALE:
       - Instead of a simple late concatenation, the 16 clinical kinematic features

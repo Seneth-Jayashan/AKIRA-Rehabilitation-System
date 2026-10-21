@@ -28,8 +28,9 @@ import argparse
 import numpy as np
 import pandas as pd
 
+from typing import Any, cast
 import tensorflow as tf
-from tensorflow import keras
+keras = tf.keras
 
 from sklearn.model_selection import GroupKFold, StratifiedKFold
 from sklearn.preprocessing import StandardScaler
@@ -84,9 +85,9 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
 
     if os.path.exists(cat_path):
         catalog_df = pd.read_csv(cat_path)
-        subjects = catalog_df["subject"].astype(str).values
+        subjects = np.asarray(catalog_df["subject"].astype(str).to_numpy(), dtype=str)
     else:
-        subjects = np.array([f"S_{i // 10}" for i in range(N_trials)])
+        subjects = np.array([f"S_{i // 10}" for i in range(N_trials)], dtype=str)
 
     print(f"  [OK] Loaded {N_trials} total trials across {len(np.unique(subjects))} subjects.")
     print(f"  [OK] Raw Sequence Shape: {X_raw_seq.shape} (2.0s window @ 100 Hz, 12 synchronized IMU channels)")
@@ -125,16 +126,16 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
     strata = y_class * 10 + y_qual
     if split_mode == "subject":
         gkf_outer = GroupKFold(n_splits=5)
-        train_val_idx, test_idx = next(gkf_outer.split(X_raw_seq, strata, groups=subjects))
+        train_val_idx, test_idx = next(gkf_outer.split(X_raw_seq, strata, groups=cast(Any, subjects)))
         gkf_inner = GroupKFold(n_splits=6)
         inner_rel, val_rel = next(gkf_inner.split(
-            X_raw_seq[train_val_idx], strata[train_val_idx], groups=subjects[train_val_idx]
+            X_raw_seq[train_val_idx], strata[train_val_idx], groups=cast(Any, subjects[train_val_idx])
         ))
         inner_train_idx = train_val_idx[inner_rel]
         val_idx = train_val_idx[val_rel]
-        assert len(set(subjects[inner_train_idx]).intersection(set(subjects[val_idx]))) == 0
-        assert len(set(subjects[inner_train_idx]).intersection(set(subjects[test_idx]))) == 0
-        assert len(set(subjects[val_idx]).intersection(set(subjects[test_idx]))) == 0
+        assert len(set(subjects[inner_train_idx].tolist()).intersection(set(subjects[val_idx].tolist()))) == 0
+        assert len(set(subjects[inner_train_idx].tolist()).intersection(set(subjects[test_idx].tolist()))) == 0
+        assert len(set(subjects[val_idx].tolist()).intersection(set(subjects[test_idx].tolist()))) == 0
         print(
             f"  [OK] Strict 3-Way Subject Split: {len(inner_train_idx)} inner-train / "
             f"{len(val_idx)} val / {len(test_idx)} held-out test trials (0 overlapping subjects)."
@@ -201,12 +202,12 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
     model.fit(
         {"input_a_raw_seq": X_seq_norm[inner_train_idx], "input_b_clinical_feat": X_feat_norm[inner_train_idx]},
         [Y_class_cat[inner_train_idx], Y_qual_cat[inner_train_idx]],
-        sample_weight=sw_train,
-        validation_data=(
+        sample_weight=cast(Any, sw_train),
+        validation_data=cast(Any, (
             {"input_a_raw_seq": X_seq_norm[val_idx], "input_b_clinical_feat": X_feat_norm[val_idx]},
             [Y_class_cat[val_idx], Y_qual_cat[val_idx]],
             sw_val
-        ),
+        )),
         epochs=num_epochs,
         batch_size=24,
         callbacks=[early_stop],
@@ -214,7 +215,7 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
     )
 
     preds = model.predict(
-        {"input_a_raw_seq": X_seq_norm[test_idx], "input_b_clinical_feat": X_feat_norm[test_idx]},
+        cast(Any, {"input_a_raw_seq": X_seq_norm[test_idx], "input_b_clinical_feat": X_feat_norm[test_idx]}),
         verbose=0
     )
     pred_c = np.argmax(preds[0], axis=1)
@@ -253,7 +254,7 @@ def run_master_pipeline(selected_model: str = "1", num_epochs: int = 20, split_m
 
     t0_infer = time.time()
     pred_single = model.predict(
-        {"input_a_raw_seq": demo_seq_norm.reshape(1, 200, 12), "input_b_clinical_feat": demo_feat_norm},
+        cast(Any, {"input_a_raw_seq": demo_seq_norm.reshape(1, 200, 12), "input_b_clinical_feat": demo_feat_norm}),
         verbose=0
     )
     t_infer_single = (time.time() - t0_infer) * 1000.0

@@ -60,6 +60,16 @@ def extract_active_200_window(clean_12ch: np.ndarray, window_samples: int = 200)
     """
     Extracts a 200-sample (2.0s @ 100 Hz) window centered on the highest rotational
     kinetic energy region of the trial and returns (window_200, start_idx).
+
+    MATHEMATICAL DERIVATION (Rotational Kinetic Energy Window Selection):
+    ---------------------------------------------------------------------
+    1. Instantaneous Segmental Rotational Energy:
+         E_rot[t] = sum_{k in {gx, gy, gz}} ( omega_{thigh, k}[t]^2 + omega_{shin, k}[t]^2 )
+    2. Sliding Window Moving Average Energy (W = 200 samples = 2.0 s):
+         E_win[k] = (1 / W) * sum_{j=k}^{k+W-1} E_rot[j]
+    3. Optimal Window Start Index:
+         k^* = argmax_{k in [0, N - W]} E_win[k]
+    Extracts the most dynamic biomechanical excursion of the trial without manual trimming.
     """
     N = len(clean_12ch)
     if N == window_samples:
@@ -518,7 +528,23 @@ def build_clean_multi_dataset():
     df_feat["quality_grade"] = y_qual_all
     df_feat.to_csv(os.path.join(OUT_DATASETS_DIR, "dataset_2_input_B_clinical_features.csv"), index=False)
 
-    # Save Dataset 3
+    # Save Dataset 1 CSV (Full 100 Hz Time-Series for all trials: N*200 rows with 12 IMU channels)
+    N_t, T_t, C_t = X_seq_all.shape
+    meta_cols_d1 = ["file_id", "subject", "source_dataset", "exercise_name", "quality_grade"]
+    rep_meta = pd.DataFrame(np.repeat(df_cat[meta_cols_d1].values, T_t, axis=0), columns=meta_cols_d1)
+    rep_meta.insert(0, "trial_num", np.repeat(np.arange(1, N_t + 1), T_t))
+    rep_meta["time_step"] = np.tile(np.arange(T_t), N_t)
+    rep_meta["time_sec"] = np.tile(np.arange(T_t) * 0.01, N_t)
+    ch_cols = [
+        "Thigh_Acc_X", "Thigh_Acc_Y", "Thigh_Acc_Z",
+        "Thigh_Gyr_X", "Thigh_Gyr_Y", "Thigh_Gyr_Z",
+        "Shin_Acc_X",  "Shin_Acc_Y",  "Shin_Acc_Z",
+        "Shin_Gyr_X",  "Shin_Gyr_Y",  "Shin_Gyr_Z"
+    ]
+    df_d1_csv = pd.concat([rep_meta, pd.DataFrame(X_seq_all.reshape(N_t * T_t, C_t), columns=ch_cols)], axis=1)
+    df_d1_csv.to_csv(os.path.join(OUT_DATASETS_DIR, "dataset_1_input_A_12channels.csv"), index=False)
+
+    # Save Dataset 3 NPZ (Multi-Modal Tensor Package for Neural Network Training)
     d3_npz = os.path.join(OUT_DATASETS_DIR, "dataset_3_final_combined.npz")
     np.savez_compressed(
         d3_npz,
@@ -529,8 +555,33 @@ def build_clean_multi_dataset():
         feature_names=np.array(feat_cols)
     )
     df_cat.to_csv(os.path.join(OUT_DATASETS_DIR, "dataset_catalog.csv"), index=False)
-    df_feat.to_csv(os.path.join(OUT_DATASETS_DIR, "dataset_3_final_combined.csv"), index=False)
-    print(f"\n[OK] Saved Dataset 1, Dataset 2, Dataset 3, dataset_catalog.csv, and preprocessing_audit_log.json to {OUT_DATASETS_DIR}")
+
+    # Calculate per-trial IMU sensor statistics so IMU data is directly visible in dataset_3_final_combined.csv
+    imu_stat_cols = [
+        "Thigh_Acc_X_mean", "Thigh_Acc_Y_mean", "Thigh_Acc_Z_mean", "Thigh_Acc_RMS",
+        "Thigh_Gyr_X_mean", "Thigh_Gyr_Y_mean", "Thigh_Gyr_Z_mean", "Thigh_Gyr_RMS",
+        "Shin_Acc_X_mean",  "Shin_Acc_Y_mean",  "Shin_Acc_Z_mean",  "Shin_Acc_RMS",
+        "Shin_Gyr_X_mean",  "Shin_Gyr_Y_mean",  "Shin_Gyr_Z_mean",  "Shin_Gyr_RMS"
+    ]
+    imu_means = np.mean(X_seq_all, axis=1)
+    thigh_acc_rms = np.sqrt(np.mean(X_seq_all[:, :, 0:3]**2, axis=(1, 2)))
+    thigh_gyr_rms = np.sqrt(np.mean(X_seq_all[:, :, 3:6]**2, axis=(1, 2)))
+    shin_acc_rms  = np.sqrt(np.mean(X_seq_all[:, :, 6:9]**2, axis=(1, 2)))
+    shin_gyr_rms  = np.sqrt(np.mean(X_seq_all[:, :, 9:12]**2, axis=(1, 2)))
+    imu_stats_mat = np.column_stack([
+        imu_means[:, 0:3], thigh_acc_rms,
+        imu_means[:, 3:6], thigh_gyr_rms,
+        imu_means[:, 6:9], shin_acc_rms,
+        imu_means[:, 9:12], shin_gyr_rms
+    ])
+    df_imu_stats = pd.DataFrame(imu_stats_mat, columns=imu_stat_cols)
+
+    # Save Dataset 3 combined CSV (Metadata + 12-Channel IMU Sensor Metrics + 16 Clinical Features)
+    meta_cols = ["source_dataset", "file_id", "subject", "exercise_name", "class_id", "quality_grade", "quality_rationale", "duration_sec", "orig_trial_duration_sec"]
+    d3_feat_cols = [c for c in df_feat.columns if c not in ("class_id", "quality_grade")]
+    df_d3_combined = pd.concat([df_cat[meta_cols], df_imu_stats, df_feat[d3_feat_cols]], axis=1)
+    df_d3_combined.to_csv(os.path.join(OUT_DATASETS_DIR, "dataset_3_final_combined.csv"), index=False)
+    print(f"\n[OK] Saved Dataset 1 (NPZ & CSV), Dataset 2 (NPZ & CSV), Dataset 3 (NPZ & CSV), dataset_catalog.csv, and preprocessing_audit_log.json to {OUT_DATASETS_DIR}")
 
 
 def run_optitrack_mocap_validation() -> dict:

@@ -189,24 +189,25 @@
         <div id="esp32-error-box" class="hidden mb-3 p-3 rounded-xl bg-rose-100 border border-rose-300 text-xs font-semibold text-rose-900">
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 mb-3">
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Participant / Patient ID</label>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Patient ID</label>
             <input id="esp32-subject-id" type="text" value="P01_ORIF" class="w-full text-xs font-mono font-bold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500" />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">2. Exercise (All 6 Proposal Exercises)</label>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">2. Exercise</label>
             <select id="esp32-exercise" class="w-full text-xs font-semibold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="00_Walking">00 Walking / Gait Analysis (AI Class 0)</option>
               <option value="01_Heel_Slides">01 Heel Slides (Missing — Record Now)</option>
               <option value="02_Quadriceps_Sets">02 Quadriceps Sets (Missing — Record Now)</option>
               <option value="03_Straight_Leg_Raise">03 Straight-Leg Raise (Missing — Record Now)</option>
-              <option value="04_Seated_Knee_Extension">04 Seated Knee Extension (Calibration)</option>
+              <option value="04_Seated_Knee_Extension" selected>04 Seated Knee Extension (Calibration)</option>
               <option value="05_Mini_Squat">05 Mini Squat (Calibration)</option>
               <option value="06_Step_Up">06 Step-Up (Calibration)</option>
             </select>
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">3. Quality Tier Label</label>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">3. Quality Tier</label>
             <select id="esp32-quality" class="w-full text-xs font-semibold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="0">Grade 0: Good (Correct Form)</option>
               <option value="1">Grade 1: Needs Improvement (Lag / Hesitation)</option>
@@ -214,14 +215,25 @@
             </select>
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">4. Detected ESP32 Port</label>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">4. Duration</label>
+            <select id="esp32-duration" onchange="updateRecordButtonLabel()" class="w-full text-xs font-semibold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="5">5.0s (1 Repetition)</option>
+              <option value="10" selected>10.0s (2–3 Reps — Standard)</option>
+              <option value="15">15.0s (Full Set — 3–5 Reps)</option>
+              <option value="20">20.0s (Extended Session)</option>
+              <option value="30">30.0s (Clinical Assessment)</option>
+              <option value="2">2.0s (Single Window)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">5. ESP32 Port</label>
             <select id="esp32-com-port" class="w-full text-xs font-mono font-semibold rounded-lg border-slate-300 bg-white p-2 border focus:outline-none focus:ring-2 focus:ring-rose-500">
               <option value="NONE">❌ No ESP32 Detected</option>
             </select>
           </div>
           <div class="flex items-end">
             <button id="btn-record-esp32" onclick="startESP32Recording()" class="w-full py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-lg shadow-md transition-all flex items-center justify-center gap-1.5">
-              <span>🔴</span> Start Recording (2.0s)
+              <span>🔴</span> <span id="btn-record-text">Start Recording (10.0s)</span>
             </button>
           </div>
         </div>
@@ -480,9 +492,7 @@
           <div class="bg-white rounded-xl p-4 border border-indigo-100 shadow-2xs">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Task 1: Exercise Recognition</span>
-              <span id="badge-class-match" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                ✅ Match
-              </span>
+              <span id="badge-class-match" class="hidden"></span>
             </div>
             <div class="flex items-baseline justify-between mb-3">
               <h3 class="text-xl font-extrabold text-slate-900" id="res-exercise-name">--</h3>
@@ -496,9 +506,7 @@
           <div class="bg-white rounded-xl p-4 border border-indigo-100 shadow-2xs">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Task 2: Movement Quality Assessment</span>
-              <span id="badge-qual-match" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                ✅ Match
-              </span>
+              <span id="badge-qual-match" class="hidden"></span>
             </div>
             <div class="flex items-baseline justify-between mb-3">
               <h3 class="text-xl font-extrabold text-slate-900" id="res-quality-name">--</h3>

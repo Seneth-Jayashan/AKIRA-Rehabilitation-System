@@ -17,7 +17,7 @@ import time
 import hashlib
 import hmac
 from datetime import datetime, date
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, cast
 
 import numpy as np
 import pandas as pd
@@ -25,7 +25,7 @@ from scipy import signal
 from pydantic import BaseModel
 
 import tensorflow as tf
-from tensorflow import keras
+keras: Any = tf.keras
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Header, Query
@@ -245,7 +245,7 @@ def load_data_and_models():
         CACHE["knee_angles"] = np.array(angles)
 
 
-def get_or_load_model(model_key: str) -> keras.Model:
+def get_or_load_model(model_key: str) -> Any:
     if model_key in CACHE["loaded_models"]:
         return CACHE["loaded_models"][model_key]
 
@@ -793,6 +793,7 @@ ESP32_INO_PATH = os.path.join(BASE_DIR, "esp32_firmware", "akira_knee_esp32.ino"
 os.makedirs(RECORDED_TRIALS_DIR, exist_ok=True)
 
 PROPOSAL_6_EXERCISES = [
+    {"code": "00_Walking",               "name": "00 Walking",               "target_rom": 60.0, "is_new_device_ex": False},
     {"code": "01_Heel_Slides",           "name": "01 Heel Slides",           "target_rom": 95.0, "is_new_device_ex": True},
     {"code": "02_Quadriceps_Sets",       "name": "02 Quadriceps Sets",       "target_rom": 8.0,  "is_new_device_ex": True},
     {"code": "03_Straight_Leg_Raise",    "name": "03 Straight-Leg Raise",    "target_rom": 12.0, "is_new_device_ex": True},
@@ -1036,6 +1037,10 @@ def get_esp32_recorder_status():
     try:
         import serial.tools.list_ports
         for p in serial.tools.list_ports.comports():
+            desc = (p.description or "").lower()
+            hwid = (p.hwid or "").lower()
+            if "bluetooth link" in desc or "bthenum" in hwid or "standard serial over bluetooth" in desc:
+                continue
             ports.append(p.device)
             port_details.append({"port": p.device, "description": p.description})
     except Exception:
@@ -1186,7 +1191,7 @@ async def capture_native_ble_stream_200(capture_duration_sec: float = 2.2) -> tu
         active_sensors = (1 if thigh_acc_mag >= 0.02 else 0) + (1 if shin_acc_mag >= 0.02 else 0)
         eff_fs = len(arr) / actual_dur
         n_true_100hz = max(200, int(round(actual_dur * 100.0)))
-        X_seq_raw = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz)
+        X_seq_raw = cast(np.ndarray, extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz))
         return X_seq_raw, f"ESP32 BLE ({ble_name} [{ble_addr}] • {active_sensors}/2 Sensors Active • {actual_dur:.2f}s @ 100Hz)", actual_dur
 
     if len(packets_6ch) >= 15:
@@ -1199,7 +1204,7 @@ async def capture_native_ble_stream_200(capture_duration_sec: float = 2.2) -> tu
         mat12[:, 0:6] = imu6
         eff_fs = N_pkt / actual_dur
         n_true_100hz = max(200, int(round(actual_dur * 100.0)))
-        X_seq_raw = extractor_engine.resample_to_100hz(mat12, source_fs=eff_fs, target_samples=n_true_100hz)
+        X_seq_raw = cast(np.ndarray, extractor_engine.resample_to_100hz(mat12, source_fs=eff_fs, target_samples=n_true_100hz))
         return X_seq_raw, f"ESP32 BLE ({ble_name} [{ble_addr}] • 1 Sensor [6-Ch 28B Packet] • {actual_dur:.2f}s @ 100Hz)", actual_dur
 
     raise HTTPException(
@@ -1238,7 +1243,7 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         actual_duration_sec = max(2.0, len(arr) / 100.0) if req.duration_sec == 2.0 else req_duration
         eff_fs = len(arr) / actual_duration_sec
         n_true_100hz = max(200, int(round(actual_duration_sec * 100.0)))
-        X_seq_full = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz)
+        X_seq_full = cast(np.ndarray, extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz))
         source_mode_used = f"ESP32 Physical Hardware (Browser BLE/Serial • {len(arr)} samples -> {n_true_100hz} @ 100Hz in {actual_duration_sec:.2f}s)"
 
     elif req.connection_mode == "serial_com":
@@ -1270,9 +1275,15 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
             actual_duration_sec = max(2.0, time.time() - t_start)
             ser.close()
         except Exception as e:
+            err_str = str(e)
+            if "semaphore timeout" in err_str.lower() or "121" in err_str or "bluetooth" in req.com_port.lower():
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Port '{req.com_port}' is a virtual Windows Bluetooth port, not a physical USB cable. Since your ESP32 uses Bluetooth Low Energy (BLE), please click the blue '🔵 Connect ESP32 via BLE' button to connect wirelessly!"
+                )
             raise HTTPException(
                 status_code=400,
-                detail=f"Could not open ESP32 on port '{req.com_port}': {str(e)}."
+                detail=f"Could not open ESP32 on port '{req.com_port}': {err_str}."
             )
 
         if len(rows) < 25:
@@ -1283,7 +1294,7 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         arr = clean_i2c_glitches_mad(np.array(rows, dtype=np.float32))
         eff_fs = len(arr) / actual_duration_sec
         n_true_100hz = max(200, int(round(actual_duration_sec * 100.0)))
-        X_seq_full = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz)
+        X_seq_full = cast(np.ndarray, extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz))
         source_mode_used = f"ESP32 Physical Hardware ({req.com_port} • {len(arr)} frames -> {n_true_100hz} @ 100Hz in {actual_duration_sec:.2f}s)"
 
     elif req.connection_mode == "wifi_stream":
@@ -1298,7 +1309,7 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         actual_duration_sec = max(2.0, len(arr) / 100.0)
         eff_fs = len(arr) / actual_duration_sec
         n_true_100hz = max(200, int(round(actual_duration_sec * 100.0)))
-        X_seq_full = extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz)
+        X_seq_full = cast(np.ndarray, extractor_engine.resample_to_100hz(arr, source_fs=eff_fs, target_samples=n_true_100hz))
         source_mode_used = f"ESP32 Physical Hardware (Wi-Fi Stream • {len(arr)} frames -> {n_true_100hz} @ 100Hz in {actual_duration_sec:.2f}s)"
 
     else:
@@ -1308,7 +1319,7 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         )
 
     # 2. ALIGN DETERMINISTIC HARDWARE AXES & CHECK OPTIONAL STRAP DIAGNOSTIC:
-    X_seq_full = check_and_align_esp32_axes(X_seq_full)
+    X_seq_full = check_and_align_esp32_axes(cast(np.ndarray, X_seq_full))
     X_seq_full, was_swapped, swap_diag_msg = extractor_engine.auto_detect_and_correct_sensor_swap(
         X_seq_full, req.exercise_code, auto_swap=False
     )
@@ -1362,8 +1373,8 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
     X_feat_batch = ((np.array(win_feats, dtype=np.float32) - scaler_mean) / (scaler_scale + 1e-6))
 
     t0_ai = time.time()
-    preds = model.predict(
-        {"input_a_raw_seq": X_seq_batch, "input_b_clinical_feat": X_feat_batch},
+    preds: Any = model.predict(
+        cast(Any, {"input_a_raw_seq": X_seq_batch, "input_b_clinical_feat": X_feat_batch}),
         verbose=0
     )
     ai_latency_ms = round((time.time() - t0_ai) * 1000, 2)
@@ -1374,7 +1385,11 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
     pred_class_idx = int(np.argmax(prob_class))
     pred_qual_idx = int(np.argmax(prob_qual))
 
-    ex_info = next((e for e in PROPOSAL_6_EXERCISES if e["code"] == req.exercise_code), PROPOSAL_6_EXERCISES[3])
+    default_ex = next((e for e in PROPOSAL_6_EXERCISES if "extension" in e["code"].lower()), PROPOSAL_6_EXERCISES[0])
+    ex_info = next(
+        (e for e in PROPOSAL_6_EXERCISES if e["code"].lower() == req.exercise_code.lower() or req.exercise_code.lower() in e["name"].lower() or e["code"].lower().endswith(req.exercise_code.lower())),
+        default_ex
+    )
 
     # Do NOT force Heel Slides, Quad Sets, or SLR into one of the 4 trained classes (Fixes New #29)
     if ex_info["is_new_device_ex"]:
@@ -1457,6 +1472,7 @@ async def record_from_esp32_and_analyze(req: ESP32RecordRequest):
         "sample_detail": {
             "file_id": csv_filename,
             "patient_pseudonym": pseudo_tok,
+            "subject": pseudo_tok,
             "source_dataset": "ESP32 Dual-IMU Live Recording",
             "exercise_name": recognized_name,
             "user_selected_exercise": ex_info["name"],

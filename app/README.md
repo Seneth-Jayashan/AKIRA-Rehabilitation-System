@@ -185,17 +185,17 @@ Evaluated on the **unseen-subject held-out test partition (`200` windows from `1
 
 | Rank | Model Architecture | Parameters | Val Score (%) | Exercise Acc (%) | Exercise Macro F1 (%) | Quality Acc (%) | Quality Macro F1 (%) | Combined Score (%) | Host PC Latency |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **#1** | **Hybrid 5: Self-Attention + Kinematics** | 42,055 | 82.80% | **97.00%** | **97.07%** | **58.91%** | **57.63%** | **77.96%** | ~1.12 ms |
-| **#2** | **Hybrid 1: 1D-CNN + Kinematics (Edge Model)** | 55,879 | **86.08%** | **96.50%** | **96.67%** | **58.91%** | 56.97% | **77.71%** | **0.162 ms** |
-| **#3** | **Hybrid 4: 1D-ResNet + Kinematics** | 159,431 | 81.87% | 96.00% | 96.03% | 57.36% | 55.33% | **76.68%** | ~0.99 ms |
-| **#4** | **Hybrid 2: BiLSTM + Kinematics** | 103,559 | 78.51% | 96.50% | 96.57% | 54.26% | 52.62% | **75.38%** | ~2.40 ms |
-| **#5** | **Hybrid 3: CNN-BiLSTM + Kinematics** | 97,223 | 76.36% | 94.00% | 93.40% | 55.81% | 54.38% | **74.91%** | ~1.27 ms |
-| **#6** | **Hybrid 6: Gated Attention + Kinematics** | 43,335 | 75.52% | 93.50% | 93.00% | 48.06% | 44.77% | **70.78%** | ~0.84 ms |
+| **#1** | **Hybrid 1: 1D-CNN + Kinematics (Edge Model)** | 55,879 | **80.94%** | **96.50%** | **96.95%** | **60.47%** | **58.76%** | **78.48%** | **0.055 ms** |
+| **#2** | **Hybrid 4: 1D-ResNet + Kinematics** | 159,431 | 80.75% | 96.00% | 96.28% | 58.91% | 57.77% | **77.46%** | ~0.56 ms |
+| **#3** | **Hybrid 2: BiLSTM + Kinematics** | 103,559 | 78.79% | 95.00% | 94.87% | 55.04% | 52.69% | **75.02%** | ~2.61 ms |
+| **#4** | **Hybrid 5: Self-Attention + Kinematics** | 42,055 | 82.53% | 95.00% | 95.29% | 54.26% | 51.89% | **74.63%** | ~0.63 ms |
+| **#5** | **Hybrid 6: Gated Attention + Kinematics** | 43,335 | 78.69% | 96.00% | 95.80% | 51.94% | 50.67% | **73.97%** | ~0.47 ms |
+| **#6** | **Hybrid 3: CNN-BiLSTM + Kinematics** | 97,223 | 83.18% | 95.00% | 95.05% | 49.61% | 47.42% | **72.31%** | ~0.75 ms |
 
 ### B. 5-Fold Subject-Independent Cross-Validation (Hybrid 1, all 5 folds)
 
-* **Exercise Accuracy:** **96.29% ± 1.44%** (Macro-F1 95.94%)
-* **Quality Accuracy (labelled windows):** **57.64% ± 3.97%** (Macro-F1 56.30%)
+* **Exercise Accuracy:** **96.19% ± 1.76%** (Macro-F1 96.01%)
+* **Quality Accuracy (labelled windows):** **58.52% ± 2.93%** (Macro-F1 57.40%)
 
 ### C. Baselines (Proposal §3.3)
 

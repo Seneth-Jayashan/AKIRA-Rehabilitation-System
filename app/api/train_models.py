@@ -97,6 +97,17 @@ def per_output_sample_weights(y_class: np.ndarray, y_qual: np.ndarray, idx: np.n
     Returns `[w_exercise, w_quality]` for `idx`. Windows without a quality label
     (y_qual == -1, datasets with no correctness annotation) get quality weight 0, so they
     train the exercise head only. With `balance`, weights are inverse-frequency (clipped).
+
+    MATHEMATICAL DERIVATION (Inverse-Frequency Balanced Sample Weighting):
+    ---------------------------------------------------------------------
+    1. Inverse-Class-Frequency Weighting:
+         w_c = N / (C * N_c),   where N = total trials, C = number of classes, N_c = trials in class c
+         w_clipped = clamp( w_c, 0.35, 3.50 )
+    2. Quality Masking for Retrospective Public Datasets:
+         For window i:
+           w_{i, exercise} = w_clipped( y_{class, i} )
+           w_{i, quality}  = w_clipped( y_{qual, i} ) if y_{qual, i} >= 0 else 0.0
+         ==> Unlabelled quality windows contribute ZERO gradient to the quality head!
     """
     yc = y_class[idx]
     yq = y_qual[idx]
@@ -158,6 +169,20 @@ def evaluate_tflite_edge_model(keras_model, X_seq_test_norm, X_feat_test_norm, y
     QUANTIZE/DEQUANTIZE builtins), exports the complete byte array to `edge_akira_classifier.c`,
     and benchmarks the host-PC interpreter. On-device latency is NOT estimated: it can only
     be measured once the firmware runs TFLite Micro.
+
+    MATHEMATICAL DERIVATION (Full int8 Affine Quantization):
+    -------------------------------------------------------
+    Quantization maps continuous real floating-point numbers r in [r_min, r_max]
+    onto signed 8-bit integers q in [-128, 127]:
+      1. Real to Integer (Quantization):
+           q = clamp( round( r / S ) + Z, -128, 127 )
+      2. Integer to Real (Dequantization):
+           r_approx = S * ( q - Z )
+      3. Scale Factor (S) & Zero-Point (Z):
+           S = (r_max - r_min) / (q_max - q_min) = (r_max - r_min) / 255.0
+           Z = round( - r_min / S ) - 128
+    Eliminates all floating-point hardware dependencies, enabling direct execution on
+    resource-constrained ESP32 / Cortex-M microcontrollers via TFLite Micro built-ins.
     """
     tflite_path = os.path.join(MODELS_DIR, "akira_hybrid_cnn_edge.tflite")
     c_path = os.path.join(MODELS_DIR, "edge_akira_classifier.c")

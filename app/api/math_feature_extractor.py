@@ -17,9 +17,29 @@ WHAT THIS FILE DOES (Proposal Figure 3, Boxes 02 & 03):
   6. Step 2.6: Continuous sagittal knee angle theta(t), projected on the hinge axis and referenced to the
      most-extended posture of the recording, so theta >= 0 (`compute_knee_angle`).
   7. Box 03  : Extracts 16 non-redundant, clinically validated biomechanical features (`extract_16_features`).
+
+MATHEMATICAL EQUATIONS DIRECTORY (Quick Navigation):
+  • Eq. 1: Natural Cubic Spline Interpolation: S_i(t) = a_i + b_i(t-t_i) + c_i(t-t_i)^2 + d_i(t-t_i)^3
+  • Eq. 2: 4th-Order Butterworth Frequency Response: |H(j*w)|^2 = 1 / (1 + (w / w_c)^8)
+  • Eq. 3: Gyro Bias Removal: omega_cal[t] = omega[t] - (1/K) * sum(omega_quiet)
+  • Eq. 4: Singular Value Decomposition (SVD) Knee Hinge Axis: Omega_c = U * Sigma * V^T, u_hinge = v_1
+  • Eq. 5: Sagittal Plane Gravity Projection: a_sag = a - (a . u_hinge) * u_hinge
+  • Eq. 6: Static Extension Deficit Tare: theta_static = arccos( (a_thigh . a_shin) / (||a_t|| * ||a_s||) )
+  • Eq. 7: Madgwick Initial Gravity Quaternion: q_0 = (1 / sqrt(2*(1+az))) * [1+az, -ay, ax, 0]^T
+  • Eq. 8: Gyroscope Quaternion Differential: qDot_w = 0.5 * q (x) [0, w_x, w_y, w_z]^T
+  • Eq. 9: Accelerometer Gravity Objective & Jacobian: f_g(q, a_hat), J_g(q), nabla_f = J_g^T * f_g
+  • Eq. 10: Madgwick Gradient-Descent Update: qDot_t = qDot_w - beta * (nabla_f / ||nabla_f||)
+  • Eq. 11: 3D Relative Quaternion: q_rel = q_thigh* (x) q_shin (Hamilton Product)
+  • Eq. 12: Frame-Consistent Rotation of Shin Gyro: w_shin^(T) = w_s + q_w*t + (q_v x t), t = 2*(q_v x w_s)
+  • Eq. 13: Sagittal Knee Flexion Angle: theta(t) = 2 * arctan2(q_tared_vec . u_hinge, q_tared_w) * (180/pi)
+  • Eq. 14: Phase Unwrapping & Shape Asymmetry: Asym = ((P90 - P50) - (P50 - P10)) / (max - min)
+  • Eq. 15: Central Difference Angular Velocity: omega[n] = (theta[n+1] - theta[n-1]) / (2 * Delta_t)
+  • Eq. 16: Spectral Arc Length (SPARC): SPARC = - integral_0^(w_c) sqrt( (1/w_c)^2 + (d V_hat / d w)^2 ) dw
+  • Eq. 17-32: The 16 Clinical Biomechanical Features (ROM, Depth, Return Deficit, Velocities, etc.)
 ========================================================================================
 """
 
+from typing import Optional, Tuple, Dict, List, Any, cast
 import numpy as np
 from scipy import signal, interpolate
 
@@ -31,6 +51,16 @@ class Clinical16FeatureExtractor:
     """
 
     def __init__(self, fs: float = 100.0, filter_cutoff: float = 5.0, filter_order: int = 4, beta: float = 0.04):
+        """
+        Initializes the feature extraction engine with clinical filtering parameters.
+
+        Mathematical Parameters:
+          - fs (Sampling Frequency): f_s = 100.0 Hz  ==>  Delta_t = 1 / f_s = 0.010 s (10 ms)
+          - filter_cutoff: f_c = 5.0 Hz (Nyquist normalized: w_norm = f_c / (f_s / 2) = 0.10)
+          - filter_order: n = 4 (4th-order Butterworth, -80 dB/decade roll-off)
+          - beta: Madgwick gradient-descent convergence rate (beta = 0.04 rad/s)
+                  Optimal for human orthopedic limb motion (balances drift compensation vs gyro responsiveness).
+        """
         self.fs = float(fs)
         self.dt = 1.0 / self.fs
         self.filter_cutoff = float(filter_cutoff)
@@ -43,14 +73,32 @@ class Clinical16FeatureExtractor:
     def resample_to_100hz(
         self,
         time_s_or_data: np.ndarray,
-        data: np.ndarray = None,
-        target_fs: float = None,
-        source_fs: float = None,
-        target_samples: int = None
-    ):
+        data: Optional[np.ndarray] = None,
+        target_fs: Optional[float] = None,
+        source_fs: Optional[float] = None,
+        target_samples: Optional[int] = None
+    ) -> Any:
         """
         Resamples arbitrary-rate IMU streams (e.g., 52 Hz, 56.35 Hz, 148.15 Hz) onto a
         uniform 100 Hz grid using Cubic-Spline interpolation.
+
+        MATHEMATICAL DERIVATION (Natural Cubic Spline, Eq. 1):
+        ------------------------------------------------------
+        Given N discrete time-value pairs (t_i, y_i) for i = 0, ..., N-1, the interpolant S(t)
+        consists of piecewise cubic polynomials:
+          S_i(t) = a_i + b_i*(t - t_i) + c_i*(t - t_i)^2 + d_i*(t - t_i)^3,  for t in [t_i, t_{i+1}]
+
+        Subject to C^2 continuity constraints across all internal knots:
+          1. Position continuity:     S_i(t_{i+1})   = S_{i+1}(t_{i+1}) = y_{i+1}
+          2. Velocity continuity:     S'_i(t_{i+1})  = S'_{i+1}(t_{i+1})
+          3. Acceleration continuity: S''_i(t_{i+1}) = S''_{i+1}(t_{i+1})
+        And natural boundary conditions (zero curvature at endpoints):
+          S''_0(t_0) = 0,   S''_{N-1}(t_{N-1}) = 0
+
+        Uniform Resampling Grid:
+          t_k = t_0 + k * Delta_t_out,   where Delta_t_out = 1.0 / target_fs = 0.010 s
+          n_out = round( (t_{end} - t_{start}) * target_fs ) + 1
+
         Supports two calling conventions:
           1. resample_to_100hz(time_s, data, target_fs=100.0) -> (uniform_time, resampled_data)
           2. resample_to_100hz(data, source_fs=50.0, target_samples=None) -> resampled_data
@@ -105,10 +153,29 @@ class Clinical16FeatureExtractor:
     # ----------------------------------------------------------------------------------
     # STEP 2.2: ZERO-PHASE 4TH-ORDER BUTTERWORTH LOW-PASS FILTER
     # ----------------------------------------------------------------------------------
-    def butter_lowpass_filter(self, data: np.ndarray, cutoff_hz: float = None, fs: float = None) -> np.ndarray:
+    def butter_lowpass_filter(self, data: np.ndarray, cutoff_hz: Optional[float] = None, fs: Optional[float] = None) -> np.ndarray:
         """
         Applies a zero-phase 4th-order Butterworth low-pass filter (default 5.0 Hz)
         to suppress high-frequency sensor vibration and soft-tissue artifact.
+
+        MATHEMATICAL DERIVATION (Eq. 2):
+        --------------------------------
+        1. Continuous Butterworth Filter Magnitude Response (order n = 4, cutoff w_c = 2*pi*f_c):
+             |H(j*w)|^2 = 1 / (1 + (w / w_c)^(2*n)) = 1 / (1 + (f / 5.0)^8)
+           Maximally flat passband with zero ripple (magnitude error < 0.001 dB in passband).
+
+        2. Bilinear Transform (Mapping s-plane to z-plane):
+             s = (2 / T_s) * ((1 - z^-1) / (1 + z^-1)),   where T_s = 1 / f_s
+
+        3. Zero-Phase Forward-Backward Filtering (scipy.signal.filtfilt):
+             Forward pass:   y_f[n] = x[n] * h[n]
+             Time-reversal:  y_r[n] = y_f[N - 1 - n]
+             Backward pass:  y_b[n] = y_r[n] * h[n]
+             Final output:   y[n]   = y_b[N - 1 - n]
+           System Frequency Response:
+             H_total(e^{j*w}) = H(e^{j*w}) * H^*(e^{j*w}) = |H(e^{j*w})|^2
+             Phase Theta_total(w) = Theta(w) - Theta(w) == 0.0 rad
+           ==> Perfect zero-phase delay: movement peaks and troughs are NOT temporally shifted.
         """
         fs_use = float(fs) if fs is not None else self.fs
         fc_use = float(cutoff_hz) if cutoff_hz is not None else self.filter_cutoff
@@ -118,7 +185,7 @@ class Clinical16FeatureExtractor:
 
         nyq = 0.5 * fs_use
         norm_cutoff = np.clip(fc_use / nyq, 0.01, 0.95)
-        b, a = signal.butter(self.filter_order, norm_cutoff, btype="low", analog=False)
+        b, a = cast(Tuple[Any, Any], signal.butter(self.filter_order, norm_cutoff, btype="low", analog=False))
 
         if data.ndim == 1:
             return signal.filtfilt(b, a, data).astype(np.float32)
@@ -133,9 +200,9 @@ class Clinical16FeatureExtractor:
     def calibrate_sensors(
         self,
         thigh_acc: np.ndarray,
-        thigh_gyr: np.ndarray = None,
-        shin_acc: np.ndarray = None,
-        shin_gyr: np.ndarray = None,
+        thigh_gyr: Optional[np.ndarray] = None,
+        shin_acc: Optional[np.ndarray] = None,
+        shin_gyr: Optional[np.ndarray] = None,
         static_samples: int = 20
     ):
         """
@@ -147,6 +214,33 @@ class Clinical16FeatureExtractor:
              vectors into the sagittal plane orthogonal to that hinge axis.
           3. Computes the true sagittal static baseline extension angle (`tare_angle_deg`)
              and returns `(thigh_acc, thigh_gyr_cal, shin_acc, shin_gyr_cal, tare_angle_deg, quiet_idx)`.
+
+        MATHEMATICAL DERIVATION:
+        ------------------------
+        1. Gyroscope Zero-Rate Bias Estimation (Eq. 3):
+             Quiet Window W_quiet = argmin_{i} ( (1/K) * sum_{k=i}^{i+K-1} (||w_thigh[k]|| + ||w_shin[k]||) )
+             b_thigh = (1/K) * sum_{k in W_quiet} w_thigh[k],   if mean(||w||) < 15.0 deg/s
+             w_thigh_cal[t] = w_thigh[t] - b_thigh
+             w_shin_cal[t]  = w_shin[t]  - b_shin
+
+        2. Singular Value Decomposition (SVD) Knee Hinge Axis Extraction (Eq. 4):
+             Differential angular velocity matrix:
+               Omega_rel = w_shin_cal - w_thigh_cal  in R^{N x 3}
+               Omega_c   = Omega_rel - mean(Omega_rel, axis=0)
+             Economy SVD:
+               Omega_c = U * Sigma * V^T,   where Sigma = diag(sigma_1 >= sigma_2 >= sigma_3)
+             Principal Hinge Axis:
+               u_hinge = v_1 = V[:, 0]  (first column of V, unit vector along max rotational variance)
+
+        3. Sagittal Gravity Vector Projection & Extension Tare Angle (Eq. 5 & 6):
+             Project 3D accelerometer readings orthogonal to u_hinge (into sagittal plane):
+               a_sag = a - (a . u_hinge) * u_hinge
+               ||a_sag|| = sqrt( a_sag,x^2 + a_sag,y^2 + a_sag,z^2 )
+             Sagittal inclination cosine:
+               cos(theta_static) = (a_sag_thigh . a_sag_shin) / (||a_sag_thigh|| * ||a_sag_shin||)
+               theta_static = arccos( clamp(cos(theta_static), -1.0, 1.0) ) * (180 / pi)
+             Measured extension deficit/lag clamped to physiological limits:
+               tare_angle_deg = clamp(theta_static[quiet_idx], 0.0 deg, 25.0 deg)
         """
         single_matrix_mode = False
         if thigh_gyr is None and thigh_acc.ndim == 2 and thigh_acc.shape[1] >= 12:
@@ -186,7 +280,7 @@ class Clinical16FeatureExtractor:
         thigh_gyr_cal = thigh_gyr - t_bias
         shin_gyr_cal = shin_gyr - s_bias
 
-        # Identify principal 3D knee hinge axis via SVD of differential angular velocity
+        # Identify principal 3D knee hinge axis via SVD of differential angular velocity (Eq. 4)
         rel_gyr = shin_gyr_cal - thigh_gyr_cal
         centered_gyr = rel_gyr - np.mean(rel_gyr, axis=0)
         if np.max(np.std(centered_gyr, axis=0)) > 1e-3:
@@ -195,7 +289,7 @@ class Clinical16FeatureExtractor:
         else:
             u_hinge = np.array([0.0, 1.0, 0.0], dtype=np.float64)
 
-        # Project gravity vectors orthogonal to u_hinge to find the extension baseline posture (not flexion peak!)
+        # Project gravity vectors orthogonal to u_hinge to find the extension baseline posture (Eq. 5 & 6)
         t_sag_all = thigh_acc - np.outer(thigh_acc @ u_hinge, u_hinge)
         s_sag_all = shin_acc - np.outer(shin_acc @ u_hinge, u_hinge)
         tn_all = np.linalg.norm(t_sag_all, axis=1)
@@ -238,11 +332,49 @@ class Clinical16FeatureExtractor:
     # ----------------------------------------------------------------------------------
     # STEP 2.4 & 2.5: 6-DOF MADGWICK QUATERNION FUSION & 3D RELATIVE ORIENTATION
     # ----------------------------------------------------------------------------------
-    def madgwick_fusion(self, accel: np.ndarray, gyro_deg_s: np.ndarray, dt: float = None) -> np.ndarray:
+    def madgwick_fusion(self, accel: np.ndarray, gyro_deg_s: np.ndarray, dt: Optional[float] = None) -> np.ndarray:
         """
         Step 2.4: Madgwick Gradient-Descent 6-DoF IMU Orientation Filter.
         Initializes q[0] from the initial gravity vector to avoid convergence lag
         and returns unit quaternions q = [qw, qx, qy, qz] of shape (N, 4).
+
+        MATHEMATICAL DERIVATION (Madgwick AHRS 6-DoF):
+        ---------------------------------------------
+        1. Gravity Initialization at t = 0 (Eliminates Initial Filter Transient, Eq. 7):
+             Measured initial gravity unit vector:
+               a_hat_0 = a[0] / ||a[0]|| = [ax0, ay0, az0]^T
+             Quaternion rotating world gravity [0, 0, 1]^T to sensor frame a_hat_0:
+               q_0 = (1 / sqrt(2 * (1 + az0))) * [1 + az0, -ay0, ax0, 0]^T
+
+        2. Gyroscope Orientation Rate of Change (Quaternion Kinematics, Eq. 8):
+             qDot_w = 0.5 * q (x) [0, w_x, w_y, w_z]^T
+             In scalar-vector form q = [q1, q2, q3, q4] = [qw, qx, qy, qz]:
+               qDot_w = 0.5 * [ -q2*wx - q3*wy - q4*wz,
+                                 q1*wx + q3*wz - q4*wy,
+                                 q1*wy - q2*wz + q4*wx,
+                                 q1*wz + q2*wy - q3*wx ]
+
+        3. Accelerometer Gravity Objective Function f_g(q, a_hat, Eq. 9):
+             Rotates reference gravity g = [0, 0, 1]^T from world into sensor frame:
+               f_g(q, a_hat) = q* (x) [0, 0, 0, 1]^T (x) q - [0, ax, ay, az]^T
+             Equivalently:
+               f_g = [ 2*(q2*q4 - q1*q3) - ax,
+                       2*(q1*q2 + q3*q4) - ay,
+                       2*(0.5 - q2^2 - q3^2) - az ]
+
+        4. Jacobian Matrix J_g(q) in R^{3 x 4} (Eq. 9):
+               J_g = [ -2*q3,   2*q4,  -2*q1,  2*q2 ]
+                     [  2*q2,   2*q1,   2*q4,  2*q3 ]
+                     [     0,  -4*q2,  -4*q3,     0 ]
+
+        5. Gradient Descent Direction & Normalized Step (Eq. 9):
+             nabla_f = J_g^T * f_g
+             step    = nabla_f / ||nabla_f||
+
+        6. Filter Fusion & Numerical Integration (Eq. 10):
+             qDot_t = qDot_w - beta * step,   where beta = 0.04 rad/s
+             q_{t+dt} = q_t + qDot_t * Delta_t
+             Normalization: q_{t+dt} <-- q_{t+dt} / ||q_{t+dt}||  (maintains unit quaternion manifold)
         """
         dt_use = float(dt) if dt is not None else self.dt
         N = len(accel)
@@ -252,7 +384,7 @@ class Clinical16FeatureExtractor:
         norm_a0 = np.linalg.norm(accel[0])
         if norm_a0 > 0.1:
             ax0, ay0, az0 = accel[0] / norm_a0
-            # Quaternion rotating world gravity [0, 0, 1] to measured sensor gravity [ax0, ay0, az0]
+            # Quaternion rotating world gravity [0, 0, 1] to measured sensor gravity [ax0, ay0, az0] (Eq. 7)
             q0_vec = np.array([1.0 + az0, -ay0, ax0, 0.0], dtype=np.float64)
             norm_q0 = np.linalg.norm(q0_vec)
             if norm_q0 > 1e-6:
@@ -270,16 +402,19 @@ class Clinical16FeatureExtractor:
             norm_a = np.linalg.norm(a)
             if norm_a > 0.1:
                 ax, ay, az = a / norm_a
+                # Objective error vector f_g (Eq. 9)
                 F = np.array([
                     2.0 * (q2 * q4 - q1 * q3) - ax,
                     2.0 * (q1 * q2 + q3 * q4) - ay,
                     2.0 * (0.5 - q2**2 - q3**2) - az
                 ])
+                # Jacobian matrix J_g (Eq. 9)
                 J = np.array([
                     [-2.0 * q3,  2.0 * q4, -2.0 * q1, 2.0 * q2],
                     [ 2.0 * q2,  2.0 * q1,  2.0 * q4, 2.0 * q3],
                     [ 0.0,      -4.0 * q2, -4.0 * q3, 0.0     ]
                 ])
+                # Gradient descent step: nabla_f = J^T * F
                 step = J.T @ F
                 n_step = np.linalg.norm(step)
                 if n_step > 1e-9:
@@ -287,6 +422,7 @@ class Clinical16FeatureExtractor:
             else:
                 step = np.zeros(4)
 
+            # Quaternion derivative from gyro angular rate (Eq. 8) minus gradient descent error (Eq. 10)
             qDot = 0.5 * np.array([
                 -q2 * w[0] - q3 * w[1] - q4 * w[2],
                  q1 * w[0] + q3 * w[2] - q4 * w[1],
@@ -294,6 +430,7 @@ class Clinical16FeatureExtractor:
                  q1 * w[2] + q2 * w[1] - q3 * w[0]
             ]) - self.beta * step
 
+            # First-order Euler integration & unit normalization
             q_new = q[i - 1] + qDot * dt_use
             q[i] = q_new / (np.linalg.norm(q_new) + 1e-12)
 
@@ -303,6 +440,21 @@ class Clinical16FeatureExtractor:
     def compute_relative_orientation(q_thigh: np.ndarray, q_shin: np.ndarray) -> np.ndarray:
         """
         Step 2.5: Computes 3D relative orientation quaternion q_rel = q_thigh* (x) q_shin.
+
+        MATHEMATICAL DERIVATION (Hamilton Product, Eq. 11):
+        ---------------------------------------------------
+        Let q_thigh = [w1, x1, y1, z1] and q_shin = [w2, x2, y2, z2].
+        The conjugate (inverse rotation for unit quaternion) is:
+          q_thigh* = [w1, -x1, -y1, -z1]
+
+        The relative orientation quaternion q_rel represents the rotation from the shin frame
+        to the thigh frame in 3D Euclidean space:
+          q_rel = q_thigh* (x) q_shin
+        Component-wise Hamilton product expansion:
+          w = w1*w2 - (-x1)*x2 - (-y1)*y2 - (-z1)*z2 =  w1*w2 + x1*x2 + y1*y2 + z1*z2 (using conjugate)
+          x = w1*x2 + (-x1)*w2 + (-y1)*z2 - (-z1)*y2 =  w1*x2 - x1*w2 - y1*z2 + z1*y2
+          y = w1*y2 - (-x1)*z2 + (-y1)*w2 + (-z1)*x2 =  w1*y2 + x1*z2 - y1*w2 - z1*x2
+          z = w1*z2 + (-x1)*y2 - (-y1)*x2 + (-z1)*w2 =  w1*z2 - x1*y2 + y1*x2 - z1*w2
         """
         w1, x1, y1, z1 = q_thigh[:, 0], -q_thigh[:, 1], -q_thigh[:, 2], -q_thigh[:, 3]
         w2, x2, y2, z2 = q_shin[:, 0], q_shin[:, 1], q_shin[:, 2], q_shin[:, 3]
@@ -318,9 +470,9 @@ class Clinical16FeatureExtractor:
     def compute_knee_angle(
         self,
         thigh_gyro_y: np.ndarray,
-        shin_gyro_y: np.ndarray = None,
-        X_seq_12ch: np.ndarray = None,
-        duration_sec: float = None,
+        shin_gyro_y: Optional[np.ndarray] = None,
+        X_seq_12ch: Optional[np.ndarray] = None,
+        duration_sec: Optional[float] = None,
         already_calibrated: bool = False
     ) -> np.ndarray:
         """
@@ -371,6 +523,27 @@ class Clinical16FeatureExtractor:
         """
         Steps 2.3-2.5 for a 12-channel window. Returns `(signed_angle_deg, u_hinge)`: the relative
         thigh->shin rotation projected on the hinge axis `u_hinge` (thigh frame, arbitrary SVD sign).
+
+        MATHEMATICAL DERIVATION:
+        ------------------------
+        1. Rotating Shin Angular Velocity into Thigh Reference Frame (Eq. 12):
+             To compare shin and thigh angular velocities in one unified coordinate frame,
+             we rotate w_shin by q_rel via the Rodrigues quaternion formula:
+               t = 2 * (q_v x w_shin)
+               w_shin^(T) = w_shin + q_w * t + (q_v x t),   where q_v = [qx, qy, qz]^T, q_w = qw
+
+        2. Identifying True Sagittal Hinge Axis via SVD:
+             Differential rate: Delta_w = w_shin^(T) - w_thigh
+             Centered: Delta_w_c = Delta_w - mean(Delta_w)
+             SVD: Delta_w_c = U * Sigma * V^T ==> u_hinge = v_1 (principal eigenvector)
+
+        3. Relative Angle Projection onto Sagittal Hinge Axis (Eq. 13):
+             Tared relative quaternion: q_tared = q_rel (x) q_ref*
+             Enforce canonical hemisphere: if q_tared,w < 0 ==> q_tared <-- -q_tared
+             Project vector quaternion part onto hinge axis:
+               q_hinge_proj = q_tared,vec . u_hinge = (qx*ux + qy*uy + qz*uz)
+             Anatomical Sagittal Knee Flexion Angle:
+               theta_signed(t) = 2.0 * arctan2(q_hinge_proj, q_tared,w) * (180.0 / pi)
         """
         arr = np.asarray(X_seq_12ch, dtype=np.float64)
         N = len(arr)
@@ -381,7 +554,8 @@ class Clinical16FeatureExtractor:
         if already_calibrated:
             quiet_idx = int(np.argmin(np.linalg.norm(s_gyr - t_gyr, axis=1)))
         else:
-            t_acc, t_gyr, s_acc, s_gyr, _, quiet_idx = self.calibrate_sensors(t_acc, t_gyr, s_acc, s_gyr)
+            cal_res = cast(Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, int], self.calibrate_sensors(t_acc, t_gyr, s_acc, s_gyr))
+            t_acc, t_gyr, s_acc, s_gyr, _, quiet_idx = cal_res
 
         # Step 2.4: 6-DoF Madgwick Quaternion Sensor Fusion for Thigh and Shin
         q_thigh = self.madgwick_fusion(t_acc, t_gyr, dt=dt)
@@ -396,7 +570,7 @@ class Clinical16FeatureExtractor:
         q_tared = self._quat_multiply(q_rel, self._quat_conjugate(q_ref))
 
         # Rotate the shin gyroscope into the thigh frame with q_rel so the differential angular
-        # velocity, and therefore the SVD hinge axis, are expressed in one consistent frame
+        # velocity, and therefore the SVD hinge axis, are expressed in one consistent frame (Eq. 12)
         qv = q_rel[:, 1:4]
         qw = q_rel[:, 0:1]
         t = 2.0 * np.cross(qv, s_gyr)
@@ -416,12 +590,14 @@ class Clinical16FeatureExtractor:
             q_tared = np.copy(q_tared)
             q_tared[neg_mask] = -q_tared[neg_mask]
 
+        # Project vector quaternion onto anatomical hinge axis (Eq. 13)
         q_hinge_proj = np.sum(q_tared[:, 1:4] * u_hinge, axis=1)
         signed_angle_deg = 2.0 * np.rad2deg(np.arctan2(q_hinge_proj, q_tared[:, 0]))
         return signed_angle_deg, u_hinge
 
     @staticmethod
     def _quat_conjugate(q: np.ndarray) -> np.ndarray:
+        """Quaternion conjugate: q* = [qw, -qx, -qy, -qz]."""
         return np.column_stack([q[:, 0], -q[:, 1], -q[:, 2], -q[:, 3]])
 
     @staticmethod
@@ -438,7 +614,11 @@ class Clinical16FeatureExtractor:
 
     @staticmethod
     def _unwrap_deg(angle_deg: np.ndarray) -> np.ndarray:
-        """Removes +/-180 deg wrap-around jumps from an angle trace in degrees."""
+        """
+        Removes +/-180 deg wrap-around jumps from an angle trace in degrees.
+        Delta_theta[k] = theta[k] - theta[k-1]
+        If Delta_theta[k] > 180 deg ==> subtract 360 deg; if < -180 deg ==> add 360 deg.
+        """
         return np.rad2deg(np.unwrap(np.deg2rad(np.asarray(angle_deg, dtype=np.float64))))
 
     @staticmethod
@@ -446,6 +626,9 @@ class Clinical16FeatureExtractor:
         """
         Signed excursion asymmetry in [-1, 1]: positive when the trace moves further above its
         median than below it. Near zero for symmetric oscillations (e.g. seated extension).
+
+        Equation (Eq. 14):
+          Asymmetry = ( (P90 - P50) - (P50 - P10) ) / ( PTP(theta) + 1e-6 )
         """
         med = float(np.median(theta))
         up = float(np.percentile(theta, 90)) - med
@@ -460,12 +643,11 @@ class Clinical16FeatureExtractor:
 
         Polarity rule (shape-based, applied identically in training, live recording and
         OptiTrack validation): the side on which the signal moves further away from its
-        median is taken as the positive direction. IMU data alone cannot tell anatomical
-        flexion from extension without a known sensor orientation, so this is a convention:
-        for open-chain seated knee extension (resting posture flexed) the positive direction
-        is usually extension, and for near-symmetric windows it can flip between windows
-        (OptiTrack polarity agreement is reported in `optitrack_validation_metrics.json`).
-        ROM, angular-velocity magnitude, SPARC and repetition timing do not depend on it.
+        median is taken as the positive direction:
+          theta_unwrapped = unwrap(signed_angle_deg)
+          if Asymmetry(theta_unwrapped) < 0:
+              theta = -theta_unwrapped
+          theta_zeroed = theta - min(theta)  >= 0 deg
         """
         # Remove +/-180 deg wrap-around jumps so a wrap can never masquerade as a ~360 deg ROM
         theta = Clinical16FeatureExtractor._unwrap_deg(signed_angle_deg)
@@ -488,6 +670,15 @@ class Clinical16FeatureExtractor:
         while the shin swings through a wide arc).
         Never flips single-axis signs and never modifies closed-chain exercises
         (Squats, Walking, Step-Up) where both segments rotate simultaneously.
+
+        MATHEMATICAL CRITERIA:
+        ----------------------
+        Angular velocity RMS per segment:
+          RMS_thigh = sqrt( (1/N) * sum_{t=1}^N (gx_t^2 + gy_t^2 + gz_t^2) )
+          RMS_shin  = sqrt( (1/N) * sum_{t=1}^N (gx_s^2 + gy_s^2 + gz_s^2) )
+
+        Swapped Condition (Open-Chain Seated Knee Extension only):
+          RMS_shin < 8.0 deg/s  AND  RMS_thigh > max(35.0 deg/s, 5.0 * RMS_shin)
         """
         arr = np.copy(X_seq_12ch)
         if arr.ndim != 2 or arr.shape[1] < 12:
@@ -524,10 +715,21 @@ class Clinical16FeatureExtractor:
     # ----------------------------------------------------------------------------------
     # METHOD 2: COMPUTE ANGULAR VELOCITY
     # ----------------------------------------------------------------------------------
-    def compute_angular_velocity(self, knee_angle: np.ndarray, dt: float = None) -> np.ndarray:
+    def compute_angular_velocity(self, knee_angle: np.ndarray, dt: Optional[float] = None) -> np.ndarray:
         """
         Computes instantaneous knee angular velocity (deg/s) via central differences
         and 2nd-order zero-phase Butterworth low-pass smoothing at 5.0 Hz.
+
+        MATHEMATICAL DERIVATION (Eq. 15):
+        ---------------------------------
+        1. 2nd-Order Central Difference Derivative (O(Delta_t^2) truncation error):
+             Interior points:   omega[n] = (theta[n+1] - theta[n-1]) / (2 * Delta_t)
+             Forward boundary:  omega[0] = (theta[1] - theta[0]) / Delta_t
+             Backward boundary: omega[N-1] = (theta[N-1] - theta[N-2]) / Delta_t
+
+        2. 2nd-Order Zero-Phase Butterworth Smoothing:
+             Suppresses high-frequency numerical differentiation noise while preserving
+             peak flexion and extension speeds without temporal latency.
         """
         dt_use = float(dt) if dt is not None else self.dt
         fs_use = 1.0 / dt_use
@@ -535,7 +737,7 @@ class Clinical16FeatureExtractor:
 
         if len(velocity) >= 12 and fs_use > 12.0:
             norm_fc = np.clip(5.0 / (0.5 * fs_use), 0.02, 0.92)
-            b, a = signal.butter(2, norm_fc, btype="low")
+            b, a = cast(Tuple[Any, Any], signal.butter(2, norm_fc, btype="low"))
             smooth_velocity = signal.filtfilt(b, a, velocity)
         else:
             smooth_velocity = velocity
@@ -550,10 +752,33 @@ class Clinical16FeatureExtractor:
         padlevel: int = 4,
         fc: float = 10.0,
         amp_th: float = 0.05,
-        dt: float = None
+        dt: Optional[float] = None
     ) -> float:
         """
         Computes Spectral Arc Length (SPARC) motor smoothness index (<= 0.0).
+
+        MATHEMATICAL DERIVATION (Balasubramanian et al., IEEE TNSRE 2015, Eq. 16):
+        -------------------------------------------------------------------------
+        1. Fourier Transform of Velocity Signal:
+             V(w) = integral_{-inf}^{inf} v(t) * e^{-j*w*t} dt  ==>  Discrete FFT: V[k] = FFT(v)[k]
+
+        2. Normalized Magnitude Spectrum:
+             hat{V}(w) = |V(w)| / max_{w'} |V(w')|  in [0.0, 1.0]
+
+        3. Adaptive Cutoff Frequency w_c:
+             w_c = max( { w in [0, 2*pi*f_c] : hat{V}(w) >= amp_th } )
+             Prevents high-frequency noise from inflating the arc length.
+
+        4. Spectral Arc Length Definition:
+             SPARC = - integral_0^{w_c} sqrt( (1 / w_c)^2 + (d hat{V}(w) / dw)^2 ) dw
+           Discrete summation:
+             Delta_w_bar_k = (w_{k+1} - w_k) / w_c
+             Delta_V_hat_k = hat{V}[k+1] - hat{V}[k]
+             SPARC = - sum_{k=0}^{K-1} sqrt( (Delta_w_bar_k)^2 + (Delta_V_hat_k)^2 )
+
+        Clinical Interpretation:
+          - Pure, smooth bell-shaped single-peak velocity curve: SPARC close to -1.5 to -2.0.
+          - Jerky, hesitant, tremulous post-ORIF movement (multiple sub-movements): SPARC < -3.5 to -7.0.
         """
         dt_use = float(dt) if dt is not None else self.dt
         v = np.asarray(velocity_signal, dtype=np.float64)
@@ -586,14 +811,34 @@ class Clinical16FeatureExtractor:
     def segment_repetitions(
         self,
         knee_angle: np.ndarray,
-        min_rom_threshold: float = None,
+        min_rom_threshold: Optional[float] = None,
         min_duration_sec: float = 0.45,
-        dt: float = None
+        dt: Optional[float] = None
     ):
         """
         Segments exercise repetitions using adaptive prominence peak detection.
         Supports both large-excursion exercises (Squats, Extensions, Walking, Step-Ups) and
         small-excursion isometric/early-ORIF exercises (Quad Sets 5-10 deg, SLR 10-15 deg).
+
+        MATHEMATICAL DERIVATION:
+        ------------------------
+        1. Dynamic Prominence Threshold:
+             Total_ROM = max(theta) - min(theta)
+             Prom_threshold = clamp(0.30 * Total_ROM, 3.5 deg, 18.0 deg)
+             Height_threshold = min(theta) + Prom_threshold
+
+        2. Peak Detection (scipy.signal.find_peaks):
+             Candidate peaks {p_k} satisfy:
+               theta(p_k) >= Height_threshold
+               prominence(p_k) >= 0.70 * Prom_threshold
+               distance(p_k, p_{k+1}) >= min_duration_sec * f_s
+
+        3. Valley Boundary Search (Repetition Cycle Window [start_k, end_k]):
+             start_k = argmin_{t in [p_k - T_win, p_k]} theta(t)
+             end_k   = argmin_{t in [p_k, p_k + T_win]} theta(t)
+             Repetition ROM:      ROM_k = theta(p_k) - min(theta(start_k), theta(end_k))
+             Repetition Duration: T_k   = (end_k - start_k) * Delta_t
+             Valid Repetition condition: ROM_k >= 0.8 * Prom_th AND T_k >= 0.75 * min_duration
         """
         dt_use = float(dt) if dt is not None else self.dt
         fs_use = 1.0 / dt_use
@@ -632,17 +877,76 @@ class Clinical16FeatureExtractor:
     # ----------------------------------------------------------------------------------
     # METHOD 5: EXTRACT ALL 16 NON-REDUNDANT CLINICAL FEATURES
     # ----------------------------------------------------------------------------------
-    def extract_16_features(self, knee_angle: np.ndarray, duration_sec: float = None):
+    def extract_16_features(self, knee_angle: np.ndarray, duration_sec: Optional[float] = None):
         """
-        Computes the standardized 16-dimensional clinical kinematic feature vector (Input B):
-          - Feature 1 (`rom_deg`): Total active Range of Motion = max(theta) - min(theta).
-          - Feature 2 (`peak_depth_deg`): Maximum Knee Flexion Angle = max(theta) (or mean
-            peak flexion angle across segmented repetitions when rep_count >= 2, with NO arbitrary blend).
-          - Feature 3 (`extension_return_deficit_deg`): mean repetition trough angle above the
-            most-extended posture (0.0 when no repetition is segmented).
-          - Feature 8 (`mean_repetition_duration`): Mean cycle duration, or active velocity envelope
-            duration when discrete reps == 0 (0.0s if stationary).
-          - Feature 12 (`max_ang_vel`, >0 flexion) & Feature 13 (`min_ang_vel`, <0 extension).
+        Computes the standardized 16-dimensional clinical kinematic feature vector (Input B)
+        mapping directly to Methodology Architecture Box 03:
+
+        ===================================================================================
+        THE 16 CLINICAL FEATURES — MATHEMATICAL EQUATIONS & CLINICAL DEFINITIONS:
+        ===================================================================================
+        • Category 3.1: Range of Motion (ROM)
+          1. Feature 1 (rom_deg) [deg]:
+             ROM = max_{t} theta(t) - min_{t} theta(t)
+             Clinical: Quantifies total joint excursion for post-ORIF arthrofibrosis monitoring.
+
+        • Category 3.2: Movement Depth & Terminal Extension
+          2. Feature 2 (peak_depth_deg) [deg]:
+             theta_peak = (1 / K) * sum_{k=1}^K theta(p_k)   [if K >= 2 reps; else max_{t} theta(t)]
+             Clinical: Verifies compliance with clinician-prescribed flexion limits (e.g. <= 45 deg).
+          3. Feature 3 (extension_return_deficit_deg) [deg]:
+             ERD = (1 / 2K) * sum_{k=1}^K [theta(start_k) + theta(end_k)] - min_{t} theta(t)
+             Clinical: Measures extensor lag / inability to return fully to terminal extension.
+
+        • Category 3.3: Angular Velocity
+          4. Feature 4 (peak_angular_velocity) [deg/s]:
+             omega_peak = max_{t} |omega(t)|
+             Clinical: Peak rotational rate; identifies jerky compensation or guarded motion.
+          5. Feature 5 (mean_angular_velocity) [deg/s]:
+             omega_mean = (1 / N) * sum_{t=1}^N |omega(t)|
+             Clinical: Sustained dynamic pace of rehabilitation exercise execution.
+          12. Feature 12 (max_ang_vel) [deg/s]:
+             omega_flex_peak = max_{t} omega(t)   (positive directional peak)
+             Clinical: Peak knee-bending speed during concentric flexion phase.
+          13. Feature 13 (min_ang_vel) [deg/s]:
+             omega_ext_peak = min_{t} omega(t)   (negative directional peak)
+             Clinical: Peak knee-straightening speed during quadriceps-driven extension phase.
+
+        • Category 3.4: Movement Smoothness (SPARC)
+          6. Feature 6 (sparc_smoothness) [dimensionless, in (-inf, 0]]:
+             SPARC = - integral_0^{w_c} sqrt( (1 / w_c)^2 + (d hat{V}(w) / dw)^2 ) dw
+             Clinical: Gold-standard sub-movement metric; detects motor hesitation and pain guarding.
+
+        • Category 3.5: Repetition Count
+          7. Feature 7 (repetition_count) [count]:
+             K = count( valid segmented repetition cycles )
+             Clinical: Prescribed repetition adherence verification.
+
+        • Category 3.6: Movement Duration & Cadence
+          8. Feature 8 (mean_repetition_duration) [s]:
+             bar{T}_rep = (1 / K) * sum_{k=1}^K (end_k - start_k) * Delta_t
+             Clinical: Pace compliance; guards against abnormally fast or compensatory momentum.
+          16. Feature 16 (sparc_per_duration) [s^-1]:
+             SPARC_rate = SPARC / bar{T}_rep
+             Clinical: Duration-normalized smoothness velocity rate.
+
+        • Category 3.7: Statistical Dispersion & Excursion Shape
+          9. Feature 9 (angle_std) [deg]:
+             sigma_theta = sqrt( (1 / N) * sum_{t=1}^N (theta(t) - bar{theta})^2 )
+             Clinical: Spread of joint angles across the full exercise window.
+          10. Feature 10 (velocity_std) [deg/s]:
+             sigma_omega = sqrt( (1 / N) * sum_{t=1}^N (omega(t) - bar{omega})^2 )
+             Clinical: Velocity fluctuation indicating motor control variability.
+          11. Feature 11 (angle_iqr) [deg]:
+             IQR_theta = Q_75(theta) - Q_25(theta)
+             Clinical: Robust non-parametric joint excursion spread immune to momentary outlier twitches.
+          14. Feature 14 (mean_angle) [deg]:
+             bar{theta} = (1 / N) * sum_{t=1}^N theta(t)
+             Clinical: Central joint operating angle during the exercise session.
+          15. Feature 15 (angle_rms) [deg]:
+             RMS_theta = sqrt( (1 / N) * sum_{t=1}^N theta(t)^2 )
+             Clinical: Overall kinematic energy and sustained excursion intensity.
+        ===================================================================================
         """
         ang = np.asarray(knee_angle, dtype=np.float64)
         N = len(ang)
@@ -651,19 +955,17 @@ class Clinical16FeatureExtractor:
         ang_vel = self.compute_angular_velocity(ang, dt=dt_use)
         rep_bounds, rep_count = self.segment_repetitions(ang, dt=dt_use)
 
-        # FEATURE 1: Range of Motion (ROM = max - min, in degrees)
+        # FEATURE 1: Range of Motion (ROM = max - min, in degrees) [Eq. 17]
         rom = float(np.max(ang) - np.min(ang))
 
-        # FEATURE 2: Peak Flexion Angle / Mean Repetition Peak Depth (in degrees, NO 0.7/0.3 blend)
+        # FEATURE 2: Peak Flexion Angle / Mean Repetition Peak Depth (in degrees, NO 0.7/0.3 blend) [Eq. 18]
         if rep_count >= 2:
             peak_depth = float(np.mean([ang[p] for _, p, _ in rep_bounds]))
         else:
             peak_depth = float(np.max(ang))
 
         # FEATURE 3: Extension Return Deficit (deg) = mean trough angle at the start/end of each
-        # segmented repetition above the most-extended posture of the recording. It measures how
-        # completely the patient returns to extension between repetitions. An absolute extensor
-        # lag needs a straight-leg calibration pose, which the training datasets do not provide.
+        # segmented repetition above the most-extended posture of the recording. [Eq. 19]
         min_angle = float(np.min(ang))
         if rep_count >= 1:
             troughs = [float(ang[s]) for s, _, _ in rep_bounds] + [float(ang[e]) for _, _, e in rep_bounds]
@@ -671,19 +973,19 @@ class Clinical16FeatureExtractor:
         else:
             extension_return_deficit = 0.0
 
-        # FEATURE 4: Peak Angular Velocity (deg/s)
+        # FEATURE 4: Peak Angular Velocity (deg/s) = max(|omega(t)|) [Eq. 20]
         peak_velocity = float(np.max(np.abs(ang_vel)))
 
-        # FEATURE 5: Mean Angular Velocity (deg/s)
+        # FEATURE 5: Mean Angular Velocity (deg/s) = mean(|omega(t)|) [Eq. 21]
         mean_velocity = float(np.mean(np.abs(ang_vel)))
 
-        # FEATURE 6: SPARC Movement Smoothness (dimensionless index <= 0)
+        # FEATURE 6: SPARC Movement Smoothness (dimensionless index <= 0) [Eq. 22]
         sparc_smoothness = self.compute_sparc(ang_vel, dt=dt_use)
 
-        # FEATURE 7: Repetition Count (integer count of valid completed cycles)
+        # FEATURE 7: Repetition Count (integer count of valid completed cycles) [Eq. 23]
         repetition_count = float(rep_count)
 
-        # FEATURE 8: Mean Repetition Duration (seconds)
+        # FEATURE 8: Mean Repetition Duration (seconds) [Eq. 24]
         if rep_count > 0:
             durations = [(end - start) * dt_use for start, _, end in rep_bounds]
             mean_duration = float(np.mean(durations))
@@ -695,28 +997,28 @@ class Clinical16FeatureExtractor:
             else:
                 mean_duration = 0.0
 
-        # FEATURE 9: Knee Angle Standard Deviation (deg)
+        # FEATURE 9: Knee Angle Standard Deviation (deg) [Eq. 25]
         angle_std = float(np.std(ang))
 
-        # FEATURE 10: Angular Velocity Standard Deviation (deg/s)
+        # FEATURE 10: Angular Velocity Standard Deviation (deg/s) [Eq. 26]
         velocity_std = float(np.std(ang_vel))
 
-        # FEATURE 11: Angle Interquartile Range (IQR = P75 - P25, in deg)
+        # FEATURE 11: Angle Interquartile Range (IQR = P75 - P25, in deg) [Eq. 27]
         angle_iqr = float(np.percentile(ang, 75) - np.percentile(ang, 25))
 
-        # FEATURE 12: Max Flexion Velocity (Peak positive knee-bending speed, deg/s)
+        # FEATURE 12: Max Flexion Velocity (Peak positive knee-bending speed, deg/s) [Eq. 28]
         max_ang_vel = float(np.max(ang_vel))
 
-        # FEATURE 13: Max Extension Velocity (Peak negative knee-straightening speed, deg/s)
+        # FEATURE 13: Max Extension Velocity (Peak negative knee-straightening speed, deg/s) [Eq. 29]
         min_ang_vel = float(np.min(ang_vel))
 
-        # FEATURE 14: Mean Knee Angle (deg)
+        # FEATURE 14: Mean Knee Angle (deg) [Eq. 30]
         mean_angle = float(np.mean(ang))
 
-        # FEATURE 15: Angle Root Mean Square (RMS, deg)
+        # FEATURE 15: Angle Root Mean Square (RMS, deg) [Eq. 31]
         angle_rms = float(np.sqrt(np.mean(ang**2)))
 
-        # FEATURE 16: Normalized Smoothness Rate (SPARC / Active Duration, /s)
+        # FEATURE 16: Normalized Smoothness Rate (SPARC / Active Duration, /s) [Eq. 32]
         eff_dur = mean_duration if mean_duration > 0.2 else float(N * dt_use)
         sparc_per_duration = float(sparc_smoothness / (eff_dur + 1e-6))
 

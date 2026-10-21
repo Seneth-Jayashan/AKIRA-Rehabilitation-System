@@ -2,7 +2,6 @@
  * ======================================================================================
  * AKIRA KNEE REHABILITATION SYSTEM — DUAL-IMU ESP32 BLE + USB SERIAL FIRMWARE (100 Hz)
  * ======================================================================================
- * Student Investigator: Wickramarathna S A (IT23222540)
  * Component: Knee Rehabilitation Following Tibial Plateau ORIF
  *
  * SUPPORTS BOTH:
@@ -18,6 +17,30 @@
  *   - ESP32 GPIO22 ---> IMU 1 SCL (Thigh) & IMU 2 SCL (Shin)
  *   - IMU 1 AD0    ---> Connected to GND  (I2C Address = 0x68 -> THIGH SENSOR)
  *   - IMU 2 AD0    ---> Connected to 3.3V (I2C Address = 0x69 -> SHIN SENSOR)
+ *
+ * MATHEMATICAL SCALING & CALIBRATION EQUATIONS:
+ * ======================================================================================
+ * 1. Accelerometer Physical Scaling (+/- 4g Full-Scale Range):
+ *      Sensitivity = 8192 LSB/g  (from MPU-6050 Register 28 ACCEL_CONFIG = 0x08)
+ *      Formula:
+ *        a [g] = raw_int16 / 8192.0
+ *        a [m/s^2] = (raw_int16 / 8192.0) * 9.80665
+ *
+ * 2. Gyroscope Physical Scaling (+/- 500 deg/s Full-Scale Range):
+ *      Sensitivity = 65.5 LSB/(deg/s) (from MPU-6050 Register 27 GYRO_CONFIG = 0x08)
+ *      Formula:
+ *        omega [deg/s] = raw_int16 / 65.5
+ *        omega [rad/s] = (raw_int16 / 65.5) * (pi / 180.0)
+ *
+ * 3. Hardware Sampling Rate Divider (100 Hz = 10 ms interval):
+ *      f_sample = f_internal / (1 + SMPLRT_DIV)
+ *               = 1000 Hz / (1 + 9) = 100.0 Hz  ==>  Delta_t = 10,000 microseconds
+ *
+ * 4. Static Gyroscope Zero-Rate Bias Estimation:
+ *      During initial 2.0 s stationary calibration (N_cal = 200 samples @ 100 Hz):
+ *        b_gyro[axis] = (1 / N_cal) * sum_{i=1}^{N_cal} omega_raw[axis, i]
+ *      Real-time compensation:
+ *        omega_calibrated[axis, t] = omega_measured[axis, t] - b_gyro[axis]
  *
  * OUTPUT FORMAT (100 Hz = every 10 ms):
  *   thigh_ax,thigh_ay,thigh_az,thigh_gx,thigh_gy,thigh_gz,shin_ax,shin_ay,shin_az,shin_gx,shin_gy,shin_gz
@@ -60,15 +83,20 @@ const uint8_t REG_GYRO_CONFIG  = 0x1B;
 const uint8_t REG_ACCEL_CONFIG = 0x1C;
 const uint8_t REG_ACCEL_XOUT_H = 0x3B;
 
-// Scale Factors (+/- 4g and +/- 500 deg/s)
-const float ACCEL_SCALE = 8192.0f; // LSB per g
-const float GYRO_SCALE  = 65.5f;   // LSB per deg/s
+// ======================================================================================
+// MATHEMATICAL CONVERSION CONSTANTS
+// ======================================================================================
+// Accelerometer: +/- 4g full scale ==> 65536 / 8g = 8192 LSB/g (Eq. 1)
+const float ACCEL_SCALE = 8192.0f; 
 
-// 100 Hz Sampling Interval (10,000 microseconds = 10 ms)
+// Gyroscope: +/- 500 deg/s full scale ==> 65536 / 1000 deg/s = 65.536 LSB/(deg/s) (Eq. 2)
+const float GYRO_SCALE  = 65.5f;   
+
+// 100 Hz Sampling Interval: Delta_t = 1 / 100.0 Hz = 0.010 s = 10,000 microseconds (Eq. 3)
 const unsigned long SAMPLE_INTERVAL_US = 10000;
 unsigned long lastSampleMicros = 0;
 
-// Gyroscope & Accelerometer Static Calibration Offsets
+// Gyroscope Static Calibration Offsets (Zero-Rate Bias vectors b_gyro in R^3, Eq. 4)
 float thighGyroBias[3] = {0.0f, 0.0f, 0.0f};
 float shinGyroBias[3]  = {0.0f, 0.0f, 0.0f};
 
@@ -86,19 +114,19 @@ void configureIMU(uint8_t addr) {
   Wire.write(0x04);
   Wire.endTransmission(true);
 
-  // Set sample rate divider: 1000 Hz / (1 + 9) = 100 Hz
+  // Set sample rate divider (Eq. 3): 1000 Hz / (1 + 9) = 100 Hz
   Wire.beginTransmission(addr);
   Wire.write(REG_SMPLRT_DIV);
   Wire.write(0x09);
   Wire.endTransmission(true);
 
-  // Configure Accelerometer range: +/- 4g (8192 LSB/g)
+  // Configure Accelerometer range: +/- 4g (8192 LSB/g, Eq. 1)
   Wire.beginTransmission(addr);
   Wire.write(REG_ACCEL_CONFIG);
   Wire.write(0x08);
   Wire.endTransmission(true);
 
-  // Configure Gyroscope range: +/- 500 deg/s (65.5 LSB/deg/s)
+  // Configure Gyroscope range: +/- 500 deg/s (65.5 LSB/deg/s, Eq. 2)
   Wire.beginTransmission(addr);
   Wire.write(REG_GYRO_CONFIG);
   Wire.write(0x08);
@@ -132,16 +160,19 @@ bool readIMURaw(uint8_t addr, float &ax, float &ay, float &az, float &gx, float 
     return false;
   }
 
-  ax = raw_ax / ACCEL_SCALE;
+  // Convert raw 16-bit counts to physical units (Eq. 1 & 2)
+  ax = raw_ax / ACCEL_SCALE; // in g
   ay = raw_ay / ACCEL_SCALE;
   az = raw_az / ACCEL_SCALE;
-  gx = raw_gx / GYRO_SCALE;
+  gx = raw_gx / GYRO_SCALE;  // in deg/s
   gy = raw_gy / GYRO_SCALE;
   gz = raw_gz / GYRO_SCALE;
   return true;
 }
 
 void calibrateGyroscopes() {
+  // MATHEMATICAL FORMULA: Static Gyroscope Mean Zero-Rate Bias (Eq. 4)
+  //   b_gyro = (1 / N_cal) * sum_{i=1}^{N_cal} omega_i,  where N_cal = 200 samples (2.0s)
   const int N_CAL = 200; // 2.0 seconds at 100 Hz
   int thighValid = 0, shinValid = 0;
   for (int i = 0; i < N_CAL; i++) {
@@ -205,6 +236,7 @@ struct __attribute__((packed)) DualIMUPacket {
 
 void loop() {
   unsigned long now = micros();
+  // Fixed-interval 10 ms (100 Hz) execution loop (Eq. 3)
   if (now - lastSampleMicros >= SAMPLE_INTERVAL_US) {
     lastSampleMicros += SAMPLE_INTERVAL_US;
 
@@ -214,6 +246,7 @@ void loop() {
     bool thighOk = readIMURaw(IMU_THIGH_ADDR, tax, tay, taz, tgx, tgy, tgz);
     bool shinOk  = readIMURaw(IMU_SHIN_ADDR,  sax, say, saz, sgx, sgy, sgz);
 
+    // Apply real-time zero-rate gyro bias subtraction (Eq. 4)
     if (thighOk) {
       tgx -= thighGyroBias[0]; tgy -= thighGyroBias[1]; tgz -= thighGyroBias[2];
     }

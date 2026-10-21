@@ -17,6 +17,32 @@ async function initDashboard() {
   await selectSample(0);
   await loadESP32Status();
   await loadLongitudinalData();
+  // Auto-connect to ESP32 BLE wirelessly in background
+  tryAutoConnectBLE();
+}
+
+async function tryAutoConnectBLE() {
+  if (backendBleConnected) return;
+  try {
+    const statusEl = document.getElementById('esp32-record-status');
+    if (statusEl) {
+      statusEl.className = 'text-indigo-600 font-bold';
+      statusEl.innerText = '🔍 Auto-connecting to nearby ESP32-REHAB via BLE...';
+    }
+    const res = await fetch('/api/esp32/ble_connect', { method: 'POST' });
+    if (res.ok) {
+      const out = await res.json();
+      if (out.status === 'connected') {
+        await loadESP32Status();
+        if (statusEl) {
+          statusEl.className = 'text-emerald-700 font-bold';
+          statusEl.innerText = `🔵 Connected to ${out.name} (${out.address}) — Ready to Record!`;
+        }
+      }
+    }
+  } catch (e) {
+    // Silent fallback
+  }
 }
 
 async function loadModels() {
@@ -223,7 +249,7 @@ async function selectSample(sampleIdx) {
 
     // Update Metadata Card
     document.getElementById('meta-file-id').innerText = data.file_id;
-    document.getElementById('meta-subject').innerText = data.subject;
+    document.getElementById('meta-subject').innerText = data.subject || data.patient_pseudonym || 'P01';
     document.getElementById('meta-dataset').innerText = data.source_dataset;
     document.getElementById('meta-gt-exercise').innerText = data.exercise_name;
     document.getElementById('meta-gt-quality').innerText = data.quality_name;
@@ -281,13 +307,7 @@ async function runInference() {
     document.getElementById('res-exercise-name').innerText = ex.name;
     document.getElementById('res-exercise-conf').innerText = `${ex.confidence}%`;
     const badgeEx = document.getElementById('badge-class-match');
-    if (ex.matches_ground_truth) {
-      badgeEx.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
-      badgeEx.innerText = '✅ Matches Ground Truth';
-    } else {
-      badgeEx.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200';
-      badgeEx.innerText = `⚠️ GT: ${ex.true_name}`;
-    }
+    if (badgeEx) badgeEx.className = 'hidden';
     renderProbBars('prob-bars-exercise', ex.class_names, ex.probabilities, ex.class_id, 'blue');
 
     // Quality Assessment Result
@@ -295,16 +315,7 @@ async function runInference() {
     document.getElementById('res-quality-name').innerText = q.name;
     document.getElementById('res-quality-conf').innerText = `${q.confidence}%`;
     const badgeQ = document.getElementById('badge-qual-match');
-    if (q.matches_ground_truth === null) {
-      badgeQ.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
-      badgeQ.innerText = 'ℹ️ No quality ground truth for this trial';
-    } else if (q.matches_ground_truth) {
-      badgeQ.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
-      badgeQ.innerText = '✅ Matches Ground Truth';
-    } else {
-      badgeQ.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200';
-      badgeQ.innerText = `⚠️ GT: ${q.true_name}`;
-    }
+    if (badgeQ) badgeQ.className = 'hidden';
     renderProbBars('prob-bars-quality', q.grade_names, q.probabilities, q.grade_id, 'emerald');
 
     // Update Live Pipeline Execution Latency Tracker
@@ -765,16 +776,30 @@ async function connectWebBluetoothESP32() {
   }
 }
 
-async function read200SamplesFromBLE() {
+function updateRecordButtonLabel() {
+  const durVal = document.getElementById('esp32-duration')?.value || '10';
+  const txtEl = document.getElementById('btn-record-text');
+  if (txtEl) {
+    txtEl.innerText = `Start Recording (${durVal}.0s)`;
+  }
+}
+
+async function read200SamplesFromBLE(targetSamples = 1000, durationSec = 10.0) {
   bleIncomingRows = [];
   bleLineBuffer = '';
   isCapturingBLE = true;
   const tStart = Date.now();
-  while (bleIncomingRows.length < 200 && (Date.now() - tStart) < 4500) {
-    await new Promise(r => setTimeout(r, 25));
+  const maxTimeoutMs = (durationSec + 3.0) * 1000;
+  const statusEl = document.getElementById('esp32-record-status');
+  while (bleIncomingRows.length < targetSamples && (Date.now() - tStart) < maxTimeoutMs) {
+    await new Promise(r => setTimeout(r, 40));
+    const elapsedSec = ((Date.now() - tStart) / 1000).toFixed(1);
+    if (statusEl) {
+      statusEl.innerText = `🔴 Streaming BLE: ${elapsedSec}s / ${durationSec.toFixed(1)}s (${bleIncomingRows.length} samples)... Move your leg now!`;
+    }
   }
   isCapturingBLE = false;
-  return bleIncomingRows.slice(0, 200);
+  return bleIncomingRows.slice(0, targetSamples);
 }
 
 async function connectWebSerialESP32() {
@@ -807,15 +832,17 @@ async function connectWebSerialESP32() {
   }
 }
 
-async function read200SamplesFromWebSerial() {
+async function read200SamplesFromWebSerial(targetSamples = 1000, durationSec = 10.0) {
   const reader = webSerialPort.readable.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
   const rows = [];
   const tStart = Date.now();
+  const maxTimeoutMs = (durationSec + 3.0) * 1000;
+  const statusEl = document.getElementById('esp32-record-status');
 
   try {
-    while (rows.length < 200 && (Date.now() - tStart) < 4500) {
+    while (rows.length < targetSamples && (Date.now() - tStart) < maxTimeoutMs) {
       const { value, done } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
@@ -827,9 +854,13 @@ async function read200SamplesFromWebSerial() {
           const nums = parts.map(Number);
           if (nums.every(n => !Number.isNaN(n))) {
             rows.push(nums);
-            if (rows.length >= 200) break;
+            if (rows.length >= targetSamples) break;
           }
         }
+      }
+      const elapsedSec = ((Date.now() - tStart) / 1000).toFixed(1);
+      if (statusEl) {
+        statusEl.innerText = `🔴 Streaming Serial: ${elapsedSec}s / ${durationSec.toFixed(1)}s (${rows.length} samples)... Move your leg now!`;
       }
     }
   } finally {
@@ -848,6 +879,9 @@ async function startESP32Recording() {
   const selectedPort = document.getElementById('esp32-com-port')?.value || 'NONE';
   const webBleActive = Boolean(bleDevice && bleDevice.gatt && bleDevice.gatt.connected);
 
+  const durationSec = parseFloat(document.getElementById('esp32-duration')?.value || '10.0');
+  const targetSamples = Math.max(200, Math.round(durationSec * 100));
+
   if (errBox) errBox.classList.add('hidden');
 
   // STRICT CHECK: Block recording immediately if no ESP32 hardware is connected!
@@ -865,11 +899,11 @@ async function startESP32Recording() {
 
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = '<span>⏳</span> Streaming BLE (2.0s)...';
+    btn.innerHTML = `<span>⏳</span> Streaming (${durationSec.toFixed(1)}s)...`;
   }
   if (statusEl) {
     statusEl.className = 'text-amber-700 font-bold';
-    statusEl.innerText = `🔴 Streaming live BLE sensor packets from ESP32... Move the sensor now!`;
+    statusEl.innerText = `🔴 Streaming live sensor packets for ${durationSec.toFixed(1)}s... Perform your exercise now!`;
   }
 
   try {
@@ -880,13 +914,13 @@ async function startESP32Recording() {
       connMode = 'backend_ble';
     } else if (selectedPort === 'WEBBLE' && webBleActive) {
       connMode = 'web_ble_raw';
-      rawRows = await read200SamplesFromBLE();
+      rawRows = await read200SamplesFromBLE(targetSamples, durationSec);
       if (!rawRows || rawRows.length < 50) {
         throw new Error(`Received only ${rawRows ? rawRows.length : 0} valid 12-channel IMU lines over BLE.`);
       }
     } else if (selectedPort === 'WEBSERIAL' && webSerialPort) {
       connMode = 'web_serial_raw';
-      rawRows = await read200SamplesFromWebSerial();
+      rawRows = await read200SamplesFromWebSerial(targetSamples, durationSec);
       if (!rawRows || rawRows.length < 50) {
         throw new Error(`Received only ${rawRows ? rawRows.length : 0} valid 12-channel IMU lines from WebSerial.`);
       }
@@ -904,6 +938,7 @@ async function startESP32Recording() {
         connection_mode: connMode,
         com_port: selectedPort,
         model_key: currentModelKey,
+        duration_sec: durationSec,
         raw_rows: rawRows
       })
     });
@@ -919,7 +954,7 @@ async function startESP32Recording() {
 
     // Update Metadata Card
     document.getElementById('meta-file-id').innerText = data.file_id;
-    document.getElementById('meta-subject').innerText = data.subject;
+    document.getElementById('meta-subject').innerText = data.subject || data.patient_pseudonym || 'P01';
     document.getElementById('meta-dataset').innerText = data.source_dataset;
     document.getElementById('meta-gt-exercise').innerText = data.exercise_name;
     document.getElementById('meta-gt-quality').innerText = data.quality_name;
@@ -938,16 +973,14 @@ async function startESP32Recording() {
     document.getElementById('res-exercise-name').innerText = ex.name;
     document.getElementById('res-exercise-conf').innerText = `${ex.confidence}%`;
     const badgeEx = document.getElementById('badge-class-match');
-    badgeEx.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
-    badgeEx.innerText = `✅ Recorded: ${ex.true_name}`;
+    if (badgeEx) badgeEx.className = 'hidden';
     renderProbBars('prob-bars-exercise', ex.class_names, ex.probabilities, ex.class_id, 'blue');
 
     const q = pred.predicted_quality;
     document.getElementById('res-quality-name').innerText = q.name;
     document.getElementById('res-quality-conf').innerText = `${q.confidence}%`;
     const badgeQ = document.getElementById('badge-qual-match');
-    badgeQ.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
-    badgeQ.innerText = `✅ Label: ${q.true_name.split(' ')[0]}`;
+    if (badgeQ) badgeQ.className = 'hidden';
     renderProbBars('prob-bars-quality', q.grade_names, q.probabilities, q.grade_id, 'emerald');
 
     if (pred.session_outputs) {
@@ -980,7 +1013,8 @@ async function startESP32Recording() {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.innerHTML = '<span>🔴</span> Start Recording (2.0s)';
+      const durVal = document.getElementById('esp32-duration')?.value || '10';
+      btn.innerHTML = `<span>🔴</span> <span id="btn-record-text">Start Recording (${durVal}.0s)</span>`;
     }
   }
 }
