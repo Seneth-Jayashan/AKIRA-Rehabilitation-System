@@ -1527,13 +1527,25 @@ let lastPacketTimestamp = null;
 let recentTimestamps = [];
 let liveMeasuredRateHz = 0.0;
 
-// Scope ring buffer: 100 points
+// Scope ring buffer: 120 points (All 12 channels initialized)
 const SCOPE_BUFFER_LEN = 120;
 let scopeBuffer = {
   t: [],
   rua_ax: [], rua_ay: [], rua_az: [],
+  rua_gx: [], rua_gy: [], rua_gz: [],
   rla_ax: [], rla_ay: [], rla_az: [],
+  rla_gx: [], rla_gy: [], rla_gz: [],
 };
+
+function resetScopeBuffer() {
+  scopeBuffer = {
+    t: [],
+    rua_ax: [], rua_ay: [], rua_az: [],
+    rua_gx: [], rua_gy: [], rua_gz: [],
+    rla_ax: [], rla_ay: [], rla_az: [],
+    rla_gx: [], rla_gy: [], rla_gz: [],
+  };
+}
 
 function updateEsp32UIState(state, message = "") {
   esp32State = state;
@@ -1764,66 +1776,246 @@ async function connectEsp32Serial() {
   }
 }
 
+function tryParse52BytePacket(bytes) {
+  if (bytes.length < 52) return null;
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, 52);
+  const t_ms = dv.getUint32(0, true);
+  const c = [];
+  for (let i = 0; i < 12; i++) {
+    c.push(dv.getFloat32(4 + i * 4, true));
+  }
+  if (c.some((v) => !Number.isFinite(v))) return null;
+  const ruaMag = Math.sqrt(c[0] ** 2 + c[1] ** 2 + c[2] ** 2);
+  if (ruaMag < 0.01 || ruaMag > 150) return null;
+
+  const accScale = (ruaMag > 0.05 && ruaMag < 3.5) ? 9.80665 : 1.0;
+  const gyrScale = Math.PI / 180.0;
+
+  return {
+    is_valid: true,
+    t_ms: t_ms,
+    seq: livePacketCount + 1,
+    status_flags: 0,
+    channels: {
+      RUA_Ax: Number((c[0] * accScale).toFixed(3)),
+      RUA_Ay: Number((c[1] * accScale).toFixed(3)),
+      RUA_Az: Number((c[2] * accScale).toFixed(3)),
+      RUA_Gx: Number((c[3] * gyrScale).toFixed(4)),
+      RUA_Gy: Number((c[4] * gyrScale).toFixed(4)),
+      RUA_Gz: Number((c[5] * gyrScale).toFixed(4)),
+      RLA_Ax: Number((c[6] * accScale).toFixed(3)),
+      RLA_Ay: Number((c[7] * accScale).toFixed(3)),
+      RLA_Az: Number((c[8] * accScale).toFixed(3)),
+      RLA_Gx: Number((c[9] * gyrScale).toFixed(4)),
+      RLA_Gy: Number((c[10] * gyrScale).toFixed(4)),
+      RLA_Gz: Number((c[11] * gyrScale).toFixed(4)),
+    },
+  };
+}
+
 async function connectEsp32Bluetooth() {
   if (!("bluetooth" in navigator)) {
     updateEsp32UIState(
       ESP32_STATE.FAILED,
       "Web Bluetooth API is not supported in this browser. Please use Chrome or Edge."
     );
+    alert("Web Bluetooth is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
     return;
   }
 
   updateEsp32UIState(ESP32_STATE.SEARCHING, "Requesting ESP32 BLE device from user...");
 
   try {
-    const device = await navigator.bluetooth.requestDevice({
-      filters: [{ namePrefix: "ESP32" }, { namePrefix: "REHAB" }],
-      optionalServices: ["4fafc201-1fb5-459e-8fcc-c5c9c331914b"],
-    });
+    const serviceUuid = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    const charUuidTx  = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+
+    let device = null;
+    try {
+      device = await navigator.bluetooth.requestDevice({
+        filters: [
+          { namePrefix: "ESP32" },
+          { namePrefix: "REHAB" },
+          { namePrefix: "AKIRA" },
+        ],
+        optionalServices: [
+          serviceUuid,
+          "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+          "0000ffe0-0000-1000-8000-00805f9b34fb"
+        ],
+      });
+    } catch (filterErr) {
+      if (filterErr.name === "NotFoundError" && (filterErr.message.includes("User cancelled") || filterErr.message.includes("cancel"))) {
+        throw filterErr;
+      }
+      console.warn("Name prefix filter failed, retrying with acceptAllDevices: true", filterErr);
+      device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [
+          serviceUuid,
+          "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+          "0000ffe0-0000-1000-8000-00805f9b34fb"
+        ],
+      });
+    }
 
     activeBleDevice = device;
     device.addEventListener("gattserverdisconnected", () => {
       handleTransportClosed("BLE device disconnected.");
     });
 
-    updateEsp32UIState(ESP32_STATE.AWAITING, "Connecting to GATT server...");
+    updateEsp32UIState(ESP32_STATE.AWAITING, `Connecting to GATT server on ${device.name || "ESP32"}...`);
     const server = await device.gatt.connect();
-    const service = await server.getPrimaryService("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
-    const characteristic = await service.getCharacteristic("beb5483e-36e1-4688-b7f5-ea07361b26a8");
+
+    // Connect to Nordic UART Service matching akira_knee_esp32.ino
+    let characteristic = null;
+    try {
+      const service = await server.getPrimaryService(serviceUuid);
+      characteristic = await service.getCharacteristic(charUuidTx);
+    } catch (e) {
+      console.warn("Primary NUS service not found, trying fallback services:", e);
+      try {
+        const s2 = await server.getPrimaryService("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
+        characteristic = await s2.getCharacteristic("beb5483e-36e1-4688-b7f5-ea07361b26a8");
+      } catch (e2) {}
+    }
+
+    if (!characteristic) {
+      throw new Error(`Connected to ${device.name}, but could not find the TX characteristic (${charUuidTx}). Please ensure the firmware is running.`);
+    }
+
     activeBleCharacteristic = characteristic;
 
     let firstPacket = false;
+    let bleByteBuffer = new Uint8Array(0);
+    let bleTextBuffer = "";
+    const textDecoder = new TextDecoder();
+
+    // Register notification callback BEFORE starting notifications
+    characteristic.addEventListener("characteristicvaluechanged", (event) => {
+      try {
+        const dataView = event.target.value;
+        if (!dataView || dataView.byteLength === 0) return;
+
+        const bytes = new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength);
+
+        // A. Direct 52-byte DualIMUPacket (<I12f)
+        if (bytes.length === 52) {
+          const p = tryParse52BytePacket(bytes);
+          if (p) {
+            if (!firstPacket) {
+              firstPacket = true;
+              clearTimeout(bleTimeout);
+              updateEsp32UIState(ESP32_STATE.CONNECTED_VERIFIED);
+            }
+            processIncomingPacket(p);
+            return;
+          }
+        }
+
+        // B. Accumulator for chunked packets (e.g. 20-byte MTU fragments or 64-byte packets)
+        const newBuf = new Uint8Array(bleByteBuffer.length + bytes.length);
+        newBuf.set(bleByteBuffer, 0);
+        newBuf.set(bytes, bleByteBuffer.length);
+        bleByteBuffer = newBuf;
+
+        while (bleByteBuffer.length >= 52) {
+          // Try 52-byte packet
+          const p52 = tryParse52BytePacket(bleByteBuffer.slice(0, 52));
+          if (p52) {
+            if (!firstPacket) {
+              firstPacket = true;
+              clearTimeout(bleTimeout);
+              updateEsp32UIState(ESP32_STATE.CONNECTED_VERIFIED);
+            }
+            processIncomingPacket(p52);
+            bleByteBuffer = bleByteBuffer.slice(52);
+            continue;
+          }
+
+          // Try 64-byte packet with 0xAA55AA55 header
+          if (bleByteBuffer.length >= 64) {
+            const magic = (bleByteBuffer[0]) | (bleByteBuffer[1] << 8) | (bleByteBuffer[2] << 16) | (bleByteBuffer[3] << 24);
+            if ((magic >>> 0) === 0xAA55AA55) {
+              const packetBytes = bleByteBuffer.slice(0, 64);
+              const parsed = parseBinarySensorPacket(packetBytes);
+              if (parsed && parsed.is_valid) {
+                if (!firstPacket) {
+                  firstPacket = true;
+                  clearTimeout(bleTimeout);
+                  updateEsp32UIState(ESP32_STATE.CONNECTED_VERIFIED);
+                }
+                processIncomingPacket(parsed);
+                bleByteBuffer = bleByteBuffer.slice(64);
+                continue;
+              }
+            }
+          }
+
+          // Advance by 1 byte to find packet boundary
+          bleByteBuffer = bleByteBuffer.slice(1);
+        }
+
+        // C. CSV ASCII line streaming fallback
+        if (bytes.length > 0) {
+          const str = textDecoder.decode(bytes);
+          if (str.includes(",") && (str.includes("\n") || str.includes("\r"))) {
+            bleTextBuffer += str;
+            const lines = bleTextBuffer.split(/[\r\n]+/);
+            bleTextBuffer = lines.pop() || "";
+            for (const line of lines) {
+              const parts = line.trim().split(/[,\t]+/);
+              if (parts.length >= 12) {
+                const vals = parts.map(Number);
+                if (!vals.some(isNaN)) {
+                  if (!firstPacket) {
+                    firstPacket = true;
+                    clearTimeout(bleTimeout);
+                    updateEsp32UIState(ESP32_STATE.CONNECTED_VERIFIED);
+                  }
+                  const p = {
+                    is_valid: true,
+                    t_ms: performance.now(),
+                    seq: livePacketCount + 1,
+                    status_flags: 0,
+                    channels: {
+                      RUA_Ax: vals[0], RUA_Ay: vals[1], RUA_Az: vals[2],
+                      RUA_Gx: vals[3], RUA_Gy: vals[4], RUA_Gz: vals[5],
+                      RLA_Ax: vals[6], RLA_Ay: vals[7], RLA_Az: vals[8],
+                      RLA_Gx: vals[9], RLA_Gy: vals[10], RLA_Gz: vals[11],
+                    },
+                  };
+                  processIncomingPacket(p);
+                }
+              }
+            }
+          }
+        }
+      } catch (pktErr) {
+        console.error("BLE notification processing error:", pktErr);
+      }
+    });
+
     const bleTimeout = setTimeout(() => {
       if (!firstPacket && esp32State === ESP32_STATE.AWAITING) {
-        updateEsp32UIState(ESP32_STATE.FAILED, "BLE Handshake timeout: No notifications received.");
+        updateEsp32UIState(ESP32_STATE.FAILED, "BLE Handshake timeout: Connected, but no sensor packets received. Verify ESP32 is powered and sensors initialized.");
         disconnectEsp32Device();
       }
-    }, 4000);
+    }, 10000);
 
     await characteristic.startNotifications();
     startKeepaliveMonitor();
-
-    characteristic.addEventListener("characteristicvaluechanged", (event) => {
-      const dataView = event.target.value;
-      if (dataView.byteLength === 64) {
-        const u8 = new Uint8Array(dataView.buffer);
-        const parsed = parseBinarySensorPacket(u8);
-        if (parsed && parsed.is_valid) {
-          firstPacket = true;
-          clearTimeout(bleTimeout);
-          processIncomingPacket(parsed);
-        }
-      }
-    });
   } catch (err) {
     console.error("BLE connection error:", err);
-    if (err.name === "NotFoundError") {
+    if (err.name === "NotFoundError" && (err.message || "").toLowerCase().includes("user")) {
       updateEsp32UIState(ESP32_STATE.DISCONNECTED, "Device selection cancelled by user.");
     } else {
-      updateEsp32UIState(ESP32_STATE.FAILED, err.message || "Failed to connect via BLE.");
+      const errMsg = `${err.name || "Error"}: ${err.message || "Failed to connect via BLE"}`;
+      updateEsp32UIState(ESP32_STATE.FAILED, errMsg);
+      alert(`BLE Connection Failed!\n\nDiagnostic Details: ${errMsg}\n\nPossible causes:\n1. The ESP32 needs to be reflashed with firmware/esp32_dual_imu/esp32_dual_imu.ino.\n2. In Chrome, clear stale devices at chrome://settings/content/bluetoothDevices.\n3. Press the EN / RST button on your ESP32.`);
     }
   }
 }
+
 
 function parseBinarySensorPacket(bytes) {
   if (bytes.length !== 64) return null;
@@ -1968,23 +2160,27 @@ function processIncomingPacket(packet) {
     }
   }
 
-  // Append to Scope Buffer
+  // Append to Scope Buffer (All 12 channels)
   scopeBuffer.t.push(livePacketCount);
   scopeBuffer.rua_ax.push(ch.RUA_Ax);
   scopeBuffer.rua_ay.push(ch.RUA_Ay);
   scopeBuffer.rua_az.push(ch.RUA_Az);
+  scopeBuffer.rua_gx.push(ch.RUA_Gx);
+  scopeBuffer.rua_gy.push(ch.RUA_Gy);
+  scopeBuffer.rua_gz.push(ch.RUA_Gz);
   scopeBuffer.rla_ax.push(ch.RLA_Ax);
   scopeBuffer.rla_ay.push(ch.RLA_Ay);
   scopeBuffer.rla_az.push(ch.RLA_Az);
+  scopeBuffer.rla_gx.push(ch.RLA_Gx);
+  scopeBuffer.rla_gy.push(ch.RLA_Gy);
+  scopeBuffer.rla_gz.push(ch.RLA_Gz);
 
   if (scopeBuffer.t.length > SCOPE_BUFFER_LEN) {
     scopeBuffer.t.shift();
-    scopeBuffer.rua_ax.shift();
-    scopeBuffer.rua_ay.shift();
-    scopeBuffer.rua_az.shift();
-    scopeBuffer.rla_ax.shift();
-    scopeBuffer.rla_ay.shift();
-    scopeBuffer.rla_az.shift();
+    scopeBuffer.rua_ax.shift(); scopeBuffer.rua_ay.shift(); scopeBuffer.rua_az.shift();
+    scopeBuffer.rua_gx.shift(); scopeBuffer.rua_gy.shift(); scopeBuffer.rua_gz.shift();
+    scopeBuffer.rla_ax.shift(); scopeBuffer.rla_ay.shift(); scopeBuffer.rla_az.shift();
+    scopeBuffer.rla_gx.shift(); scopeBuffer.rla_gy.shift(); scopeBuffer.rla_gz.shift();
   }
 
   // Draw Live Scope at throttled 30 fps
@@ -1994,19 +2190,35 @@ function processIncomingPacket(packet) {
 }
 
 function drawLiveScope() {
-  const canvas = document.getElementById("canvas-esp32-scope");
-  if (!canvas || scopeBuffer.t.length < 2) return;
+  const canvasAcc = document.getElementById("canvas-esp32-scope");
+  const canvasGyr = document.getElementById("canvas-esp32-scope-gyr");
+  if (scopeBuffer.t.length < 2) return;
 
-  const series = [
-    { label: "RUA Acc X", values: scopeBuffer.rua_ax, color: "#ef4444", lineWidth: 1.5 },
-    { label: "RUA Acc Y", values: scopeBuffer.rua_ay, color: "#10b981", lineWidth: 1.5 },
-    { label: "RUA Acc Z", values: scopeBuffer.rua_az, color: "#3b82f6", lineWidth: 1.5 },
-    { label: "RLA Acc X", values: scopeBuffer.rla_ax, color: "#f97316", lineWidth: 1.5 },
-    { label: "RLA Acc Y", values: scopeBuffer.rla_ay, color: "#8b5cf6", lineWidth: 1.5 },
-    { label: "RLA Acc Z", values: scopeBuffer.rla_az, color: "#06b6d4", lineWidth: 1.5 },
-  ];
+  // 1. Draw Linear Acceleration Scope (m/s²) - 6 Channels
+  if (canvasAcc) {
+    const accSeries = [
+      { label: "RUA Acc X", values: scopeBuffer.rua_ax, color: "#ef4444", lineWidth: 1.5 },
+      { label: "RUA Acc Y", values: scopeBuffer.rua_ay, color: "#10b981", lineWidth: 1.5 },
+      { label: "RUA Acc Z", values: scopeBuffer.rua_az, color: "#3b82f6", lineWidth: 1.5 },
+      { label: "RLA Acc X", values: scopeBuffer.rla_ax, color: "#f97316", lineWidth: 1.5 },
+      { label: "RLA Acc Y", values: scopeBuffer.rla_ay, color: "#8b5cf6", lineWidth: 1.5 },
+      { label: "RLA Acc Z", values: scopeBuffer.rla_az, color: "#06b6d4", lineWidth: 1.5 },
+    ];
+    drawMultiLineChart(canvasAcc, scopeBuffer.t, accSeries, "Frame #", "Acceleration (m/s²)");
+  }
 
-  drawMultiLineChart(canvas, scopeBuffer.t, series, "Frame #", "Acceleration (m/s²)");
+  // 2. Draw Angular Velocity Scope (rad/s) - 6 Channels
+  if (canvasGyr) {
+    const gyrSeries = [
+      { label: "RUA Gyr X", values: scopeBuffer.rua_gx, color: "#ef4444", lineWidth: 1.5 },
+      { label: "RUA Gyr Y", values: scopeBuffer.rua_gy, color: "#10b981", lineWidth: 1.5 },
+      { label: "RUA Gyr Z", values: scopeBuffer.rua_gz, color: "#3b82f6", lineWidth: 1.5 },
+      { label: "RLA Gyr X", values: scopeBuffer.rla_gx, color: "#f97316", lineWidth: 1.5 },
+      { label: "RLA Gyr Y", values: scopeBuffer.rla_gy, color: "#8b5cf6", lineWidth: 1.5 },
+      { label: "RLA Gyr Z", values: scopeBuffer.rla_gz, color: "#06b6d4", lineWidth: 1.5 },
+    ];
+    drawMultiLineChart(canvasGyr, scopeBuffer.t, gyrSeries, "Frame #", "Angular Velocity (rad/s)");
+  }
 }
 
 function startKeepaliveMonitor() {
@@ -2033,6 +2245,7 @@ function handleTransportClosed(reason) {
 }
 
 async function disconnectEsp32Device() {
+  resetScopeBuffer();
   if (simIntervalTimer) {
     clearInterval(simIntervalTimer);
     simIntervalTimer = null;
@@ -2197,7 +2410,7 @@ async function analyzeRecordedLiveStream() {
 
     const res = await r.json();
     renderAnalysisResults(res);
-    updateStatus(`Analysis complete for live recording (${recordedPacketRows.length} frames).`);
+    updateStatus(`Analysis complete! Processed ${recordedPacketRows.length} frames (${(recordedPacketRows.length / 100).toFixed(1)}s at 100 Hz).`);
 
     // Smoothly scroll down to Section 3: Joint Motion Estimation
     const sec3 = document.getElementById("sec-3-joint-motion");

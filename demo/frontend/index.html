@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Elbow Rehabilitation Assistant — Comprehensive Clinical Dashboard</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="/static/styles.css?v=20261021v3" />
 </head>
 <body>
   <!-- Academic Header -->
@@ -76,7 +76,7 @@
             Connect ESP32 (Web Serial / USB)
           </button>
           <button type="button" id="btn-esp32-connect-ble" class="btn-primary" style="background:#0284c7;">
-            Connect ESP32 (Web Bluetooth)
+            Connect ESP32 (BLE - Wireless)
           </button>
           <button type="button" id="btn-esp32-disconnect" class="btn-secondary" style="color:#b91c1c; border-color:#fca5a5;" disabled>
             Disconnect
@@ -119,10 +119,49 @@
           </div>
         </div>
 
-        <!-- Live Oscilloscope -->
-        <div class="chart-box" style="margin-top:0.85rem;">
-          <h4>Live 12-Channel Oscilloscope</h4>
-          <canvas id="canvas-esp32-scope" width="1200" height="160"></canvas>
+        <!-- Live Dual-Scope 12-Channel Vertical Stack (Acc Above, Gyr Below) -->
+        <div class="signals-vertical" style="margin-top:0.85rem; display:flex; flex-direction:column; gap:0.85rem;">
+          <div class="chart-box" style="width:100%;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <h4 style="margin:0; font-size:0.92rem; color:#1e3a8a; font-weight:700;">
+                1. Tri-Axial Linear Acceleration Scope (m/s²) — 6 Channels (RUA &amp; RLA)
+              </h4>
+              <span style="font-size:0.75rem; color:#64748b; font-weight:600;">Upper Arm + Forearm Linear Acceleration</span>
+            </div>
+            <canvas id="canvas-esp32-scope" width="1100" height="165" style="width:100%; height:165px; display:block;"></canvas>
+          </div>
+          <div class="chart-box" style="width:100%;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <h4 style="margin:0; font-size:0.92rem; color:#1e3a8a; font-weight:700;">
+                2. Tri-Axial Angular Velocity Scope (rad/s) — 6 Channels (RUA &amp; RLA)
+              </h4>
+              <span style="font-size:0.75rem; color:#64748b; font-weight:600;">Upper Arm + Forearm Rotational Velocity</span>
+            </div>
+            <canvas id="canvas-esp32-scope-gyr" width="1100" height="165" style="width:100%; height:165px; display:block;"></canvas>
+          </div>
+        </div>
+
+        <!-- Action Bar: Save to Patient History directly below Live Oscilloscope -->
+        <div class="action-bar" style="margin-top:0.75rem; padding-top:0.6rem; border-top:1px solid var(--border); display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+          <button type="button" id="btn-toggle-save-session" class="btn-secondary" style="border-color:#1e40af; color:#1e40af; font-weight:700;">
+            Save to Patient History
+          </button>
+          <span id="analysis-spinner" class="spinner hidden"></span>
+          <span id="analysis-status-text" class="status-text">Analysis complete! Processed 1000 frames (10s at 100 Hz).</span>
+        </div>
+
+        <div id="save-session-bar" class="hidden" style="margin-top:0.65rem; padding:0.65rem 0.85rem; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:0.82rem; font-weight:700; color:#1e3a8a;">Participant ID:</span>
+          <input type="text" id="input-session-patient-id" value="P012" placeholder="e.g. P012 or SUBJ05" style="padding:0.35rem 0.5rem; font-size:0.82rem; border:1px solid #93c5fd; border-radius:4px; width:130px;" />
+          <span style="font-size:0.82rem; font-weight:700; color:#1e3a8a;">Clinical Notes:</span>
+          <input type="text" id="input-session-notes" placeholder="Session observations, pain level, or assistance..." style="padding:0.35rem 0.5rem; font-size:0.82rem; border:1px solid #93c5fd; border-radius:4px; flex-grow:1; min-width:180px;" />
+          <button type="button" id="btn-confirm-save-session" class="btn-primary" style="padding:0.35rem 0.75rem; font-size:0.8rem;">
+            Confirm &amp; Log Session
+          </button>
+          <button type="button" id="btn-cancel-save-session" class="btn-secondary" style="padding:0.35rem 0.6rem; font-size:0.8rem;">
+            Cancel
+          </button>
+          <span id="save-session-feedback" style="font-size:0.82rem; font-weight:700; color:#15803d; margin-left:0.5rem;"></span>
         </div>
       </div>
 
@@ -157,25 +196,6 @@
           <button type="button" id="btn-download-sample" class="btn-secondary">
             Download Current Sample CSV
           </button>
-          <button type="button" id="btn-toggle-save-session" class="btn-secondary" style="border-color:#1e40af; color:#1e40af; font-weight:700;">
-            Save to Patient History
-          </button>
-          <span id="analysis-spinner" class="spinner hidden"></span>
-          <span id="analysis-status-text" class="status-text">Ready. Select a sample and click Run Complete Analysis.</span>
-        </div>
-
-        <div id="save-session-bar" class="hidden" style="margin-top:0.75rem; padding:0.65rem 0.85rem; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
-          <span style="font-size:0.82rem; font-weight:700; color:#1e3a8a;">Participant ID:</span>
-          <input type="text" id="input-session-patient-id" value="P012" placeholder="e.g. P012 or SUBJ05" style="padding:0.35rem 0.5rem; font-size:0.82rem; border:1px solid #93c5fd; border-radius:4px; width:130px;" />
-          <span style="font-size:0.82rem; font-weight:700; color:#1e3a8a;">Clinical Notes:</span>
-          <input type="text" id="input-session-notes" placeholder="Session observations, pain level, or assistance..." style="padding:0.35rem 0.5rem; font-size:0.82rem; border:1px solid #93c5fd; border-radius:4px; flex-grow:1; min-width:180px;" />
-          <button type="button" id="btn-confirm-save-session" class="btn-primary" style="padding:0.35rem 0.75rem; font-size:0.8rem;">
-            Confirm &amp; Log Session
-          </button>
-          <button type="button" id="btn-cancel-save-session" class="btn-secondary" style="padding:0.35rem 0.6rem; font-size:0.8rem;">
-            Cancel
-          </button>
-          <span id="save-session-feedback" style="font-size:0.82rem; font-weight:700; color:#15803d; margin-left:0.5rem;"></span>
         </div>
       </div>
     </section>
@@ -610,6 +630,6 @@
     </div>
   </footer>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=20261021v3"></script>
 </body>
 </html>
